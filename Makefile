@@ -14,7 +14,7 @@ driver:
 	zcc +cpm -O3 -vn -s -m --list -c wizchip_conf.c 
 	zcc +cpm -O3 -vn -s -m --list -c ftp.c 
 	zcc +cpm -O3 -vn -s -m --list -c telnet_client.c 
-	zcc +cpm -O3 -vn -s -m --list -c htget.c 
+	zcc +cpm -O3 -vn -s -m --list -DNOTIME -c htget.c 
 	zcc +cpm -O3 -vn -s -m --list -c get.c 
 	zcc +cpm -O3 -vn -s -m --list -c time.c 
 	zcc +cpm -O3 -vn -s -m --list -c ntp.c 
