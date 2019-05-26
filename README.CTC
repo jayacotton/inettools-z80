@@ -1,0 +1,11 @@
+The counter/timer code needs the following things to be in place before it will
+work correctly.
+
+
+1.  See interrupt.pdf for a schematic of the added interrupt circuit.
+2.  You need a CTC board.  I'm using the Stephen Cousins board. https://www.tindie.com/products/tindiescx/sc102-z80-ctc-module-kit-for-rc2014/ 
+I am running this board at address 0xa0.
+
+3.  You will need CBIOS v2.9.1-pre.0 [WBW] of the RomWBW code.  This code is known to run in IM 1.
+
+

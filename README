@@ -1,0 +1,84 @@
+Here are the first hacks at getting some inet like tools running on
+CP/M.
+
+I am using (borrowing/stealing) code from several places.  See source for details.
+
+A lot of hacking went into getting the code to run.  Probably some self inflicted
+injuries along the way.
+
+The programs of interest are linked by the Make file.
+
+I am using z88dk and the tool chain.
+
+You will need to hunt down and change the mac address in every file
+you can find and in some cases a hard coded ip address.
+I will get around to fixing this at a latter date.  
+
+make clean; make ; make install  Gets the programs to build
+and copies them to /var/www/html/
+
+With this and apache2 you can get wget running from your 
+CP/M machine.  
+
+Programs in this build,  Note:  these don't work like there unix 
+big brothers.  
+
+	DIG.COM
+		C>dig www.google.com                                                            
+		WWW.GOOGLE.COM :172.217.6.36     
+	IFCONFIG.COM
+		C>ifconfig                                                                      
+		inet 192.168.1.129 netmask 255.255.255.0                                        
+		ether 98.76.b6.11.00.c4      
+	MYGET.COM
+		c>myget <filename>
+		this will copy a file from your local http server at a
+		hard coded address.  (you will need to change the address
+		for your network).
+	PING.COM
+		C>ping www.nasa.gov                                                             
+		------------PING_TEST_START-----------------------                              
+		Send Ping Request to Destination (13.35.125.62 ) ID:1234  SeqNum:4321 CheckSum:a
+		Reply from 13.35.125.62  ID:1234 SeqNum:4321  :data size 52 bytes               
+                                                                                
+		Send Ping Request to Destination (13.35.125.62 ) ID:1235  SeqNum:4322 CheckSum:8
+		Reply from 13.35.125.62  ID:1235 SeqNum:4322  :data size 52 bytes               
+                                                                                
+		Send Ping Request to Destination (13.35.125.62 ) ID:1236  SeqNum:4323 CheckSum:6
+		Reply from 13.35.125.62  ID:1236 SeqNum:4323  :data size 52 bytes               
+                                                                                
+		-----------PING TEST OK----------                                               
+	TELNET.COM
+		c>telnet <server name/inet address>
+			bla bla bla
+		exit (assumes your server does shell exit)
+	WGET.COM
+		c> wget http://<url or inet address> filename
+		copies a file from the server to your CP/M box.
+
+All of these programs are a bit shaky or just plain buggy.  
+
+The socket libraries are kinda broken.  If you are used to BSD sockets you will get into 
+trouble real fast.  I am thinking about fixing some of the more obvious bugs and mistakes
+...maybe next month...  The main reason to fix these libs, is it then gets easier to port
+code to CP/M.
+
+WRT the h/w.
+
+I coded all this to run with my bit banger SPI bus card and an Adafruit wiznet w5500 
+ethernet board.  I am planning to build up a h/w SPI board soon, and will make a unified
+driver for both cards.  If I can figure out how to do it (correctly) I will be able to
+run the programs on ether SPI card with no modification (recompile) needed.  That would
+be very nice to do.
+
+Work to be done:
+
+Fix the socket library.
+Get some kind of timer code running with the ctc board.
+Figure out a good select method.
+Unified SPI driver.
+Try to get the w5500 driver to work with the w5100 chip.  (it should but wont).
+
+
+
+
