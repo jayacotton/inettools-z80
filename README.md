@@ -30,3 +30,16 @@ out of band condition turns up.  Most often with the DHCP server gets tired of t
 
 Also the code it very large, most of the programs are 30 to 45 kb, which is huge on a z80.  I have not attempted to 
 reduce the foot print of the code yet.
+
+To build the code you need z88dk installed, you will also need doxygen to produce the documentation files and for
+the CTC nacent timer code you need macro see https://sourceforge.net/projects/mac32/ and https://sourceforge.net/projects/asm8080/
+
+If you don't want to mess with the CTC code, just hack out the macro and asm8080 lines in the Makefile.
+
+A note:  MYGET.COM needs a configureation file on the cp/m disk called MYGET.CFG.  It has the ip address of the
+http host you are using for uploading (downloading) ... loading your code onto the cp/m disk.  
+
+To make that work, you need to install an http server on your host machine, and populate the source directory with
+files to transfer...  
+
+Make commands are:  make clean, make, make install, make documents, make ship
