@@ -421,9 +421,11 @@ things can get sideways */
 		exit(1);
 #endif
 	    }
+		printf(".");
 	}
     }
   close (of);
+  printf("\n");
   sock_close (sock);
 // stats
 #ifndef NOTIME
