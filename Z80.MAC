@@ -1,0 +1,9 @@
+; z80 instruction macros
+	macro	RETI
+%lab	RETI
+	aif	('%lab' eq '')&nolab
+%lab	equ	$
+&nolab	anop
+	db	0edh,07dh
+	mend
+
