@@ -14,14 +14,15 @@ date: This reads the date and time from the RTC.
 In addition to these programs there are a few test programs, best to ignore them for now.
 
 Things that need work.  I am integrating the CTC timer into some of this code to allow dead connection timeouts
-and also measuring connection performance.  Also, the http server code is flat busted just now, and need a lot
+and also measuring connection performance.  Also, the http server code is flat busted just now, and needs a lot
 of time.
 
-All of this code runs on the RC2014 WIZNET V1 board from Mark T.  You can find info on this and many other exciting
-retro computing boards at google group RC2014-Z80.  You can find h/w at tindie.com search for rc2014.  Useing the
-RomWbW code see https://github.com/wwarthen/RomWBW for more info on this.
+All of this code runs on the RC2014 WIZNET V1 https://github.com/markt4311/MT011 board from Mark T.  
+You can find info on this and many other exciting
+retro computing boards at google group RC2014-Z80.  You can find h/w at tindie.com search for rc2014, or www.rc2014.co.uk.
+Using the RomWbW code see https://github.com/wwarthen/RomWBW for more info on this.
 
-The code it build using the z88dk tool chain, see z88dk.org for more info on the tool chain.
+The code is built using the z88dk tool chain, see z88dk.org for more info on the tool chain.
 
 All of this work has been conducted on linux ubuntu v18.
 
@@ -32,7 +33,7 @@ Also the code it very large, most of the programs are 30 to 45 kb, which is huge
 reduce the foot print of the code yet.
 
 To build the code you need z88dk installed, you will also need doxygen to produce the documentation files and for
-the CTC nacent timer code you need macro see https://sourceforge.net/projects/mac32/ and https://sourceforge.net/projects/asm8080/
+the CTC nacent timer code you need macro see my macro github project  and my 8080 assembler github project.
 
 If you don't want to mess with the CTC code, just hack out the macro and asm8080 lines in the Makefile.
 
