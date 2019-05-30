@@ -106,7 +106,7 @@ TRACE("");
         printf ("Bit Banger SPI bus V1.0\n");
 	}
   else if (spi_unit == SHIFTOUT){
-        printf ("Shift Register SPI v2.0\n");
+        printf ("Shift Register SPI Wiznet v1.0\n");
 	shift_wrtr_ 	= _shift_wrtr;
 	shift_rdtr_ 	= _shift_rdtr;
 	shift_rdntr_ 	= _shift_rdntr;
