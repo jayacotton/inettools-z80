@@ -49,6 +49,7 @@
 //
 //*****************************************************************************
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -141,22 +142,28 @@ struct driver_head *head;
 
 uint16_t *lnk;
 uint16_t *Pbdos;
+uint8_t *lf;
+uint8_t *lm;
 
 uint8_t
 loader (uint8_t * file_name, uint8_t * desc)
 {
   int rz;
-	Pbdos = 6;
-  driv = fopen (file_name, "r");
+	lf = file_name;
+	lm = desc;
+  Pbdos = (uint16_t *)6;
+printf("Open %s\n",lf);
+  driv = fopen (lf, "r");
   if (driv == 0)
     {
-      printf ("Can't open file %s\n", file_name);
+      printf ("Can't open file %s\n", lf);
       return 0;
     }
-  printf ("Loading: %s\n", desc);
+  printf ("Loading: %s\n", lm);
+return 0;
   hextobin ((void *) &Head, driv);
   head = (struct driver_head *) Head.dest_addr;
-  lnk = (uint16_t)head->link;
+  lnk = (uint16_t *) head->link;
   printf ("Target Addr 0x%04x, size %d\n", Head.dest_addr, Head.size);
 
 // load the data into memory
@@ -169,9 +176,9 @@ loader (uint8_t * file_name, uint8_t * desc)
   fclose (driv);
 // final step, rewire the bdos pointer to protect the driver.
 
-printf("0x%04x 0x%04x 0x%04x\n",lnk,Pbdos,head);
-	*lnk = *Pbdos;
-	*Pbdos = *head;
+  printf ("0x%04x 0x%04x 0x%04x\n", lnk, Pbdos, head);
+  *lnk = *Pbdos;
+  *Pbdos = *head;
   return 1;
 }
 

@@ -68,6 +68,7 @@
 //*****************************************************************************
 
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "time.h"
@@ -317,13 +318,16 @@ void Set_Vector(int index,uint16_t *serv)
 }
 extern struct driver_head *head;
 extern struct driver_file Head;
+char *f = "CTCINT.HEX";
+char *m = "Loadable CTC interupt handler";
 void	ctc_swapaddr()
 {
 #ifdef LOADER
-	if(!loader("CTCINT.HEX","Loadable CTC interrupt handler"))
+	if(!loader(f,m))
 		ctc_exit();
 	Set_Vector(2,GetServ());	// fix this real soon
 	counter = GetCount();
+	head->chain = (void *)chain;
         callback0 = (struct callback *)head->p0;
         callback1 = (struct callback *)head->p1;
         callback2 = (struct callback *)head->p2;
@@ -368,7 +372,6 @@ void ctc_arm()
 }
 
 /* initialize the ctc chip to generate 50hz interrupts */
-uint16_t *adr;
 void ctc_init()
 {
 	ctc_swapaddr();	
