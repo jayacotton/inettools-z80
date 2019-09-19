@@ -4,7 +4,7 @@ Inet tools for z80-rc2014 tcp/ip stack code.
 This code is based on software for the W5500 chip.  The code includes the following programs:
 
 ifconfig:  this is the poor mans version,  It has no options and shows your ip address and a few other parameters.
-ping:  this is about a simple a ping as you can get.  There are to time values for round trip times.
+ping:  this is about a simple a ping as you can get.  There are no time values for round trip times.
 telnet:  This is a terminal program to talking to a host machine.
 dig: This is a really simple version of dig, it reports a single ip address for remote host.
 wget:  This will allow cp/m users to load programs onto there CF card etc using http protocol.
