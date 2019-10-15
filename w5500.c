@@ -155,7 +155,7 @@ WIZCHIP_READ (uint32_t AddrSel)
 
   TRACE ("->WIZCHIP_READ");
 
-  CSoff ();
+  CSEther ();
 
   AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
 
@@ -164,7 +164,7 @@ WIZCHIP_READ (uint32_t AddrSel)
   SpiSendData ((AddrSel & 0x000000FF) >> 0);
   ret = SpiRecvData ();
 
-  CSon ();
+  CSoff ();
   TRACE ("<-WIZCHIP_READ");
   return ret;
 }
@@ -173,7 +173,7 @@ void
 WIZCHIP_WRITE (uint32_t AddrSel, unsigned char wb)
 {
 
-  CSoff ();
+  CSEther ();
 
   AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
 
@@ -182,7 +182,7 @@ WIZCHIP_WRITE (uint32_t AddrSel, unsigned char wb)
   SpiSendData ((AddrSel & 0x000000FF) >> 0);
   SpiSendData (wb);
 
-  CSon ();
+  CSoff ();
 }
 
 void
@@ -192,7 +192,7 @@ WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
   uint8_t *p;
   uint16_t rs;
 
-  CSoff ();
+  CSEther ();
 
   AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
 
@@ -219,7 +219,7 @@ WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
   for (i = 0; i < len; i++)
     pBuf[i] = SpiRecvData ();
 #endif
-  CSon ();
+  CSoff ();
 }
 
 void
@@ -227,7 +227,7 @@ WIZCHIP_WRITE_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
 {
   uint16_t i;
 
-  CSoff ();
+  CSEther ();
 
   AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
 
@@ -237,7 +237,7 @@ WIZCHIP_WRITE_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
   for (i = 0; i < len; i++)
     SpiSendData (pBuf[i]);
 
-  CSon ();
+  CSoff ();
 }
 
 

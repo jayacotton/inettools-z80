@@ -122,76 +122,41 @@ TRACE("");
     {
       spi_data_bit = 0;
       spi_sclk (0);
-      spi_select (3);
+	CSoff();
     }else{
-#asm
-	ld	a,(_shift_ctrl_wr_)
-	ld	c,a
-	ld	a,1
-	out	(c),a
-#endasm
+	CSoff();
      }
 }
 
+//! spi_select is has been rewritten to take advantage of the
+//! h/w shift out select logic. 
 //! spi_select, is called to set the CS bit for the desired bus.
 //! It is called by the user level code, and internally.  The
 //! code assumes that SPI bus 3 (the forth bus) is not connected
 //! to a device.  The support code at the user level uses a
 //! macro to turn the select on and off.
+unsigned char cvtr[5] = { 0,1,ENETCS0,SDCS1,PARK};
+unsigned char cvtr_res;
 void
 spi_select (unsigned char channel)
 {
-// fix swapped data bits
-  if (spi_unit == BITBANGOR)
-    {
-      if (channel == 1)
-	channel = 2;
-      else if (channel == 2)
-	channel = 1;
-      spi_channel = channel;
-#asm
-	ld	a,(__spi_sel)
-	ld	c,a
-      ld a, (_spi_channel) 
-      out (c), a
-#endasm
-        spi_channel = channel;
-    }
+TRACE("");
+  if (spi_unit == BITBANGOR){
+  }
   else if(spi_unit == SHIFTOUT) // shift register 
-    {
-	if(channel == 1) channel = 0;	/* code assumes 1 */
+  {
 	spi_channel = channel;
-      if (channel == 0)
+	cvtr_res = cvtr[channel];
+#ifdef DEBUG
+printf("select channel %d with 0x%x\n",channel,cvtr_res);
+#endif
 #asm
 	ld	a,(_shift_ctrl_wr_)
 	ld	c,a
-	ld a, 08h 	; cs 0
-	out (c), a
-#endasm
-      else if (channel == 1)
-#asm
-	ld	a,(_shift_ctrl_wr_)
-	ld	c,a
-	ld a, 010h 
-	out (c), a
-#endasm
-      else if (channel == 2)
-#asm
-	ld	a,(_shift_ctrl_wr_)
-	ld	c,a
-	ld a, 020h 
-	out (c), a
-#endasm
-	else
-	{
-#asm
-	ld	a,(_shift_ctrl_wr_)
-	ld	c,a
-	ld a,1h 	; back to idle state
-	out (c), a
-#endasm
-	}
-    }else
+	ld	a,(_cvtr_res)
+	out	(c),a	
+#endasm	
+  }else
 	printf("Must call spi_init() first\n");
 }
 
@@ -273,8 +238,8 @@ unsigned char byte_in;
 unsigned char bit;
 unsigned char lbyte_out;
 int i;
-uint8_t l_len;
-uint8_t *l_buffer;
+unsigned char l_len;
+unsigned char *l_buffer;
 /* from spi spec wiki page */
 
 //! spi_byte_io, is called by the user level code to read and write
@@ -284,7 +249,7 @@ uint8_t *l_buffer;
 //! read spi buss in burst mode.  Note: we can only read
 //! 256 bytes, so return 256 or less bytes read.
 
-uint16_t spi_burst_read(uint8_t *buffer, uint16_t len)
+unsigned int spi_burst_read(unsigned char *buffer, unsigned int len)
 {
 	l_buffer = buffer;
 	if(len > 256){
@@ -307,12 +272,6 @@ spi_byte_io (unsigned char byte_out)
   	lbyte_out = byte_out;
   if(spi_unit == SHIFTOUT){
 #asm
-;	ld	a,(_shift_wrtr_)
-;	ld	c,a
-;	ld	a,(_lbyte_out)
-;	out	(c),a
-;	in	a,(c)
-;	ld	(_byte_in),a
 	di	
 	ld	a,(_lbyte_out)
 	out	(_shift_wrtr),a

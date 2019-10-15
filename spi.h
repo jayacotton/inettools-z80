@@ -117,18 +117,26 @@ extern void spi_write(unsigned char * ,int);
 extern void spi_read(unsigned char *, int);
 extern unsigned short spi_burst_read(unsigned char *, unsigned short);
 
-#define spi_exchange(val) spi_byte_io(val);
-
+#define SDChannel		3
+#define ENETChannel		2
+#define IDELChannel		4
+#define SDCS1			0x10
+#define ENETCS0			0x8
+#define	PARK			0x20
+#define spi_exchange(val) 	spi_byte_io(val);
 #define IINCHIP_SpiInit()	spi_init();
-#define SpiInit()	spi_init();
-#define IINCHIP_CSoff()		spi_select(1);
-#define CSoff()		spi_select(1);
+#define SpiInit()		spi_init();
+//#define IINCHIP_CSoff()		spi_select(1);
 #define IINCHIP_SpiSendData(val) spi_byte_io(val);
-#define SpiSendData(val) spi_byte_io(val);
-#define IINCHIP_CSon()		spi_select(3);
-#define CSon()		spi_select(3);
+#define SpiSendData(val) 	spi_byte_io(val);
+//#define IINCHIP_CSon()		spi_select(2);
+//#define CSon()			spi_select(2);
+#define CSoff()			spi_select(IDELChannel);
+#define CSEther()		spi_select(ENETChannel);
+#define CSSD()			spi_select(SDChannel);
+
 #define IINCHIP_SpiRecvData()	spi_byte_io(0xff);
-#define SpiRecvData()	spi_byte_io(0xff);
+#define SpiRecvData()		spi_byte_io(0xff);
 
 #define spi_start(i) 
 #define spi_stop() 
