@@ -380,6 +380,6 @@ void ctc_init()
 	ctc_1 = _CTC_1;
 	ctc_2 = _CTC_2;
 	ctc_3 = _CTC_3;
-	ctc_arm();
+//	ctc_arm();
 }
 

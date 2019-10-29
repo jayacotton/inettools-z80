@@ -23,7 +23,7 @@ they will be compiled out of the code stream.
 
 */
 
-int snap(int *, int *, int, int, char *);
+int snapmem(int *, int *, int, int, char *);
 
 #ifdef DEBUG
 #define SNAP(addr,size,flag) { char snapbuff[50]; \

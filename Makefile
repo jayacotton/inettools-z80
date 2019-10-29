@@ -18,7 +18,6 @@ driver:
 	zcc +cpm -O3 --list --c-code-in-asm -c get.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c time.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c ntp.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c rtci2c.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c ntplib.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c date.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c httpServer.c 
@@ -29,8 +28,8 @@ driver:
 	zcc +cpm -create-app -oping ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -otelnet telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -omyget get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	zcc +cpm -create-app -ontp ntp.o rtci2c.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.o
-	zcc +cpm -create-app -odate date.o rtci2c.o  spi.o
+	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
+	zcc +cpm -create-app -odate date.o 
 	zcc +cpm -create-app -ohttps httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -owget -DLOADER htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o ctcdriver.c time.o loader.o snaplib.o
 	zcc +cpm -create-app -DCLOCK -DLOADER -cclock ctcdriver.c time.o ntplib.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o loader.o snaplib.o

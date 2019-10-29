@@ -67,8 +67,11 @@ m2end	shld	counter
 	pop	bc
 	pop	de
 	pop	hl	
-	ei
-	RETI
+	xra	a
+	lhld	chain
+	pchl
+;	ei
+;	RETI
 timeup  mov     a,m
         cpi      2               ; _ONESHOT
         jnz	skip3

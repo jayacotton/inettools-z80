@@ -1,13 +1,16 @@
-#include "w5500.h"
-#include "spi.h"
 #include <stdio.h>
 
+b(char * m)
+{
+	printf("%s",m);
+}
+a(char * m)
+{
+	printf("%s",m);
+	b(m);
+}
 main ()
 {
-  int i;
-  spi_init ();
-	while(1)
-    {
-      getSn_SR (0);
-    }
+	printf("This is a message\n");
+	a("this is also a message\n");
 }

@@ -23,10 +23,11 @@
 wiz_NetInfo gWIZNETINFO;
 uint8_t run_user_applications;
 
-#define DATA_BUF_SIZE		2048
+#define DATA_BUF_SIZE	256	
 #define MAX_HTTPSOCK 6
 uint8_t socknumlist[] = { 2, 3, 4, 5, 6, 7 };
 
+uint8_t buffer[256];
 unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
 
 /*****************************************************************************
@@ -47,15 +48,9 @@ uint8_t *pHTTP_RX;
 volatile uint32_t httpServer_tick_1s = 0;
 st_http_socket HTTPSock_Status[_WIZCHIP_SOCK_NUM_] = { {STATE_HTTP_IDLE,}, };
 
-#ifdef	_USE_SDCARD_
-FIL fs;				// FatFs: File object
-FRESULT fr;			// FatFs: File function return code
-#endif
-#ifdef CPM
 FILE *file;
 uint8_t filename[14];
 uint8_t fr;
-#endif
 
 /*****************************************************************************
  * Private functions
@@ -104,19 +99,22 @@ httpServer_Sockinit (uint8_t cnt, uint8_t * socklist)
       HTTPSock_Num[i] = socklist[i];
     }
 }
+
 void
 main ()
 {
   int i;
 
-#ifdef NOTNOW
   TRACE ("");
-        i = ctc_vet(); /* turns out we don't care */
-        if(i  == CPM)printf("Running on CPM\n");
-        else           printf("Running on ZSDOS\n");
+#ifdef NOTNOW
+  i = ctc_vet ();		/* turns out we don't care */
+  if (i == CPM)
+    printf ("Running on CPM\n");
+  else
+    printf ("Running on ZSDOS\n");
 
-        ctc_init(); /* set up and start ctc timer */
-        time_init();    /* setup timer code */
+  ctc_init ();			/* set up and start ctc timer */
+  time_init ();			/* setup timer code */
 #endif
 
 
@@ -133,10 +131,12 @@ main ()
   Ethernet_localDNS (gWIZNETINFO.dns);
   TRACE ("");
   httpServer_init (TX_BUF, RX_BUF, MAX_HTTPSOCK, socknumlist);
-  while(1){
-	httpServer_run (0);
-	if(bdos(CPM_ICON,0)) exit(0);
-	}
+  while (1)
+    {
+      httpServer_run (0);
+      if (bdos (CPM_ICON, 0))
+	exit (0);
+    }
 }
 
 static uint8_t
@@ -204,7 +204,7 @@ httpServer_run (uint8_t seqnum)
   switch (getSn_SR (s))
     {
     case SOCK_ESTABLISHED:
-  TRACE ("");
+      TRACE ("");
       // Interrupt clear
       if (getSn_IR (s) & Sn_IR_CON)
 	{
@@ -216,22 +216,22 @@ httpServer_run (uint8_t seqnum)
 	{
 
 	case STATE_HTTP_IDLE:
-  TRACE ("");
+	  TRACE ("");
 	  if ((len = getSn_RX_RSR (s)) > 0)
 	    {
 	      if (len > DATA_BUF_SIZE)
 		len = DATA_BUF_SIZE;
 
-  TRACE ("");
+	      TRACE ("");
 	      if ((len = recv (s, (uint8_t *) http_request, len)) < 0)
 		break;		// Exception handler
 
-  TRACE ("");
+	      TRACE ("");
 	      //////////////////////////////////////////////////////////////////////////////
 	      // Todo; User defined custom command handler (userHandler.c)
 	      //ret = custom_command_handler ((uint8_t *) http_request);
 	      //////////////////////////////////////////////////////////////////////////////
-		ret = 0;
+	      ret = 0;
 	      if (ret > 0)	// Custom command handler
 		{
 		  // Todo: Users can change this parts for custom function added
@@ -243,7 +243,7 @@ httpServer_run (uint8_t seqnum)
 	      else		// HTTP process handler
 		{
 		  *(((uint8_t *) http_request) + len) = '\0';	// End of string (EOS) marker
-  TRACE ("");
+		  TRACE ("");
 		  parse_http_request (parsed_http_request,
 				      (uint8_t *) http_request);
 
@@ -263,7 +263,7 @@ httpServer_run (uint8_t seqnum)
 	case STATE_HTTP_RES_INPROC:
 	  /* Repeat: Send the remain parts of HTTP responses */
 	  // Repeatedly send remaining data to client
-  TRACE ("");
+	  TRACE ("");
 	  send_http_response_body (s, 0, http_response, 0, 0);
 
 	  if (HTTPSock_Status[seqnum].file_len == 0)
@@ -272,18 +272,13 @@ httpServer_run (uint8_t seqnum)
 
 	case STATE_HTTP_RES_DONE:
 	  // Socket file info structure re-initialize
-  TRACE ("");
+	  TRACE ("");
 	  HTTPSock_Status[seqnum].file_len = 0;
 	  HTTPSock_Status[seqnum].file_offset = 0;
 	  HTTPSock_Status[seqnum].file_start = 0;
 	  HTTPSock_Status[seqnum].sock_status = STATE_HTTP_IDLE;
 
-//#ifdef _USE_SDCARD_
-//                                      f_close(&fs);
-//#endif
-#ifdef CPM
-	fclose(file);
-#endif
+	  fclose (file);
 #ifdef _USE_WATCHDOG_
 	  HTTPServer_WDT_Reset ();
 #endif
@@ -291,13 +286,13 @@ httpServer_run (uint8_t seqnum)
 	  break;
 
 	default:
-  TRACE ("");
+	  TRACE ("");
 	  break;
 	}
       break;
 
     case SOCK_CLOSE_WAIT:
-  TRACE ("");
+      TRACE ("");
       // Socket file info structure re-initialize
       HTTPSock_Status[seqnum].file_len = 0;
       HTTPSock_Status[seqnum].file_offset = 0;
@@ -308,30 +303,30 @@ httpServer_run (uint8_t seqnum)
       break;
 
     case SOCK_INIT:
-  TRACE ("");
+      TRACE ("");
       listen (s);
       break;
 
     case SOCK_LISTEN:
-  TRACE ("");
+      TRACE ("");
       break;
 
     case SOCK_SYNSENT:
-  TRACE ("");
+      TRACE ("");
       //case SOCK_SYNSENT_M:
     case SOCK_SYNRECV:
-  TRACE ("");
+      TRACE ("");
       //case SOCK_SYNRECV_M:
       break;
 
     case SOCK_CLOSED:
-  TRACE ("");
+      TRACE ("");
       if (socket (s, Sn_MR_TCP, HTTP_SERVER_PORT, 0x00) == s)	/* Reinitialize the socket */
 	{
 	}
       break;
     default:
-  TRACE ("");
+      TRACE ("");
       break;
     }				// end of switch
 
@@ -350,7 +345,7 @@ send_http_response_header (uint8_t s, uint8_t content_type, uint32_t body_len,
   switch (http_status)
     {
     case STATUS_OK:		// HTTP/1.1 200 OK
-      if ((content_type != PTYPE_CGI) && (content_type != PTYPE_XML))	
+      if ((content_type != PTYPE_CGI) && (content_type != PTYPE_XML))
 	// CGI/XML type request does not respond HTTP header
 	{
 	  make_http_response_head ((char *) http_response, content_type,
@@ -385,14 +380,10 @@ send_http_response_body (uint8_t s, uint8_t * uri_name, uint8_t * buf,
 {
   int8_t get_seqnum;
   uint32_t send_len;
-uint8_t p;
+  uint8_t p;
   uint8_t flag_datasend_end = 0;
 
-#ifdef _USE_SDCARD_
-  uint16_t blocklen;
-#else
   uint32_t addr = 0;
-#endif
 
   if ((get_seqnum = getHTTPSequenceNum (s)) == -1)
     return;			// exception handling; invalid number
@@ -400,114 +391,43 @@ uint8_t p;
   // Send the HTTP Response 'body'; requested file
   if (!HTTPSock_Status[get_seqnum].file_len)	// ### Send HTTP response body: First part ###
     {
-      if (file_len > DATA_BUF_SIZE - 1)
-	{
-	  HTTPSock_Status[get_seqnum].file_start = start_addr;
-	  HTTPSock_Status[get_seqnum].file_len = file_len;
-	  send_len = DATA_BUF_SIZE - 1;
-
-	  memset (HTTPSock_Status[get_seqnum].file_name, 0x00,
-		  MAX_CONTENT_NAME_LEN);
-	  strcpy ((char *) HTTPSock_Status[get_seqnum].file_name,
-		  (char *) uri_name);
-	}
-      else
-	{
-	  // Send process end
-	  send_len = file_len;
-	}
-#ifdef _USE_FLASH_
-      addr = start_addr;
-#endif
+      // Send process end
+      send_len = file_len;
     }
   else				// ### Send HTTP response body: Remained parts ###
     {
-#ifdef _USE_FLASH_
-      addr =
-	HTTPSock_Status[get_seqnum].file_start +
-	HTTPSock_Status[get_seqnum].file_offset;
-#endif
-      send_len =
-	HTTPSock_Status[get_seqnum].file_len -
-	HTTPSock_Status[get_seqnum].file_offset;
-
-      if (send_len > DATA_BUF_SIZE - 1)
+      memset (filename, 0, 14);
+      strcat (filename, strupr (HTTPSock_Status[get_seqnum].file_name));
+      p = strlen (filename);
+      if (p)
 	{
-	  send_len = DATA_BUF_SIZE - 1;
-	  //HTTPSock_Status[get_seqnum].file_offset += send_len;
+	  filename[p - 1] = '\0';
 	}
-      else
+      printf ("name1 %s\n", filename);
+      if ((file = fopen ((const char *) filename, "r")))
 	{
-	  // Send process end
-	  flag_datasend_end = 1;
-	}
-
-// ## 20141219 Eric added, for 'File object structure' (fs) allocation reduced (8 -> 1)
-#ifdef _USE_SDCARD_
-      if ((fr =
-	   f_open (&fs, (const char *) HTTPSock_Status[get_seqnum].file_name,
-		   FA_READ)) == 0)
-	{
-	  f_lseek (&fs, HTTPSock_Status[get_seqnum].file_offset);
-	}
-      else
-	{
-	  send_len = 0;
-	}
-#endif
-#ifdef CPM
-	memset(filename,0,14);
-	strcat(filename, strupr(HTTPSock_Status[get_seqnum].file_name));
-	p=strlen(filename);
-	if(p){
-		filename[p-1]='\0';
-	}
-printf("name1 %s\n",filename);
-      if ((file = fopen ((const char *) filename, "r")) )
-	{
-	  fsetpos(file, HTTPSock_Status[get_seqnum].file_offset);
+	  fsetpos (file, HTTPSock_Status[get_seqnum].file_offset);
 	}
       else
 	{
 	  send_len = 0;
 	}
 
-#endif
-// ## 20141219 added end
     }
 
-#ifdef _USE_SDCARD_
-  // Data read from SD Card
-  fr = f_read (&fs, &buf[0], send_len, (void *) &blocklen);
-  if (fr != FR_OK)
-    {
-      send_len = 0;
-    }
-  else
-    {
-      *(buf + send_len + 1) = 0;	// Insert '/0' for EOS marker (End of string)
-    }
-#else
-  // Data read from external data flash memory
-//  printf ("fixme - read from file system \n");
-//  read_from_flashbuf (addr, &buf[0], send_len);
-//  *(buf + send_len + 1) = 0;  // Insert '/0' for string operation
-#endif
-#ifdef CPM
-	send_len = DATA_BUF_SIZE-1;
-printf("send_len = %d\n",send_len);
-  fr = fread (&buf[0], send_len, 1,file);
+  send_len = DATA_BUF_SIZE - 1;
+	memset(buffer,0,DATA_BUF_SIZE);
+  printf ("send_len = %ld\n", send_len);
+  fr = fread (buffer, send_len, 1, file);
   if (fr == 0)
     {
       send_len = 0;
     }
   else
     {
-	send_len = fr;
-	buf[send_len+1] = '\0';
+      send_len = fr;
+//      buffer[send_len + 1] = '\0';
     }
-
-#endif
 
   // Requested content send to HTTP client
 
@@ -527,15 +447,8 @@ printf("send_len = %d\n",send_len);
     {
       HTTPSock_Status[get_seqnum].file_offset += send_len;
     }
-
-// ## 20141219 Eric added, for 'File object structure' (fs) allocation reduced (8 -> 1)
-#ifdef _USE_SDCARD_
-  f_close (&fs);
-#endif
-#ifdef CPM
-	fclose(file);
-#endif
-// ## 20141219 added end
+  fclose (file);
+  file = 0;
 }
 
 static void
@@ -569,15 +482,10 @@ http_process_handler (uint8_t s, st_http_request * p_http_request)
   uint8_t *uri_name;
   uint32_t content_addr = 0;
   uint32_t file_len = 0;
-uint8_t p;
+  uint8_t p;
   uint8_t post_name[32] = { 0x00, };	// POST method request file name
 
   uint8_t uri_buf[MAX_URI_SIZE] = { 0x00, };
-#ifdef _WILL_BE_IM_
-  uint32_t content_len = 0;
-  uint16_t post_len = 0;	// POST
-  uint8_t sub[10];		// POST
-#endif
 
   uint16_t http_status;
   int8_t get_seqnum;
@@ -632,40 +540,29 @@ uint8_t p;
 	}
       else
 	{			// If No CGI request, Try to find The requested web content in storage (e.g., 'SD card' or 'Data flash')
-#ifdef _USE_SDCARD_
-	  if ((fr = f_open (&fs, (const char *) uri_name, FA_READ)) == 0)
+	  memset (filename, 0, 14);
+	  //strcat(filename,"C:");
+	  strcat (filename, strupr (uri_name));
+	  p = strlen (filename);
+	  if (p)
+	    {
+	      filename[p - 1] = '\0';
+	    }
+	  printf ("name2 %s\n", filename);
+	  if ((file = fopen (filename, "r")))
 	    {
 	      content_found = 1;	// file open succeed
-
-	      file_len = fs.fsize;
-	      content_addr = fs.sclust;
+	      printf ("file open\n");
+//fixme
+	      file_len = 3200;
+	      printf ("file len %ld\n", file_len);
+//		fclose(file);
+//		file = 0;
 	    }
 	  else
 	    {
 	      content_found = 0;	// file open failed
 	    }
-#endif
-#ifdef CPM
-	memset(filename,0,14);
-	strcat(filename,"C:");
-	strcat(filename, strupr(uri_name));
-	p=strlen(filename);
-	if(p){
-		filename[p-1]='\0';
-	}
-printf("name2 %s\n",filename);
-	  if ((file = fopen (filename, "r")) )
-	    {
-	      content_found = 1;	// file open succeed
-printf("file open\n");
-	      file_len = 0; 
-	      content_addr = 0;
-	    }
-	  else
-	    {
-	      content_found = 0;	// file open failed
-	    }
-#endif
 	  if (!content_found)
 	    {
 	      http_status = STATUS_NOT_FOUND;

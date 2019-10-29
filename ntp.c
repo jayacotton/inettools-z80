@@ -121,6 +121,58 @@ char DNS_buffer[256];
 extern unsigned char HostAddr[4];
 unsigned char run_user_applications;
 
+#define O_Year 0
+#define O_Month 1
+#define O_Date 2
+#define O_Hour 3
+#define O_Minute 4
+#define O_Second 5
+
+unsigned char bcd_buffer[8];
+
+unsigned char int2bcd(unsigned char input)
+{
+unsigned char high = 0;
+
+	while(input >= 10){
+		high ++;
+		input -=10;
+	}
+	return (high << 4)| input;
+}
+/* convert this to a 6 byte bcd encoded buffer */
+void  set_via_romwbw(uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day, uint8_t month, uint8_t wday, uint16_t year)
+{
+	/* year  00-99 */
+		if(year > 99)
+			bcd_buffer[O_Year] = year-2000; /*assume this century*/
+		else
+			bcd_buffer[O_Year] = year; /* assume this century */
+		bcd_buffer[O_Year] 	= int2bcd(bcd_buffer[O_Year]);
+	/* month 01-12 */
+		bcd_buffer[O_Month] 	= int2bcd(month);
+	/* date 01-31 */
+		bcd_buffer[O_Date] 	= int2bcd(day);
+	/* hour 00-24 */
+		bcd_buffer[O_Hour] 	= int2bcd(hour);
+	/* minute 00-59 */
+		bcd_buffer[O_Minute] 	= int2bcd(minutes);
+	/* second 00-59 */
+		bcd_buffer[O_Second] 	= int2bcd(seconds);
+//printf("%x %x %x %x %x %x\n", 
+//bcd_buffer[0],
+//bcd_buffer[1],
+//bcd_buffer[2],
+//bcd_buffer[3],
+//bcd_buffer[4],
+//bcd_buffer[5]);
+
+#asm
+	ld	b,$21
+	ld	hl,_bcd_buffer
+	rst	08 
+#endasm
+}
 void
 error (char *msg, int val)
 {
@@ -345,13 +397,13 @@ main (int argc, char *argv[])
     hours -= 8;			// PST
 day = days;
 
-printf(" %d %d %d %d %d %d %d\n",
-month,day,year,hours,minutes,seconds,wday);
+//printf(" %d %d %d %d %d %d %d\n",
+//month,day,year,hours,minutes,seconds,wday);
 
 // ultamatly we will store the time and date in the RTC chip
 // set the rtc clock
 	day = days;
-  rtc_set_now (
+  set_via_romwbw(
 	(uint8_t) seconds, 
 	(uint8_t) minutes, 
 	(uint8_t) hours,

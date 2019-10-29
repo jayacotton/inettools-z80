@@ -50,6 +50,32 @@ char *monthname[12] =
   "Nov", "Dec"
 };
 
+#define O_Year 0
+#define O_Month 1
+#define O_Date 2
+#define O_Hour 3
+#define O_Minute 4
+#define O_Second 5
+
+unsigned char bcd_buffer[8];
+unsigned char bcd_buffer[8];
+
+void get_via_romwbw(unsigned char *sec,unsigned char * min, unsigned char * hr, 
+unsigned char * wday, unsigned char *month,unsigned char *day,unsigned int *year)
+{
+#asm
+	ld	b,$20
+	ld	hl,_bcd_buffer
+	rst	08
+#endasm
+	*sec = (bcd_buffer[O_Second] & 0x0f) + ((bcd_buffer[O_Second]>>4) & 0x0f) * 10;
+	*min = (bcd_buffer[O_Minute] & 0x0f) + ((bcd_buffer[O_Minute]>>4) & 0x0f) * 10;
+	*hr = (bcd_buffer[O_Hour] & 0x0f)+((bcd_buffer[O_Hour]>>4) & 0x0f) * 10;
+	*month = (bcd_buffer[O_Month] & 0x0f)+ ((bcd_buffer[O_Month]>>4) & 0x0f) * 10;
+	*day = (bcd_buffer[O_Date] & 0x0f)+ ((bcd_buffer[O_Date]>>4) & 0x0f) * 10;
+	*year = (bcd_buffer[O_Year] & 0x0f) + ((bcd_buffer[O_Year]>>4) & 0x0f) * 10;
+}
+
 void main(){
 uint8_t hr;
 uint8_t min;
@@ -59,8 +85,8 @@ uint8_t day;
 uint16_t year;
 uint8_t wday;
 
-	rtc_get_now(&sec,&min,&hr,&wday,&month,&day,&year);
+	get_via_romwbw(&sec,&min,&hr,&wday,&month,&day,&year);
 
-  printf ("%s %s %d %02d:%02d:%02d PDT %d\n",weekday[wday],monthname[month],day,hr,min,sec,year+2000);
+  printf ("%s %d %02d:%02d:%02d PDT %d\n",monthname[month],day,hr,min,sec,year+2000);
   return 0;
 }
