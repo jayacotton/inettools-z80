@@ -1,7 +1,6 @@
 driver:
 	zcc +cpm -O3 --list --c-code-in-asm -c w5500.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c main.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c test.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c dhcp.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c spi.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c socket.c 
@@ -29,7 +28,7 @@ driver:
 	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -odate date.o 
 	zcc +cpm -create-app -ohttps httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	zcc +cpm -create-app -owget htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o 
+	zcc +cpm -create-app -owget htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o -lm
 
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock

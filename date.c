@@ -8,6 +8,7 @@
 //! \version 1.0
 //! \date 5/2/2019
 //! \par Revision history
+//!	10/29/2019  Using RomWBW RTC support code.
 //!
 //! \author Jay Cotton
 //! \copyright
@@ -42,7 +43,6 @@
 //
 //*****************************************************************************
 #include <stdio.h>
-#include "rtci2c.h"
 char *weekday[7] = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat" };
 
 char *monthname[12] =

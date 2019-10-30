@@ -11,7 +11,6 @@
 #include "httpUtil.h"
 #include "ethernet.h"
 #include "time.h"
-#include "ctc.h"
 #include "trace.h"
 
 #ifdef	_USE_SDCARD_

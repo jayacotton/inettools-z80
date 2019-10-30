@@ -13,6 +13,7 @@
 //!     4/23/2019       First version 
 //1	4/30/2019	The time convertion has a at 12 GMT with the date.
 //!	5/1/2019	Added RTC loading support.  BUGGY
+//!	10/29/2019	RTC support in RomWBW, removed rtci2c and ctc code.
 //! \author Jay Cotton
 //! \copyright
 //!
@@ -94,7 +95,6 @@
 #include "dns.h"
 #include "trace.h"
 #include "spi.h"
-#include "rtci2c.h"
 
 #define NTP_TIMESTAMP_DELTA 2208988800
 #define NTP_TIMESTAMP_DELTA_HEX 0x83aa7e80

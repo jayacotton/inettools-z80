@@ -68,7 +68,6 @@
 #include "w5500.h"
 #include "trace.h"
 #include "ctype.h"
-#include "ctc.h"
 #include "time.h"
 
 static int sock;
