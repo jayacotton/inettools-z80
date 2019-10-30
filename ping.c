@@ -55,6 +55,8 @@
 #include "ethernet.h"
 #include "dns.h"
 #include "spi.h"
+#include "time.h"
+#include <math.h>
 
 PINGMSGR PingRequest;		// Variable for Ping Request
 PINGMSGR PingReply;		// Variable for Ping Reply
@@ -69,6 +71,8 @@ struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
 unsigned char DNS_buffer[2048];
 unsigned char save_addr[4];
+struct TICKSTORE t1;
+struct TICKSTORE t2;
 
 extern void wait_1ms (unsigned int);
 
@@ -162,7 +166,7 @@ ping_auto (uint8_t s, uint8_t * addr)
 	  sock_close (s);
 	  IINCHIP_WRITE (Sn_PROTO (s), IPPROTO_ICMP);	// set ICMP Protocol
 	  if (socket (s, Sn_MR_IPRAW, 3000, 0) != 0)
-	    {			// open the SOCKET with IPRAW mode, if fail then Error
+	    {		// open the SOCKET with IPRAW mode, if fail then Error
 	      printf ("\r\n socket %d fail r\n", (0));
 #ifdef PING_DEBUG
 	      return SOCKET_ERROR;
@@ -332,6 +336,9 @@ int n;
   PingRequest.CheckSum = 0;	// value of checksum before calucating checksum of ping-request packet
   PingRequest.CheckSum = htons (checksum ((uint8_t *) & PingRequest, sizeof (PingRequest)));	// Calculate checksum
 
+// get time tick base
+
+	SetTime(&t1);
   /* sendto ping_request to destination */
   if ((n=sendto (s, (uint8_t *) & PingRequest, sizeof (PingRequest), addr, 3000))
       == 0)
@@ -390,11 +397,14 @@ restaddr(addr);
 	printf ("tmp_checksum = %x\r\n", tmp_checksum);
       else
 	{
+// get total time for ping
+	GetTime(&t2,&t1);
 	  /*  Output the Destination IP and the size of the Ping Reply Message */
+//	ftoa(t2.t.time*TICK,6,data_buf);
 	  printf
-	(" %d bytes from %d.%d.%d.%d: icmp_seq=%x \n", (rlen+6), 
+	(" %d bytes from %d.%d.%d.%d: icmp_seq=%x time=%ld ms \n", (rlen+6), 
 	     (addr[0]), (addr[1]), (addr[2]), (addr[3]), 
-		htons(PingReply.SeqNum));
+		htons(PingReply.SeqNum),t2.t.time*20);
 	  /*  SET ping_reply_receiver to '1' and go out the while_loop (waitting for ping reply) */
 	  ping_reply_received = 1;
 	}
@@ -491,53 +501,19 @@ htons (uint16_t hostshort)
 
 
 /*****************************************************************************************
-	Function name: wait_1us
-	Input		:	cnt; Delay duration = cnt * 1u seconds
-	Output	:	non
-	Description
-	: A delay function for waiting cnt*1u second.
-*****************************************************************************************/
-void
-wait_1us (unsigned int cnt)
-{
-  unsigned int i;
-
-  for (i = 0; i < cnt; i++)
-    {
-
-    }
-}
-
-
-/*****************************************************************************************
 	Function name: wait_1ms
 	Input		:	cnt; Delay duration = cnt * 1m seconds
 	Output	:	non
 	Description
-	: A delay function for waiting cnt*1m second. This function use wait_1us but the wait_1us
+	: A delay function for waiting cnt*20m second. This function use wait_1us but the wait_1us
 		has some error (not accurate). So if you want exact time delay, please use the Timer.
 *****************************************************************************************/
 void
 wait_1ms (unsigned int cnt)
 {
   unsigned int i;
-  for (i = 0; i < cnt; i++)
-    spi_delay (500);
+	i = cnt / 25;	// 1 = .02 sec.  
+	if(i < 1) i = 1;
+	WaitTime(i);
 }
 
-/*****************************************************************************************
-	Function name: wait_10ms
-	Input		:	cnt; Delay duration = cnt * 10m seconds
-	Output	:	non
-	Description
-	: A delay function for waiting cnt*10m second. This function use wait_1ms but the wait_1ms
-		has some error (not accurate more than wait_1us). So if you want exact time delay,
-		please use the Timer.
-*****************************************************************************************/
-void
-wait_10ms (unsigned int cnt)
-{
-  unsigned int i;
-  for (i = 0; i < cnt; i++)
-    wait_1ms (10);
-}
