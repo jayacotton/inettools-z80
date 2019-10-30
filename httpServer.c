@@ -105,17 +105,6 @@ main ()
   int i;
 
   TRACE ("");
-#ifdef NOTNOW
-  i = ctc_vet ();		/* turns out we don't care */
-  if (i == CPM)
-    printf ("Running on CPM\n");
-  else
-    printf ("Running on ZSDOS\n");
-
-  ctc_init ();			/* set up and start ctc timer */
-  time_init ();			/* setup timer code */
-#endif
-
 
   if (Ethernet_begin (mac) == 0)
     {

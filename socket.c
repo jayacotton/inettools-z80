@@ -72,7 +72,7 @@ static uint16_t sock_is_sending = 0;
 
 static uint16_t sock_remained_size[_WIZCHIP_SOCK_NUM_] = { 0, 0, };
 
-//M20150601 : For extern decleation
+//M20150601 : For extern declaration
 //static uint8_t  sock_pack_info[_WIZCHIP_SOCK_NUM_] = {0,};
 uint8_t sock_pack_info[_WIZCHIP_SOCK_NUM_] = { 0, };
 
