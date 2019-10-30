@@ -1,6 +1,5 @@
 driver:
 	zcc +cpm -O3 --list --c-code-in-asm -c w5500.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c snaplib.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c main.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c test.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c dhcp.c 
@@ -22,7 +21,6 @@ driver:
 	zcc +cpm -O3 --list --c-code-in-asm -c date.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c httpServer.c 
 	zcc +cpm -O3 --list --c-code-in-asm -c httpParser.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c loader.c 
 	zcc +cpm -create-app -oifconfig addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -oping ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
@@ -31,12 +29,7 @@ driver:
 	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -odate date.o 
 	zcc +cpm -create-app -ohttps httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	zcc +cpm -create-app -owget -DLOADER htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o ctcdriver.c time.o loader.o snaplib.o
-	zcc +cpm -create-app -DCLOCK -DLOADER -cclock ctcdriver.c time.o ntplib.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o loader.o snaplib.o
-	zcc +cpm -create-app -DTEST -DLOADER --c-code-in-asm -O3 --list -octc ctcdriver.c time.o loader.o snaplib.o
-	zcc +cpm -create-app -otest test.o w5500.o spi.o
-	macro ctc_int_handler
-	asm8080 ctc_int_handler.asm -l
+	zcc +cpm -create-app -owget htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o 
 
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock
@@ -44,7 +37,6 @@ clean:
 
 install:
 	sudo cp ./*.COM /var/www/html/. 
-	sudo cp ./ctc*.hex /var/www/html/ctcint.hex
 
 ship:
 	rm -rf irc latex email *.o *.err *.lis *.def *.lst *.sym *.exe driver dnsprnt get ctc ntp myget test ctc ntp wget telnet ping dig ifconfig date https

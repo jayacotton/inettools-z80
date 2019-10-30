@@ -195,39 +195,17 @@ main (int argc, char *argv[])
   uint8_t looped = 0;
   int stat;
 
-  stat = ctc_vet ();		/* turns out we don't care */
-  if (stat == CPM)
-    printf ("Running on CPM\n");
-  else
-    printf ("Running on ZSDOS\n");
-#ifndef NOTIME
-  ctc_init ();			/* set up and start ctc timer */
-  bytecount = 0;
-  timecount = 0;
-  lastcount = 0;
-  *counter = 0;
-  time_init();
-#endif
-
   skip_dns = 0;
 
   if (argc != 3)
     {
       writes (2, "wget url file\n");
-#ifndef NOTIME
-      ctc_exit ();
-#else
 	exit(0);
-#endif
     }
   if (strncmp (argv[1], "HTTP://", 7))
     {
       writes (2, "wget: only http:// is supported.\n");
-#ifndef NOTIME
-      ctc_exit ();
-#else
 	exit(1);
-#endif
     }
   argv[1] += 7;
 
@@ -243,7 +221,7 @@ main (int argc, char *argv[])
       if (port == 0)
 	{
 	  writes (2, "wget: invalid port\n");
-	  ctc_exit ();
+		exit(1);
 	}
     }
   memset (dnsname, 0, 80);
@@ -265,11 +243,7 @@ main (int argc, char *argv[])
 	printf ("Can't find the ethernet h/w\n");
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-#ifndef NOTIME
-      ctc_exit ();
-#else
 	exit(1);
-#endif
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
@@ -279,31 +253,19 @@ main (int argc, char *argv[])
       DNS_init (SOCK_DNS, DNS_buffer);	// share the data buffer ??
       TRACE ("DNS_run");
       if (DNS_run (gWIZNETINFO.dns, dnsname, HostAddr) == 0)
-#ifndef NOTIME
-	ctc_exit ();
-#else
 	exit(1);
-#endif
     }
 
   sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);
   if (sock == -1)
     {
       printf ("ERROR:socket");
-#ifndef NOTIME
-      ctc_exit ();
-#else
 	exit(1);
-#endif
     }
   if (connect (sock, HostAddr, port) < 0)
     {
       printf ("ERROR:connect");
-#ifndef NOTIME
-      ctc_exit ();
-#else
 	exit(1);
-#endif
     }
 
 /* there be bugs here.  If a port is specified 
@@ -341,11 +303,7 @@ things can get sideways */
 	{
 	  writes (2, "wget: invalid reply\n");
 	  writes (2, buf);
-#ifndef NOTIME
-	  ctc_exit ();
-#else
 	exit(1);
-#endif
 	}
       pp++;
       code = strtoul (pp, &pp, 10);
@@ -353,11 +311,7 @@ things can get sideways */
 	{
 	  writes (2, "wget: invalid reply\n");
 	  writes (2, buf);
-#ifndef NOTIME
-	  ctc_exit ();
-#else
 	exit(1);
-#endif
 	}
 
       if (code != 200)
@@ -381,11 +335,7 @@ things can get sideways */
   if (of == -1)
     {
       printf ("ERROR:%s\n", argv[2]);
-#ifndef NOTIME
-      ctc_exit ();
-#else
 	exit(1);
-#endif
     }
   /* FIXME: if we saw a Transfer-Encoding: chunked" we need to do this
      bit differently */
@@ -394,32 +344,14 @@ things can get sideways */
       if (write (of, readp, bufend - readp) < 0)
 	{
 	  printf ("ERROR:write");
-#ifndef NOTIME
-	  ctc_exit ();
-#else
 	exit(1);
-#endif
 	}
-#ifndef NOTIME
-// instrument the actual transfer of data
-      timecount = *counter - lastcount;
-      lastcount = *counter;
-#endif
       while ((len = recv (sock, buf, 512)) > 0)
 	{
-#ifndef NOTIME
-	  bytecount += len;
-	  timecount += *counter - lastcount;
-	  lastcount = *counter;
-#endif
 	  if (write (of, buf, len) != len)
 	    {
 	      printf ("ERROR:write");
-#ifndef NOTIME
-	      ctc_exit ();
-#else
 		exit(1);
-#endif
 	    }
 		printf(".");
 	}
@@ -428,10 +360,5 @@ things can get sideways */
   printf("\n");
   sock_close (sock);
 // stats
-#ifndef NOTIME
-  printf ("Transfer complete: %ld bytes in %ld.%ld seconds\n", bytecount,
-	  timecount / 100, timecount % 100);
-  ctc_exit ();
-#endif
   return 0;
 }
