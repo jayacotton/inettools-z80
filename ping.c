@@ -512,8 +512,13 @@ void
 wait_1ms (unsigned int cnt)
 {
   unsigned int i;
+#ifndef NOTIMER
 	i = cnt / 25;	// 1 = .02 sec.  
 	if(i < 1) i = 1;
 	WaitTime(i);
+#else
+	for(i=0;i<cnt;i++)
+		spi_delay(500);
+#endif
 }
 
