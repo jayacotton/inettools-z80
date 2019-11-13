@@ -4,12 +4,17 @@ Inet tools for z80-rc2014 tcp/ip stack code.
 This code is based on software for the W5500 chip.  The code includes the following programs:
 
 ifconfig:  this is the poor mans version,  It has no options and shows your ip address and a few other parameters.
+
 ping:  this is about a simple a ping as you can get.  Round trip time values work when RC2014/RomWBW timer support is present.  The time values are in 20ms intervals.  
+
 telnet:  This is a terminal program to talking to a host machine.
 
 dig: This is a really simple version of dig, it reports a single ip address for remote host.
+
 wget:  This will allow cp/m users to load programs onto there CF card etc using http protocol.
+
 ntp: This program will get the date and time from an ntp server and set the RTC chip.  This requires an RTC/RC2014 board.
+
 date: This reads the date and time from the RTC.  This requires an RTC/RC2014 board.
 
 In addition to these programs there are a few test programs, best to ignore them for now.
@@ -24,7 +29,6 @@ retro computing boards at google group RC2014-Z80.  You can find h/w at tindie.c
 Using the RomWbW code see https://github.com/wwarthen/RomWBW for more info on this.
 
 The code is built using the z88dk tool chain, see z88dk.org for more info on the tool chain.
-
 All of this work has been conducted on linux ubuntu v18.
 
 This code is really preliminary in nature, it works in an ideal environment, but falls on its face when any kind of
@@ -37,7 +41,6 @@ To build the code you need z88dk installed, you will also need doxygen to produc
 
 A note:  MYGET.COM needs a configureation file on the cp/m disk called MYGET.CFG.  It has the ip address of the
 http host you are using for uploading (downloading) ... loading your code onto the cp/m disk.  
-
 To make that work, you need to install an http server on your host machine, and populate the source directory with
 files to transfer...  
 
