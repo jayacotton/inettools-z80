@@ -282,7 +282,11 @@ main (int argc, char *argv[])
 
   struct ntp_packet packet;
 
+#ifdef PDT
   pdt = 1;			// assumes pacific daylight time
+#else	
+  pdt = 0;			// assumes pacific standard time
+#endif
 
   memset (&packet, 0, sizeof (struct ntp_packet));
 
@@ -406,7 +410,7 @@ day = days;
   set_via_romwbw(
 	(uint8_t) seconds, 
 	(uint8_t) minutes, 
-	(uint8_t) hours,
+	(uint8_t) hours, 
 	(uint8_t) day,
 	(uint8_t) month, 
 	(uint8_t) wday, 
