@@ -114,11 +114,11 @@ void unescape_http_url(char * url);								/* convert escape character to ascii 
 void parse_http_request(st_http_request *, uint8_t *);			/* parse request from peer */
 void find_http_uri_type(uint8_t *, uint8_t *);						/* find MIME type of a file */
 void make_http_response_head(char *, char, uint32_t);				/* make response header */
-uint8_t * get_http_param_value(char* uri, char* param_name);	/* get the user-specific parameter value */
+//uint8_t * get_http_param_value(char* uri, char* param_name);	/* get the user-specific parameter value */
 uint8_t get_http_uri_name(uint8_t * uri, uint8_t * uri_buf);
 
 uint16_t ATOI(uint8_t * str, uint8_t base);
 void mid(char* src, char* s1, char* s2, char* sub);
-void inet_addr_(uint8_t * addr, uint8_t * ip);
+//void inet_addr_(uint8_t * addr, uint8_t * ip);
 
 #endif	/* end of __HTTPPARSER_H__ */

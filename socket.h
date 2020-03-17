@@ -268,7 +268,7 @@ int8_t  connect(uint8_t sn, uint8_t * addr, uint16_t port);
  *                        @ref SOCKERR_TIMEOUT  - Timeout occurred \n
  *                        @ref SOCK_BUSY        - Socket is busy.
  */
-int8_t  disconnect(uint8_t sn);
+//int8_t  disconnect(uint8_t sn);
 
 /**
  * @ingroup WIZnet_socket_APIs
@@ -459,7 +459,7 @@ typedef enum
  *  @return @b Success @ref SOCK_OK \n
  *          @b fail    @ref SOCKERR_ARG         - Invalid argument\n
  */
-int8_t  ctlsocket(uint8_t sn, ctlsock_type cstype, void* arg);
+//int8_t  ctlsocket(uint8_t sn, ctlsock_type cstype, void* arg);
 
 /** 
  * @ingroup WIZnet_socket_APIs
@@ -487,7 +487,7 @@ int8_t  ctlsocket(uint8_t sn, ctlsock_type cstype, void* arg);
  *  - @ref SOCKERR_SOCKOPT     - Invalid socket option or its value \n
  *  - @ref SOCKERR_TIMEOUT     - Timeout occurred when sending keep-alive packet \n
  */
-int8_t  setsockopt(uint8_t sn, sockopt_type sotype, void* arg);
+//int8_t  setsockopt(uint8_t sn, sockopt_type sotype, void* arg);
 
 /** 
  * @ingroup WIZnet_socket_APIs
@@ -521,7 +521,7 @@ int8_t  setsockopt(uint8_t sn, sockopt_type sotype, void* arg);
  *   When SO_PACKINFO value is PACK_FIRST and the return value of recvfrom() is zero, 
  *   This means the zero byte UDP data(UDP Header only) received.
   */
-int8_t  getsockopt(uint8_t sn, sockopt_type sotype, void* arg);
+//int8_t  getsockopt(uint8_t sn, sockopt_type sotype, void* arg);
 
 #ifdef __cplusplus
  }

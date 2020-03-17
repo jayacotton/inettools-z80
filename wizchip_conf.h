@@ -459,7 +459,7 @@ typedef struct wiz_NetTimeout_t
  *@todo Describe @ref WIZCHIP_CRITICAL_ENTER and @ref WIZCHIP_CRITICAL_EXIT marco or register your functions.
  *@note If you do not describe or register, default functions(@ref wizchip_cris_enter & @ref wizchip_cris_exit) is called.
  */
-void reg_wizchip_cris_cbfunc(void(*cris_en)(void), void(*cris_ex)(void));
+//void reg_wizchip_cris_cbfunc(void(*cris_en)(void), void(*cris_ex)(void));
 
 
 /**
@@ -469,7 +469,7 @@ void reg_wizchip_cris_cbfunc(void(*cris_en)(void), void(*cris_ex)(void));
  *@todo Describe @ref wizchip_cs_select and @ref wizchip_cs_deselect function or register your functions.
  *@note If you do not describe or register, null function is called.
  */
-void reg_wizchip_cs_cbfunc(void(*cs_sel)(void), void(*cs_desel)(void));
+//void reg_wizchip_cs_cbfunc(void(*cs_sel)(void), void(*cs_desel)(void));
 
 /**
  *@brief Registers call back function for bus interface.
@@ -481,7 +481,7 @@ void reg_wizchip_cs_cbfunc(void(*cs_sel)(void), void(*cs_desel)(void));
  */
 //M20150601 : For integrating with W5300
 //void reg_wizchip_bus_cbfunc(uint8_t (*bus_rb)(uint32_t addr), void (*bus_wb)(uint32_t addr, uint8_t wb));
-void reg_wizchip_bus_cbfunc(iodata_t (*bus_rb)(uint32_t addr), void (*bus_wb)(uint32_t addr, iodata_t wb));
+//void reg_wizchip_bus_cbfunc(iodata_t (*bus_rb)(uint32_t addr), void (*bus_wb)(uint32_t addr, iodata_t wb));
 
 /**
  *@brief Registers call back function for SPI interface.
@@ -491,7 +491,7 @@ void reg_wizchip_bus_cbfunc(iodata_t (*bus_rb)(uint32_t addr), void (*bus_wb)(ui
  *or register your functions.
  *@note If you do not describe or register, null function is called.
  */
-void reg_wizchip_spi_cbfunc(uint8_t (*spi_rb)(void), void (*spi_wb)(uint8_t wb));
+//void reg_wizchip_spi_cbfunc(uint8_t (*spi_rb)(void), void (*spi_wb)(uint8_t wb));
 
 /**
  *@brief Registers call back function for SPI interface.
@@ -501,7 +501,7 @@ void reg_wizchip_spi_cbfunc(uint8_t (*spi_rb)(void), void (*spi_wb)(uint8_t wb))
  *or register your functions.
  *@note If you do not describe or register, null function is called.
  */
-void reg_wizchip_spiburst_cbfunc(void (*spi_rb)(uint8_t* pBuf, uint16_t len), void (*spi_wb)(uint8_t* pBuf, uint16_t len));
+//void reg_wizchip_spiburst_cbfunc(void (*spi_rb)(uint8_t* pBuf, uint16_t len), void (*spi_wb)(uint8_t* pBuf, uint16_t len));
 
 /**
  * @ingroup extra_functions
@@ -513,7 +513,7 @@ void reg_wizchip_spiburst_cbfunc(void (*spi_rb)(uint8_t* pBuf, uint16_t len), vo
  * @return  0 : Success \n
  *         -1 : Fail because of invalid \ref ctlwizchip_type or unsupported \ref ctlwizchip_type in WIZCHIP 
  */          
-int8_t ctlwizchip(ctlwizchip_type cwtype, void* arg);
+//int8_t ctlwizchip(ctlwizchip_type cwtype, void* arg);
 
 /**
  * @ingroup extra_functions
@@ -524,7 +524,7 @@ int8_t ctlwizchip(ctlwizchip_type cwtype, void* arg);
  * @return -1 : Fail because of invalid \ref ctlnetwork_type or unsupported \ref ctlnetwork_type in WIZCHIP \n
  *          0 : Success      
  */          
-int8_t ctlnetwork(ctlnetwork_type cntype, void* arg);
+//int8_t ctlnetwork(ctlnetwork_type cntype, void* arg);
 
 
 /* 

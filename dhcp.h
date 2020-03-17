@@ -95,7 +95,7 @@ void DHCP_init(uint8_t s, uint8_t * buf);
  * @brief DHCP 1s Tick Timer handler
  * @note SHOULD BE register to your system 1s Tick timer handler 
  */
-void DHCP_time_handler(void);
+//void DHCP_time_handler(void);
 
 /* 
  * @brief Register call back function 

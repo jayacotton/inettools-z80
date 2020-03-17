@@ -49,7 +49,7 @@ extern int h_errno;
 				   type.  */
 
 
-extern struct hostent *gethostbyname (char *name);
+//extern struct hostent *gethostbyname (char *name);
 
 /* max hack starts here */
 
