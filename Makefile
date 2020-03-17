@@ -1,26 +1,26 @@
 driver:
-	zcc +cpm -O3 --list --c-code-in-asm -c w5500.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c main.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c dhcp.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c spi.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c socket.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c addrprint.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c ethernet.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c dnsprint.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c dns.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c ping.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c wizchip_conf.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c ftp.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c telnet_client.c 
-	zcc +cpm -O3 --list -DNOTIME --c-code-in-asm -c htget.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c get.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c time.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c ntp.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c ntplib.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c date.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c httpServer.c 
-	zcc +cpm -O3 --list --c-code-in-asm -c httpParser.c 
-	zcc +cpm -create-app -oifconfig addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
+	zcc +cpm -O3 --list --c-code-in-asm  -c  w5500.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  main.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  dhcp.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  spi.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  socket.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  addrprint.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  ethernet.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  dnsprint.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  dns.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  ping.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  wizchip_conf.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  ftp.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  telnet_client.c 
+	zcc +cpm -O3 --list -DNOTIME --c-code-in-asm -c  htget.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  get.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  time.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  ntp.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  ntplib.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  date.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  httpServer.c 
+	zcc +cpm -O3 --list --c-code-in-asm -c  httpParser.c 
+	zcc +cpm -create-app -oifconfig -Wunused addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -oping ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
 	zcc +cpm -create-app -opingnoti ping.c -DNOTIMER w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
