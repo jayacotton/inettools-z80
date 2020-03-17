@@ -161,15 +161,15 @@ httpServer_init (uint8_t * tx_buf, uint8_t * rx_buf, uint8_t cnt,
 
 
 /* Register the call back functions for HTTP Server */
-void
-reg_httpServer_cbfunc (void (*mcu_reset) (void), void (*wdt_reset) (void))
-{
+//void
+//reg_httpServer_cbfunc (void (*mcu_reset) (void), void (*wdt_reset) (void))
+//{
   // Callback: HW Reset and WDT reset function for each MCU platforms
-  if (mcu_reset)
-    HTTPServer_ReStart = mcu_reset;
-  if (wdt_reset)
-    HTTPServer_WDT_Reset = wdt_reset;
-}
+//  if (mcu_reset)
+//    HTTPServer_ReStart = mcu_reset;
+//  if (wdt_reset)
+//    HTTPServer_WDT_Reset = wdt_reset;
+//}
 
 
 void
@@ -614,17 +614,17 @@ http_process_handler (uint8_t s, st_http_request * p_http_request)
     }
 }
 
-void
-httpServer_time_handler (void)
-{
-  httpServer_tick_1s++;
-}
+//void
+//httpServer_time_handler (void)
+//{
+//  httpServer_tick_1s++;
+//}
 
-uint32_t
-get_httpServer_timecount (void)
-{
-  return httpServer_tick_1s;
-}
+//uint32_t
+//get_httpServer_timecount (void)
+//{
+//  return httpServer_tick_1s;
+//}
 
 uint8_t
 http_get_cgi_handler (uint8_t * name, uint8_t * buf, uint32_t * file_len)

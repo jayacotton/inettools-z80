@@ -166,92 +166,92 @@ TRACE("");
 /**
  @brief	get next parameter value in the request
  */
-uint8_t * get_http_param_value(
-	char* uri, 
-	char* param_name
-	)
-{
-	char tempURI[MAX_URI_SIZE];
-	uint8_t * name = 0;
-	
-
-	if(!uri || !param_name) return 0;
-	
-	strcpy((char*)tempURI,uri);
-	if((name = (uint8_t*)strstr(tempURI, param_name)))
-	{
-		name += strlen(param_name) + 1; // strlen(para_name) + strlen("=")
-		if((name = (uint8_t*)strtok((char *)name,"& \r\n\t\0")))
-		{
-			unescape_http_url((char *)name);
-			replacetochar(name, '+', ' ');
-		}
-	}
-#ifdef _HTTPPARSER_DEBUG_
-	printf("%s=%s",param_name,name);
-#endif	
-
-	return name;
-}
+//uint8_t * get_http_param_value(
+//	char* uri, 
+//	char* param_name
+//	)
+//{
+//	char tempURI[MAX_URI_SIZE];
+//	uint8_t * name = 0;
+//	
+//
+//	if(!uri || !param_name) return 0;
+//	
+//	strcpy((char*)tempURI,uri);
+//	if((name = (uint8_t*)strstr(tempURI, param_name)))
+//	{
+//		name += strlen(param_name) + 1; // strlen(para_name) + strlen("=")
+//		if((name = (uint8_t*)strtok((char *)name,"& \r\n\t\0")))
+//		{
+//			unescape_http_url((char *)name);
+//			replacetochar(name, '+', ' ');
+//		}
+//	}
+//#ifdef _HTTPPARSER_DEBUG_
+//	printf("%s=%s",param_name,name);
+//#endif	
+//
+//	return name;
+//}
 #else
 /**
  @brief	get next parameter value in the request
  */
-uint8_t * get_http_param_value(char* uri, char* param_name)
-{
+//uint8_t * get_http_param_value(char* uri, char* param_name)
+//{
 
-	uint8_t * name = 0;
-	uint8_t * ret = BUFPUB;
-	uint8_t * pos2;
-	uint16_t len = 0, content_len = 0;
-	uint8_t tmp_buf[10]={0x00, };
+//	uint8_t * name = 0;
+//	uint8_t * ret = BUFPUB;
+//	uint8_t * pos2;
+//	uint16_t len = 0, content_len = 0;
+//	uint8_t tmp_buf[10]={0x00, };
 
-	if(!uri || !param_name) return 0;
+//	if(!uri || !param_name) return 0;
 
 	/***************/
-	mid(uri, "Content-Length: ", "\r\n", (char *)tmp_buf);
-	content_len = ATOI(tmp_buf, 10);
-	//printf("content len=%d\r\n",content_len);
-	uri = strstr(uri, "\r\n\r\n");
-	uri+=4;
-	//printf("uri=%s\r\n",uri);
-	uri[content_len] = 0;
-	/***************/
-
-	if((name = (uint8_t *)strstr(uri, param_name)))
-	{
-		name += strlen(param_name) + 1;
-		pos2 = (uint8_t*)strstr((char*)name, "&");
-		if(!pos2)
-		{
-			pos2 = name + strlen((char*)name);
-		}
-		len = pos2 - name;
-
-		if(len)
-		{
-			ret[len] = 0;
-			strncpy((char*)ret,(char*)name, len);
-			unescape_http_url((char *)ret);
-			replacetochar(ret, '+' ,' ');
-			//ret[len] = 0;
-			//ret[strlen((int8*)ret)] = 0;
-			//printf("len=%d\r\n",len);
-		}
-		else
-		{
-			ret[0] = 0;
-		}
-	}
-	else
-	{
-		return 0;
-	}
-#ifdef _HTTPPARSER_DEBUG_
-	printf("%s=%s\r\n", param_name, ret);
-#endif
-	return ret;
-}
+//	mid(uri, "Content-Length: ", "\r\n", (char *)tmp_buf);
+//	content_len = ATOI(tmp_buf, 10);
+//	//printf("content len=%d\r\n",content_len);
+//	uri = strstr(uri, "\r\n\r\n");
+//	uri+=4;
+//	//printf("uri=%s\r\n",uri);
+//	uri[content_len] = 0;
+//	/***************/
+//
+//	if((name = (uint8_t *)strstr(uri, param_name)))
+//	{
+//		name += strlen(param_name) + 1;
+//		pos2 = (uint8_t*)strstr((char*)name, "&");
+//		if(!pos2)
+//		{
+//			pos2 = name + strlen((char*)name);
+//		}
+//		len = pos2 - name;
+//
+//		if(len)
+//		{
+//			ret[len] = 0;
+//			strncpy((char*)ret,(char*)name, len);
+//			unescape_http_url((char *)ret);
+//			replacetochar(ret, '+' ,' ');
+//			//ret[len] = 0;
+//			//ret[strlen((int8*)ret)] = 0;
+//			//printf("len=%d\r\n",len);
+//		}
+//		else
+//		{
+//			ret[0] = 0;
+//		}
+//	}
+//	else
+//	{
+//		return 0;
+//	}
+//#ifdef _HTTPPARSER_DEBUG_
+//	printf("%s=%s\r\n", param_name, ret);
+//#endif
+//	return ret;
+//}
 #endif
 
 #ifdef _OLD_
@@ -295,25 +295,25 @@ uint8_t get_http_uri_name(uint8_t * uri, uint8_t * uri_buf)
 }
 #endif
 
-void inet_addr_(uint8_t * addr, uint8_t *ip)
-{
-	uint8_t i;
-	uint8_t taddr[30];
-	uint8_t * nexttok;
-	uint8_t num;
+//void inet_addr_(uint8_t * addr, uint8_t *ip)
+//{
+//	uint8_t i;
+//	uint8_t taddr[30];
+//	uint8_t * nexttok;
+//	uint8_t num;
 
-	strcpy((char *)taddr, (char *)addr);
+//	strcpy((char *)taddr, (char *)addr);
 
-	nexttok = taddr;
-	for(i = 0; i < 4 ; i++)
-	{
-		nexttok = (uint8_t *)strtok((char *)nexttok, ".");
-		if(nexttok[0] == '0' && nexttok[1] == 'x') num = ATOI(nexttok+2,0x10);
-		else num = ATOI(nexttok,10);
-		ip[i] = num;
-		nexttok = NULL;
-	}
-}
+//	nexttok = taddr;
+//	for(i = 0; i < 4 ; i++)
+//	{
+//		nexttok = (uint8_t *)strtok((char *)nexttok, ".");
+//		if(nexttok[0] == '0' && nexttok[1] == 'x') num = ATOI(nexttok+2,0x10);
+//		else num = ATOI(nexttok,10);
+//		ip[i] = num;
+//		nexttok = NULL;
+//	}
+//}
 
 
 /**

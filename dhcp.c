@@ -231,8 +231,8 @@ void (*dhcp_ip_assign) (void) = default_ip_assign;	/* handler to be called when 
 void (*dhcp_ip_update) (void) = default_ip_update;	/* handler to be called when the IP address from DHCP server is updated */
 void (*dhcp_ip_conflict) (void) = default_ip_conflict;	/* handler to be called when the IP address from DHCP server is conflict */
 
-void reg_dhcp_cbfunc (void (*ip_assign) (void), void (*ip_update) (void),
-		      void (*ip_conflict) (void));
+//void reg_dhcp_cbfunc (void (*ip_assign) (void), void (*ip_update) (void),
+//		      void (*ip_conflict) (void));
 
 char NibbleToHex (uint8_t nibble);
 
@@ -288,20 +288,20 @@ default_ip_conflict (void)
 }
 
 /* register the call back func. */
-void
-reg_dhcp_cbfunc (void (*ip_assign) (void), void (*ip_update) (void),
-		 void (*ip_conflict) (void))
-{
-  dhcp_ip_assign = default_ip_assign;
-  dhcp_ip_update = default_ip_update;
-  dhcp_ip_conflict = default_ip_conflict;
-  if (ip_assign)
-    dhcp_ip_assign = ip_assign;
-  if (ip_update)
-    dhcp_ip_update = ip_update;
-  if (ip_conflict)
-    dhcp_ip_conflict = ip_conflict;
-}
+//void
+//reg_dhcp_cbfunc (void (*ip_assign) (void), void (*ip_update) (void),
+//		 void (*ip_conflict) (void))
+//{
+ // dhcp_ip_assign = default_ip_assign;
+//  dhcp_ip_update = default_ip_update;
+//  dhcp_ip_conflict = default_ip_conflict;
+//  if (ip_assign)
+//    dhcp_ip_assign = ip_assign;
+//  if (ip_update)
+//    dhcp_ip_update = ip_update;
+//  if (ip_conflict)
+//    dhcp_ip_conflict = ip_conflict;
+//}
 
 /* make the common DHCP message */
 void
@@ -1018,11 +1018,11 @@ reset_DHCP_timeout (void)
   dhcp_retry_count = 0;
 }
 
-void
-DHCP_time_handler (void)
-{
-  dhcp_tick_1s++;
-}
+//void
+//DHCP_time_handler (void)
+//{
+//  dhcp_tick_1s++;
+//}
 
 void
 getIPfromDHCP (uint8_t * ip)
@@ -1060,11 +1060,11 @@ getDNSfromDHCP (uint8_t * ip)
   ip[3] = DHCP_allocated_dns[3];
 }
 
-uint32_t
-getDHCPLeasetime (void)
-{
-  return dhcp_lease_time;
-}
+//uint32_t
+//getDHCPLeasetime (void)
+//{
+ // return dhcp_lease_time;
+//}
 
 char
 NibbleToHex (uint8_t nibble)
@@ -1076,8 +1076,8 @@ NibbleToHex (uint8_t nibble)
     return nibble + ('A' - 0x0A);
 }
 
-unsigned int
-check_DHCP_state ()
-{
-  return dhcp_state;
-}
+//unsigned int
+//check_DHCP_state ()
+//{
+//  return dhcp_state;
+//}

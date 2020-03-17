@@ -302,27 +302,27 @@ connect (uint8_t sn, uint8_t * addr, uint16_t port)
   return SOCK_OK;
 }
 
-int8_t
-disconnect (uint8_t sn)
-{
-  CHECK_SOCKNUM ();
-  CHECK_SOCKMODE (Sn_MR_TCP);
-  setSn_CR (sn, Sn_CR_DISCON);
-  /* wait to process the command... */
-  while (getSn_CR (sn));
-  sock_is_sending &= ~(1 << sn);
-  if (sock_io_mode & (1 << sn))
-    return SOCK_BUSY;
-  while (getSn_SR (sn) != SOCK_CLOSED)
-    {
-      if (getSn_IR (sn) & Sn_IR_TIMEOUT)
-	{
-	  sock_close (sn);
-	  return SOCKERR_TIMEOUT;
-	}
-    }
-  return SOCK_OK;
-}
+//int8_t
+//disconnect (uint8_t sn)
+//{
+//  CHECK_SOCKNUM ();
+//  CHECK_SOCKMODE (Sn_MR_TCP);
+//  setSn_CR (sn, Sn_CR_DISCON);
+//  /* wait to process the command... */
+//  while (getSn_CR (sn));
+//  sock_is_sending &= ~(1 << sn);
+//  if (sock_io_mode & (1 << sn))
+//    return SOCK_BUSY;
+//  while (getSn_SR (sn) != SOCK_CLOSED)
+ //   {
+  //    if (getSn_IR (sn) & Sn_IR_TIMEOUT)
+//	{
+//	  sock_close (sn);
+//	  return SOCKERR_TIMEOUT;
+//	}
+ //   }
+ // return SOCK_OK;
+//}
 
 int32_t
 send (uint8_t sn, uint8_t * buf, uint16_t len)
@@ -649,156 +649,156 @@ recvfrom (uint8_t sn, uint8_t * buf, uint16_t len, uint8_t * addr,
 }
 
 
-int8_t
-ctlsocket (uint8_t sn, ctlsock_type cstype, void *arg)
-{
-  uint8_t tmp = 0;
-  CHECK_SOCKNUM ();
-  switch (cstype)
-    {
-    case CS_SET_IOMODE:
-      tmp = *((uint8_t *) arg);
-      if (tmp == SOCK_IO_NONBLOCK)
-	sock_io_mode |= (1 << sn);
-      else if (tmp == SOCK_IO_BLOCK)
-	sock_io_mode &= ~(1 << sn);
-      else
-	return SOCKERR_ARG;
-      break;
-    case CS_GET_IOMODE:
-      //M20140501 : implict type casting -> explict type casting
-      //*((uint8_t*)arg) = (sock_io_mode >> sn) & 0x0001;
-      *((uint8_t *) arg) = (uint8_t) ((sock_io_mode >> sn) & 0x0001);
-      //
-      break;
-    case CS_GET_MAXTXBUF:
-      *((uint16_t *) arg) = getSn_TxMAX (sn);
-      break;
-    case CS_GET_MAXRXBUF:
-      *((uint16_t *) arg) = getSn_RxMAX (sn);
-      break;
-    case CS_CLR_INTERRUPT:
-      if ((*(uint8_t *) arg) > SIK_ALL)
-	return SOCKERR_ARG;
-      setSn_IR (sn, *(uint8_t *) arg);
-      break;
-    case CS_GET_INTERRUPT:
-      *((uint8_t *) arg) = getSn_IR (sn);
-      break;
-    case CS_SET_INTMASK:
-      if ((*(uint8_t *) arg) > SIK_ALL)
-	return SOCKERR_ARG;
-      setSn_IMR (sn, *(uint8_t *) arg);
-      break;
-    case CS_GET_INTMASK:
-      *((uint8_t *) arg) = getSn_IMR (sn);
-      break;
-    default:
-      return SOCKERR_ARG;
-    }
-  return SOCK_OK;
-}
+//int8_t
+//ctlsocket (uint8_t sn, ctlsock_type cstype, void *arg)
+//{
+//  uint8_t tmp = 0;
+//  CHECK_SOCKNUM ();
+//  switch (cstype)
+//    {
+//    case CS_SET_IOMODE:
+//      tmp = *((uint8_t *) arg);
+//      if (tmp == SOCK_IO_NONBLOCK)
+//	sock_io_mode |= (1 << sn);
+//      else if (tmp == SOCK_IO_BLOCK)
+//	sock_io_mode &= ~(1 << sn);
+//      else
+//	return SOCKERR_ARG;
+ //     break;
+//    case CS_GET_IOMODE:
+//      //M20140501 : implict type casting -> explict type casting
+//      //*((uint8_t*)arg) = (sock_io_mode >> sn) & 0x0001;
+//      *((uint8_t *) arg) = (uint8_t) ((sock_io_mode >> sn) & 0x0001);
+//      //
+//      break;
+//    case CS_GET_MAXTXBUF:
+//      *((uint16_t *) arg) = getSn_TxMAX (sn);
+//      break;
+//    case CS_GET_MAXRXBUF:
+//      *((uint16_t *) arg) = getSn_RxMAX (sn);
+//      break;
+//    case CS_CLR_INTERRUPT:
+//      if ((*(uint8_t *) arg) > SIK_ALL)
+//	return SOCKERR_ARG;
+//      setSn_IR (sn, *(uint8_t *) arg);
+//      break;
+//    case CS_GET_INTERRUPT:
+//      *((uint8_t *) arg) = getSn_IR (sn);
+//      break;
+//    case CS_SET_INTMASK:
+//      if ((*(uint8_t *) arg) > SIK_ALL)
+//	return SOCKERR_ARG;
+//      setSn_IMR (sn, *(uint8_t *) arg);
+//      break;
+//    case CS_GET_INTMASK:
+//      *((uint8_t *) arg) = getSn_IMR (sn);
+//      break;
+//    default:
+//      return SOCKERR_ARG;
+//    }
+//  return SOCK_OK;
+//}
 
-int8_t
-setsockopt (uint8_t sn, sockopt_type sotype, void *arg)
-{
-  CHECK_SOCKNUM ();
-  switch (sotype)
-    {
-    case SO_TTL:
-      setSn_TTL (sn, *(uint8_t *) arg);
-      break;
-    case SO_TOS:
-      setSn_TOS (sn, *(uint8_t *) arg);
-      break;
-    case SO_MSS:
-      setSn_MSSR (sn, *(uint16_t *) arg);
-      break;
-    case SO_DESTIP:
-      setSn_DIPR (sn, (uint8_t *) arg);
-      break;
-    case SO_DESTPORT:
-      setSn_DPORT (sn, *(uint16_t *) arg);
-      break;
-    case SO_KEEPALIVESEND:
-      CHECK_SOCKMODE (Sn_MR_TCP);
-      if (getSn_KPALVTR (sn) != 0)
-	return SOCKERR_SOCKOPT;
-      setSn_CR (sn, Sn_CR_SEND_KEEP);
-      while (getSn_CR (sn) != 0)
-	{
-	  // M20131220
-	  //if ((tmp = getSn_IR(sn)) & Sn_IR_TIMEOUT)
-	  if (getSn_IR (sn) & Sn_IR_TIMEOUT)
-	    {
-	      setSn_IR (sn, Sn_IR_TIMEOUT);
-	      return SOCKERR_TIMEOUT;
-	    }
-	}
-      break;
-    case SO_KEEPALIVEAUTO:
-      CHECK_SOCKMODE (Sn_MR_TCP);
-      setSn_KPALVTR (sn, *(uint8_t *) arg);
-      break;
-    default:
-      return SOCKERR_ARG;
-    }
-  return SOCK_OK;
-}
+//int8_t
+//setsockopt (uint8_t sn, sockopt_type sotype, void *arg)
+//{
+//  CHECK_SOCKNUM ();
+//  switch (sotype)
+//    {
+//    case SO_TTL:
+//      setSn_TTL (sn, *(uint8_t *) arg);
+//      break;
+//    case SO_TOS:
+//      setSn_TOS (sn, *(uint8_t *) arg);
+//      break;
+//   case SO_MSS:
+//      setSn_MSSR (sn, *(uint16_t *) arg);
+//      break;
+//    case SO_DESTIP:
+//      setSn_DIPR (sn, (uint8_t *) arg);
+//      break;
+//    case SO_DESTPORT:
+//      setSn_DPORT (sn, *(uint16_t *) arg);
+//      break;
+//    case SO_KEEPALIVESEND:
+//      CHECK_SOCKMODE (Sn_MR_TCP);
+//      if (getSn_KPALVTR (sn) != 0)
+//	return SOCKERR_SOCKOPT;
+//      setSn_CR (sn, Sn_CR_SEND_KEEP);
+//      while (getSn_CR (sn) != 0)
+//	{
+//	  // M20131220
+//	  //if ((tmp = getSn_IR(sn)) & Sn_IR_TIMEOUT)
+//	  if (getSn_IR (sn) & Sn_IR_TIMEOUT)
+//	    {
+//	      setSn_IR (sn, Sn_IR_TIMEOUT);
+//	      return SOCKERR_TIMEOUT;
+//	    }
+//	}
+ //     break;
+//    case SO_KEEPALIVEAUTO:
+//      CHECK_SOCKMODE (Sn_MR_TCP);
+//      setSn_KPALVTR (sn, *(uint8_t *) arg);
+//      break;
+//    default:
+//      return SOCKERR_ARG;
+//    }
+//  return SOCK_OK;
+//}
 
-int8_t
-getsockopt (uint8_t sn, sockopt_type sotype, void *arg)
-{
-  CHECK_SOCKNUM ();
-  switch (sotype)
-    {
-    case SO_FLAG:
-      *(uint8_t *) arg = getSn_MR (sn) & 0xF0;
-      break;
-    case SO_TTL:
-      *(uint8_t *) arg = getSn_TTL (sn);
-      break;
-    case SO_TOS:
-      *(uint8_t *) arg = getSn_TOS (sn);
-      break;
-    case SO_MSS:
-      *(uint16_t *) arg = getSn_MSSR (sn);
-      break;
-    case SO_DESTIP:
-      getSn_DIPR (sn, (uint8_t *) arg);
-      break;
-    case SO_DESTPORT:
-      *(uint16_t *) arg = getSn_DPORT (sn);
-      break;
-    case SO_KEEPALIVEAUTO:
-      CHECK_SOCKMODE (Sn_MR_TCP);
-      *(uint16_t *) arg = getSn_KPALVTR (sn);
-      break;
-    case SO_SENDBUF:
-      *(uint16_t *) arg = getSn_TX_FSR (sn);
-      break;
-    case SO_RECVBUF:
-      *(uint16_t *) arg = getSn_RX_RSR (sn);
-      break;
-    case SO_STATUS:
-      *(uint8_t *) arg = getSn_SR (sn);
-      break;
-    case SO_REMAINSIZE:
-      if (getSn_MR (sn) & Sn_MR_TCP)
-	*(uint16_t *) arg = getSn_RX_RSR (sn);
-      else
-	*(uint16_t *) arg = sock_remained_size[sn];
-      break;
-    case SO_PACKINFO:
-      if ((getSn_MR (sn) == Sn_MR_TCP))
-	return SOCKERR_SOCKMODE;
-      *(uint8_t *) arg = sock_pack_info[sn];
-      break;
-    default:
-      return SOCKERR_SOCKOPT;
-    }
-  return SOCK_OK;
-}
+//int8_t
+//getsockopt (uint8_t sn, sockopt_type sotype, void *arg)
+//{
+//  CHECK_SOCKNUM ();
+//  switch (sotype)
+//    {
+//    case SO_FLAG:
+//      *(uint8_t *) arg = getSn_MR (sn) & 0xF0;
+//      break;
+//    case SO_TTL:
+//      *(uint8_t *) arg = getSn_TTL (sn);
+//      break;
+//    case SO_TOS:
+//      *(uint8_t *) arg = getSn_TOS (sn);
+//      break;
+//    case SO_MSS:
+//      *(uint16_t *) arg = getSn_MSSR (sn);
+//      break;
+//    case SO_DESTIP:
+//      getSn_DIPR (sn, (uint8_t *) arg);
+//      break;
+//    case SO_DESTPORT:
+//      *(uint16_t *) arg = getSn_DPORT (sn);
+//      break;
+//    case SO_KEEPALIVEAUTO:
+//      CHECK_SOCKMODE (Sn_MR_TCP);
+//      *(uint16_t *) arg = getSn_KPALVTR (sn);
+//      break;
+//    case SO_SENDBUF:
+//      *(uint16_t *) arg = getSn_TX_FSR (sn);
+//      break;
+//    case SO_RECVBUF:
+//      *(uint16_t *) arg = getSn_RX_RSR (sn);
+//      break;
+//    case SO_STATUS:
+//      *(uint8_t *) arg = getSn_SR (sn);
+//      break;
+//    case SO_REMAINSIZE:
+//      if (getSn_MR (sn) & Sn_MR_TCP)
+//	*(uint16_t *) arg = getSn_RX_RSR (sn);
+//      else
+//	*(uint16_t *) arg = sock_remained_size[sn];
+ //     break;
+ //   case SO_PACKINFO:
+//      if ((getSn_MR (sn) == Sn_MR_TCP))
+//	return SOCKERR_SOCKMODE;
+//      *(uint8_t *) arg = sock_pack_info[sn];
+//      break;
+//    default:
+//      return SOCKERR_SOCKOPT;
+//    }
+//  return SOCK_OK;
+//}
 
 /* add some bsd like functions */
 /* avoiding malloc etc.... */
@@ -811,30 +811,30 @@ char *HA;
 /* assume a host name string or an IP address 
 as an ascii string */
 
-struct hostent *
-gethostbyname (char *name)
-{
-  char *p;
-  unsigned char dns[4];
-  HA = HostAddr;
-  strncpy (HostName, name, 80);
-  HostEnt.h_name = HostName;
-  HostEnt.h_addr_list = &HA;
-  if (isdigit (name[0]))
-    {				// its an ip address string
-      while (p = strchr (HostName, '.'))
-	{
-	  *p = ' ';
-	}
-      sscanf (HostName, "%d %d %d %d",
-	      &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
-      return &HostEnt;
-    }
-  else
-    {				// its a real host name to look up.
-      Ethernet_localDNS (dns);	// make these globals to reduce call stack
-      if (DNS_run (dns, HostName, HostAddr) == 1)
-	return &HostEnt;
-    }
-  return (struct hostent *) 0;
-}
+//struct hostent *
+//gethostbyname (char *name)
+//{
+//  char *p;
+//  unsigned char dns[4];
+//  HA = HostAddr;
+//  strncpy (HostName, name, 80);
+//  HostEnt.h_name = HostName;
+//  HostEnt.h_addr_list = &HA;
+//  if (isdigit (name[0]))
+//    {				// its an ip address string
+//      while (p = strchr (HostName, '.'))
+//	{
+//	  *p = ' ';
+//	}
+ //     sscanf (HostName, "%d %d %d %d",
+//	      &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
+ //     return &HostEnt;
+  //  }
+//  else
+//    {				// its a real host name to look up.
+//      Ethernet_localDNS (dns);	// make these globals to reduce call stack
+//      if (DNS_run (dns, HostName, HostAddr) == 1)
+//	return &HostEnt;
+ //   }
+ // return (struct hostent *) 0;
+//}

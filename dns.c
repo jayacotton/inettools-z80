@@ -547,6 +547,7 @@ DNS_run (uint8_t * dns_ip, uint8_t * name, uint8_t * ip_from_dns)
   uint16_t len, port;
   int8_t ret_check_timeout;
 
+	ret = 0;
   retry_count = 0;
   dns_1s_tick = 0;
 
@@ -603,8 +604,8 @@ DNS_run (uint8_t * dns_ip, uint8_t * name, uint8_t * ip_from_dns)
 
 
 /* DNS TIMER HANDLER */
-void
-DNS_time_handler (void)
-{
-  dns_1s_tick++;
-}
+//void
+//DNS_time_handler (void)
+//{
+//  dns_1s_tick++;
+//}

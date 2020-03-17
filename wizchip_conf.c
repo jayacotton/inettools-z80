@@ -189,7 +189,7 @@ _WIZCHIP  WIZCHIP =
 
 static uint8_t    _DNS_[4];      // DNS server ip address
 static dhcp_mode  _DHCP_;        // DHCP mode
-
+#ifdef NEVER
 void reg_wizchip_cris_cbfunc(void(*cris_en)(void), void(*cris_ex)(void))
 {
    if(!cris_en || !cris_ex)
@@ -203,7 +203,8 @@ void reg_wizchip_cris_cbfunc(void(*cris_en)(void), void(*cris_ex)(void))
       WIZCHIP.CRIS._exit  = cris_ex;
    }
 }
-
+#endif
+#ifdef NEVER
 void reg_wizchip_cs_cbfunc(void(*cs_sel)(void), void(*cs_desel)(void))
 {
    if(!cs_sel || !cs_desel)
@@ -217,9 +218,10 @@ void reg_wizchip_cs_cbfunc(void(*cs_sel)(void), void(*cs_desel)(void))
       WIZCHIP.CS._deselect = cs_desel;
    }
 }
-
+#endif
 //M20150515 : For integrating with W5300
 //void reg_wizchip_bus_cbfunc(uint8_t(*bus_rb)(uint32_t addr), void (*bus_wb)(uint32_t addr, uint8_t wb))
+#ifdef NEVER
 void reg_wizchip_bus_cbfunc(iodata_t(*bus_rb)(uint32_t addr), void (*bus_wb)(uint32_t addr, iodata_t wb))
 {
    while(!(WIZCHIP.if_mode & _WIZCHIP_IO_MODE_BUS_));
@@ -247,7 +249,8 @@ void reg_wizchip_bus_cbfunc(iodata_t(*bus_rb)(uint32_t addr), void (*bus_wb)(uin
       WIZCHIP.IF.BUS._write_data  = bus_wb;
    }
 }
-
+#endif
+#ifdef HEVER
 void reg_wizchip_spi_cbfunc(uint8_t (*spi_rb)(void), void (*spi_wb)(uint8_t wb))
 {
    while(!(WIZCHIP.if_mode & _WIZCHIP_IO_MODE_SPI_));
@@ -263,8 +266,9 @@ void reg_wizchip_spi_cbfunc(uint8_t (*spi_rb)(void), void (*spi_wb)(uint8_t wb))
       WIZCHIP.IF.SPI._write_byte  = spi_wb;
    }
 }
-
+#endif
 // 20140626 Eric Added for SPI burst operations
+#ifdef NEVER
 void reg_wizchip_spiburst_cbfunc(void (*spi_rb)(uint8_t* pBuf, uint16_t len), void (*spi_wb)(uint8_t* pBuf, uint16_t len))
 {
    while(!(WIZCHIP.if_mode & _WIZCHIP_IO_MODE_SPI_));
@@ -280,7 +284,8 @@ void reg_wizchip_spiburst_cbfunc(void (*spi_rb)(uint8_t* pBuf, uint16_t len), vo
       WIZCHIP.IF.SPI._write_burst  = spi_wb;
    }
 }
-
+#endif
+#ifdef NEVER
 int8_t ctlwizchip(ctlwizchip_type cwtype, void* arg)
 {
 #if	_WIZCHIP_ == W5100S || _WIZCHIP_ == W5200 || _WIZCHIP_ == W5500
@@ -361,8 +366,8 @@ int8_t ctlwizchip(ctlwizchip_type cwtype, void* arg)
    }
    return 0;
 }
-
-
+#endif
+#ifdef NEVER
 int8_t ctlnetwork(ctlnetwork_type cntype, void* arg)
 {
    
@@ -390,7 +395,7 @@ int8_t ctlnetwork(ctlnetwork_type cntype, void* arg)
    }
    return 0;
 }
-
+#endif
 void wizchip_sw_reset(void)
 {
    uint8_t gw[4], sn[4], sip[4];
@@ -811,14 +816,14 @@ void wizphy_getphyconf(wiz_PhyConf* phyconf)
          break;
    }
 }
-
+#ifdef NEVER
 void wizphy_getphystat(wiz_PhyConf* phyconf)
 {
    uint8_t tmp = getPHYCFGR();
    phyconf->duplex = (tmp & PHYCFGR_DPX_FULL) ? PHY_DUPLEX_FULL : PHY_DUPLEX_HALF;
    phyconf->speed  = (tmp & PHYCFGR_SPD_100) ? PHY_SPEED_100 : PHY_SPEED_10;
 }
-
+#endif
 int8_t wizphy_setphypmode(uint8_t pmode)
 {
    uint8_t tmp = 0;

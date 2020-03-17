@@ -193,11 +193,11 @@ Ethernet_localIP (unsigned char *ip)
 }
 
 //! Ethernet_localGW, get my gateway address
-void
-Ethernet_localGW (unsigned char *ip)
-{
-  getGWfromDHCP (ip);
-}
+//void
+//Ethernet_localGW (unsigned char *ip)
+//{
+//  getGWfromDHCP (ip);
+//}
 //! Ethernet_localSN, Get my network mask
 void
 Ethernet_localSN (unsigned char *ip)

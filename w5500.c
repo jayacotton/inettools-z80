@@ -107,29 +107,29 @@ softReset ()
 
 }
 
-void
-WIZCHIP_PRESENT ()
-{
-  unsigned char version;
+//void
+//WIZCHIP_PRESENT ()
+//{
+//  unsigned char version;
 
-  w5500_present = 0;		// no yet ...
-  if (!softReset ())
-    return 0;
-  writeMR (0x08);
-  if (readMR () != 0x08)
-    return 0;
-  writeMR (0x10);
-  if (readMR () != 0x10)
-    return 0;
-  writeMR (0);
-  if (readMR () != 0)
-    return 0;
-  version = readVERSIONR_W5500 ();
-  if (version != 4)
-    return 0;
-  w5500_present++;		// found it
+ // w5500_present = 0;		// no yet ...
+//  if (!softReset ())
+//    return 0;
+//  writeMR (0x08);
+//  if (readMR () != 0x08)
+//    return 0;
+//  writeMR (0x10);
+//  if (readMR () != 0x10)
+//    return 0;
+//  writeMR (0);
+//  if (readMR () != 0)
+//    return 0;
+//  version = readVERSIONR_W5500 ();
+//  if (version != 4)
+//    return 0;
+//  w5500_present++;		// found it
 
-}
+//}
 
 unsigned char
 readPHYCFGR_W5500 ()
@@ -163,8 +163,10 @@ WIZCHIP_READ (uint32_t AddrSel)
   SpiSendData ((AddrSel & 0x0000FF00) >> 8);
   SpiSendData ((AddrSel & 0x000000FF) >> 0);
   ret = SpiRecvData ();
-
   CSoff ();
+#ifdef DEBUG
+printf("input byte 0x%02x\n",ret);
+#endif
   TRACE ("<-WIZCHIP_READ");
   return ret;
 }
@@ -181,7 +183,9 @@ WIZCHIP_WRITE (uint32_t AddrSel, unsigned char wb)
   SpiSendData ((AddrSel & 0x0000FF00) >> 8);
   SpiSendData ((AddrSel & 0x000000FF) >> 0);
   SpiSendData (wb);
-
+#ifdef DEBUG
+printf("output byte 0x%02x\n",wb);
+#endif
   CSoff ();
 }
 
