@@ -34,12 +34,13 @@ All of this work has been conducted on linux ubuntu v18.
 This code is really preliminary in nature, it works in an ideal environment, but falls on its face when any kind of
 out of band condition turns up.  Most often with the DHCP server gets tired of the FeatherWing asking questions.
 
-Also the code it very large, most of the programs are 30 to 45 kb, which is huge on a z80.  I have not attempted to 
-reduce the foot print of the code yet.
+Also the code it very large, most of the programs are 30 to 45 kb, which is huge on a z80.  I have make a preliminary
+pass at reduceing the size of the code.  z88dk does not have (currently) dead code removal, so I used cppcheck and cscope
+to track down dead functions and commented them out of the code pool.  Planning to be more sophisticated later.
 
 To build the code you need z88dk installed, you will also need doxygen to produce the documentation files.
 
-A note:  MYGET.COM needs a configureation file on the cp/m disk called MYGET.CFG.  It has the ip address of the
+A note:  MYGET.COM needs a configuration file on the cp/m disk called MYGET.CFG.  It has the ip address of the
 http host you are using for uploading (downloading) ... loading your code onto the cp/m disk.  
 To make that work, you need to install an http server on your host machine, and populate the source directory with
 files to transfer...  
