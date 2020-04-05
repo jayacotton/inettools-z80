@@ -180,8 +180,6 @@ httpServer_run (uint8_t seqnum)
   //uint32_t gettime = 0; // 20150828 ## Eric removed
 
   uint8_t ret = 0;
-
-  TRACE ("");
   http_request = (st_http_request *) pHTTP_RX;	// Structure of HTTP Request
   parsed_http_request = (st_http_request *) pHTTP_TX;
 
@@ -192,7 +190,7 @@ httpServer_run (uint8_t seqnum)
   switch (getSn_SR (s))
     {
     case SOCK_ESTABLISHED:
-      TRACE ("");
+TRACE("");
       // Interrupt clear
       if (getSn_IR (s) & Sn_IR_CON)
 	{
@@ -204,17 +202,15 @@ httpServer_run (uint8_t seqnum)
 	{
 
 	case STATE_HTTP_IDLE:
-	  TRACE ("");
+TRACE("");
 	  if ((len = getSn_RX_RSR (s)) > 0)
 	    {
 	      if (len > DATA_BUF_SIZE)
 		len = DATA_BUF_SIZE;
 
-	      TRACE ("");
 	      if ((len = recv (s, (uint8_t *) http_request, len)) < 0)
 		break;		// Exception handler
 
-	      TRACE ("");
 	      //////////////////////////////////////////////////////////////////////////////
 	      // Todo; User defined custom command handler (userHandler.c)
 	      //ret = custom_command_handler ((uint8_t *) http_request);
@@ -231,7 +227,6 @@ httpServer_run (uint8_t seqnum)
 	      else		// HTTP process handler
 		{
 		  *(((uint8_t *) http_request) + len) = '\0';	// End of string (EOS) marker
-		  TRACE ("");
 		  parse_http_request (parsed_http_request,
 				      (uint8_t *) http_request);
 
@@ -249,9 +244,9 @@ httpServer_run (uint8_t seqnum)
 
 
 	case STATE_HTTP_RES_INPROC:
+TRACE("");
 	  /* Repeat: Send the remain parts of HTTP responses */
 	  // Repeatedly send remaining data to client
-	  TRACE ("");
 	  send_http_response_body (s, 0, http_response, 0, 0);
 
 	  if (HTTPSock_Status[seqnum].file_len == 0)
@@ -259,8 +254,8 @@ httpServer_run (uint8_t seqnum)
 	  break;
 
 	case STATE_HTTP_RES_DONE:
+TRACE("");
 	  // Socket file info structure re-initialize
-	  TRACE ("");
 	  HTTPSock_Status[seqnum].file_len = 0;
 	  HTTPSock_Status[seqnum].file_offset = 0;
 	  HTTPSock_Status[seqnum].file_start = 0;
@@ -274,13 +269,12 @@ httpServer_run (uint8_t seqnum)
 	  break;
 
 	default:
-	  TRACE ("");
 	  break;
 	}
       break;
 
     case SOCK_CLOSE_WAIT:
-      TRACE ("");
+TRACE("");
       // Socket file info structure re-initialize
       HTTPSock_Status[seqnum].file_len = 0;
       HTTPSock_Status[seqnum].file_offset = 0;
@@ -291,30 +285,28 @@ httpServer_run (uint8_t seqnum)
       break;
 
     case SOCK_INIT:
-      TRACE ("");
+TRACE("");
       listen (s);
       break;
 
     case SOCK_LISTEN:
-      TRACE ("");
       break;
 
     case SOCK_SYNSENT:
-      TRACE ("");
+TRACE("");
       //case SOCK_SYNSENT_M:
     case SOCK_SYNRECV:
-      TRACE ("");
+TRACE("");
       //case SOCK_SYNRECV_M:
       break;
 
     case SOCK_CLOSED:
-      TRACE ("");
+TRACE("");
       if (socket (s, Sn_MR_TCP, HTTP_SERVER_PORT, 0x00) == s)	/* Reinitialize the socket */
 	{
 	}
       break;
     default:
-      TRACE ("");
       break;
     }				// end of switch
 

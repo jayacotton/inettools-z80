@@ -234,6 +234,7 @@ sprintf(dnsname,"%d.%d.%d.%d", HostAddr[0], HostAddr[1],
     }
   while (code == 100 && !looped++);
 
+	remove(argv[1]);
   of = open (argv[1], O_WRONLY | O_CREAT, 0666);
   if (of == -1)
     {

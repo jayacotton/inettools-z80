@@ -86,7 +86,10 @@ uint16_t year;
 uint8_t wday;
 
 	get_via_romwbw(&sec,&min,&hr,&wday,&month,&day,&year);
-
+#ifdef PDT
   printf ("%s %d %02d:%02d:%02d PDT %d\n",monthname[month],day,hr,min,sec,year+2000);
+#else
+  printf ("%s %d %02d:%02d:%02d PST %d\n",monthname[month],day,hr,min,sec,year+2000);
+#endif
   return 0;
 }

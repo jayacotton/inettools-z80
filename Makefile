@@ -1,4 +1,4 @@
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https
+all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac
 
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
@@ -90,6 +90,11 @@ httpParser.o:
 pingnoti: w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o
 	zcc +cpm -create-app -opingnoti ping.c -DNOTIMER w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
 
+mac: mac.o
+	zcc +cpm -create-app -omac mac.o
+
+mac.o:
+	zcc +cpm -O3 --list --c-code-in-asm -c mac.c
 
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd

@@ -204,19 +204,22 @@ WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
   SpiSendData ((AddrSel & 0x0000FF00) >> 8);
   SpiSendData ((AddrSel & 0x000000FF) >> 0);
 #ifdef SPI_BURST_READ
-  printf ("burst_read %d\n", len);
+  //printf ("burst_read %d\n", len);
+#asm
+	in	_shift_rdtr
+#endasm
   p = pBuf;
   rs = spi_burst_read (p, len);
   p += rs;
   if (rs < len)
     {
       len = len - rs;
-      printf ("read more %d\n", len);
+    //  printf ("read more %d\n", len);
       while (len > 0)
 	{
 	  rs = spi_burst_read (p, len);
 	  len = len - rs;
-	  printf ("read more %d\n", len);
+//	  printf ("read more %d\n", len);
 	}
     }
 #else

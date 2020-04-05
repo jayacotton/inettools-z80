@@ -97,6 +97,25 @@ DHCP_reset_static (unsigned char *mac)
   gWIZNETINFO.dhcp = NETINFO_DHCP;
 }
 
+/* get the mac address from mac.cfg */
+
+FILE *f;
+void get_mac(unsigned char *mac)
+{
+unsigned int lm[6];
+	if((f = fopen("mac.cfg","r")) != 0){
+		fscanf(f,"%d,%d,%d,%d,%d,%d",&lm[0],&lm[1],&lm[2],&lm[3],&lm[4],&lm[5]);
+		fclose(f);
+		mac[0]=lm[0];
+		mac[1]=lm[1];
+		mac[2]=lm[2];
+		mac[3]=lm[3];
+		mac[4]=lm[4];
+		mac[5]=lm[5];
+	}else{
+		printf("Please run mac.com to init mac.cfg\n");
+	}
+}
 //! Ethernet_begin, is called by the user level code to get things started.  It will
 //! init the spi bus, dhcp, get an IP address, setup the mac address.
 unsigned int
@@ -108,6 +127,7 @@ TRACE("");
   spi_init();	// since we alway run on spi bus
 TRACE("");
   run_user_applications = 0;
+  get_mac(mac);
   DHCP_reset_static (mac);
   TRACE ("DHCP_init");
   DHCP_init (SOCK_DHCP, DHCP_buffer);

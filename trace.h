@@ -33,9 +33,12 @@ int snapmem(int *, int *, int, int, char *);
 #define TRACE(msg) printf("%s %d %s\n",__FILE__,__LINE__,msg);
 #define TRACEFL(msg) {if(tfl)printf("%s %d %s\n",__FILE__,__LINE__,msg);}
 #define TVAL(fmt,var) printf(fmt,var);
+#define LED(v) {outp(0,v);}
+#define LEDN(v) {outp(0,1<<v);}
 #else
 #define TRACE(msg)
 #define TRACEFL(msg)
 #define TVAL(fmt,var)
 #define SNAP(addr,size,flag)
+#define LEDN(V)
 #endif
