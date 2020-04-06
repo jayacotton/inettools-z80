@@ -6,6 +6,7 @@
 #include "wizchip_conf.h"
 #include "trace.h"
 #include "socket.h"
+#include "telnetd.h"
 
 /* since cp/m does not have login/password protocol and
 there are no user accounts (as in modern os's) the setup
@@ -24,6 +25,8 @@ int Port;
 int j;
 int len;
 unsigned char byte;
+unsigned char cmdbuf[12];
+unsigned int do_loop;
 
 /* find and store the stuff that is located in the
 BIOS jump table for the console io functions. */
@@ -45,9 +48,7 @@ void byte_con(unsigned char xbyte)
 		outp(0x88,0);
 		j = inp(0x88);
 		j &= 4;
-//LED(j);
 	}while(j != 4); /* if zero  loop */
-//LED(xbyte);
 	/* if not zero write byte */
 	outp(0x89,xbyte);
 }
@@ -62,17 +63,14 @@ void text_con(unsigned char *text)
 #endasm
 		CONOUT(x_x);
 	}
-//	byte_con('\n');
 #asm
 		ld	c,'\n'
 #endasm
 		CONOUT('\n');
-//	byte_con('\r'); 
 		CONOUT('\r');
 }
 void bahr()
 {
-//LED(255);
 #asm
 	di	
 	ld	hl,(_konst)
@@ -92,7 +90,6 @@ void bahr()
 	ld	(hl),d
 	ei
 #endasm
-//LED(254);
 	exit(0);
 }
 
@@ -137,7 +134,6 @@ void CONINIT()
 /* now that we have copied the pointers we can get the
 contest of memory from those locations and save it for
 returning later */
-//LED(7);
 #asm
 	di
 	ld	de,_CONST
@@ -157,7 +153,6 @@ returning later */
 	ld	(hl),d
 	ei	
 #endasm
-//LED(0);
 }
 unsigned char CONST()
 {
@@ -166,8 +161,8 @@ unsigned char CONST()
 	push	de
 	push	bc
 #endasm
-text_con("In CONST");
-//LED(64);
+LED(0x80);
+	do_loop = 0;
 	if(getSn_RX_RSR (Socket)){
 #asm
 	pop	bc
@@ -189,15 +184,17 @@ text_con("In CONST");
 }
 unsigned char CONIN()
 {
+int z;
 #asm
 	push	hl
 	push	de
 	push	bc
 #endasm
-text_con("In CONIN");
-//LED(32);
-	while(!recv (Socket, &x_x, 1));
-LED(x_x);
+LED(0x40);
+	do_loop = 0;
+	do{
+		z = recv (Socket, &x_x, 1);
+	}while(z==0);
 #asm
 	pop	bc
 	pop	de
@@ -216,8 +213,9 @@ void CONOUT(unsigned char x)
 	ld	a,c
 	ld	(_x_x),a
 #endasm
-//LED(x_x);
-  send (Socket, &x_x, 1);
+LED(0x20);
+	do_loop = 0;
+        send (Socket, &x_x, 1);
 #asm
 	pop	bc
 	pop	de
@@ -226,11 +224,11 @@ void CONOUT(unsigned char x)
 }
 main ()
 {
-unsigned char dummy[30];
 /* setup conole connect.  remember we want to fail back to
 sio console */
 /* consider using a different console device and then just 
 assign the console to that device. */
+
 
 /* set up ethernet device */
 /* remember default socket is 23 */
@@ -253,74 +251,73 @@ assign the console to that device. */
   Socket = 2;			/* hard code this also */
   socket (Socket, Sn_MR_TCP, Port, 0);
   while (listen (Socket) != SOCK_OK);
-//LED(14);
 /* wait here for a telnet session to start */
   while (getSn_RX_RSR (Socket) == 0)
     {
     }
-recv(Socket,dummy,27);
-//LED(5);
   send (Socket, "CP/M 2.2 Telnet Deamon\n\r", 24);
 /* loop */
-text_con("testing the CONOUT code");
-#ifdef NEVER
-exit(0);
-j = 0;
-  while (1)
+//text_con("testing the CONOUT code");
+	
+  do_loop = 1;
+  while (do_loop)
     {				/* should be looking for an exit condition */
-//LED(6);
-//LED(j++);
-if(j >= 64000) exit(0);
-/* monitor the ethernet for incoming data, and send it
-t
+/* commands that the telnet client sends 
+DO SUPPRESS GO AHEAD, WILL TERMINAL TYPE, WILL NAWS, 
+WILL TSPEED, WILL LFLOW, WILL LINEMODE, WILL NEW-ENVIRON, 
+DO STATUS, WILL XDISPLOC 
+others will just be dumped for now */
       len = getSn_RX_RSR (Socket);
       if (len)
 	{
-	  recv (Socket, byte, 1);
-	  switch (byte[0])
+	  recv (Socket, &byte, 1);
+	  switch (byte)
 	    {
 	    case 255:
 	      {
 		recv (Socket, &byte, 1);
 		switch (byte)
 		  {
-		  case '\r':{
-//LED(7);
-exit(0);
-		  }
+		  case '\r':
+                  {
+			do_loop = 0;
 			break;
-		  case 240:
-		  case 241:
-		  case 242:
-		  case 243:
-		  case 244:
-		  case 245:
-		  case 246:
-		  case 247:
-		  case 248:
-		  case 249:
-		  case 250:
-		  case 251:
-		  case 252:
-		  case 253:
-		  case 254:
-		   recv (Socket, &byte, 1);
-		    break;
 		  }
-		   break;
+		  case DO:
+			recv (Socket, &byte, 1);
+			cmdbuf[0] = IAC;
+			cmdbuf[1] = WONT;
+			cmdbuf[2] = byte;
+			send(Socket,cmdbuf,3);
+			break;			
+		  case WILL:
+			recv (Socket, &byte, 1);
+			cmdbuf[0] = IAC;
+			cmdbuf[1] = DO;
+			cmdbuf[2] = byte;
+			send(Socket,cmdbuf,3);
+			break;			
+		  case WONT:
+			recv (Socket, &byte, 1);
+			break;
+	          case DONT:
+			recv (Socket, &byte, 1);
+			break;
+	          default:	/* all the stuff we are dumping goes here */
+		}
 	      }
-		break:
-	    case '\r':
-//LED(7);
-exit(0);
-			break;
-		default:
-	      break;
-	    default:
 		break;
+	    case '\r':
+			do_loop = 0;
+			break;
+	    default:
+	      break;
 	    }
 /* monitor the console port and send data to the ethernet */
 /* end of loop */
 	}
-#endif
+    }
+#asm
+	jp	0 
+#endasm
 }

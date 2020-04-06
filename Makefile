@@ -1,37 +1,36 @@
 all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac
 
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
+	zcc +cpm -zorg=4096 -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
 
-telnet_server.o:telnet_server.c
+telnet_server.o:telnet_server.c telnetd.h
 	zcc +cpm -O3 --list --c-code-in-asm -DDEBUG -c  telnet_server.c 
 
-w5500.o: w5500.c
+w5500.o: w5500.c w5500.h wizchip_conf.h
 	zcc +cpm -O3 --list --c-code-in-asm -c  w5500.c 
 
-dhcp.o: dhcp.c
+dhcp.o: dhcp.c dhcp.h
 	zcc +cpm -O3 --list --c-code-in-asm   -c  dhcp.c 
 
-spi.o: spi.c
+spi.o: spi.c spi.h
 	zcc +cpm -O3 --list --c-code-in-asm  -c  spi.c 
 
-socket.o: socket.c
+socket.o: socket.c socket.h
 	zcc +cpm -O3 --list --c-code-in-asm   -c  socket.c 
 
-ethernet.o: ethernet.c
+ethernet.o: ethernet.c ethernet.h
 	zcc +cpm -O3 --list --c-code-in-asm   -c  ethernet.c 
 
-dns.o: dns.c
+dns.o: dns.c dns.h
 	zcc +cpm -O3 --list --c-code-in-asm   -c  dns.c 
 
-wizchip_conf.o: wizchip_conf.c
+wizchip_conf.o: wizchip_conf.c wizchip_conf.h
 	zcc +cpm -O3 --list --c-code-in-asm  -c  wizchip_conf.c 
 
 ifconfig: addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -oifconfig -Wunused addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 
-addrprint.o: addrprint.c
-	zcc +cpm -O3 --list --c-code-in-asm  -c  addrprint.c 
+addrprint.o: addrprint.c zcc +cpm -O3 --list --c-code-in-asm  -c  addrprint.c 
 
 dig: dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
@@ -97,7 +96,7 @@ mac.o:
 	zcc +cpm -O3 --list --c-code-in-asm -c mac.c
 
 clean:
-	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd
+	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac 
 	rm -rf html irc latex email
 
 install:
