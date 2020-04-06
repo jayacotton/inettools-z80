@@ -30,7 +30,8 @@ wizchip_conf.o: wizchip_conf.c wizchip_conf.h
 ifconfig: addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -oifconfig -Wunused addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 
-addrprint.o: addrprint.c zcc +cpm -O3 --list --c-code-in-asm  -c  addrprint.c 
+addrprint.o: addrprint.c 
+	zcc +cpm -O3 --list --c-code-in-asm  -c  addrprint.c 
 
 dig: dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
