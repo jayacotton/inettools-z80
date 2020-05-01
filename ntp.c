@@ -101,6 +101,9 @@
 #define SECS_PER_DAY 86400
 #define SECS_PER_HOUR 3600
 
+extern unsigned int rtccount();
+extern unsigned char *rtctype();
+
 struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
 char *weekday[7] = { "Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun" };
@@ -288,6 +291,15 @@ main (int argc, char *argv[])
   pdt = 0;			// assumes pacific standard time
 #endif
 
+	if(rtccount()){
+		if(!strcmp(rtctype(),"DS1322")){
+			printf("Only works with DS1322\n");
+			exit(0);
+		}
+	}else{
+		printf("No RTC configured\n");
+		exit(0);
+	}
   memset (&packet, 0, sizeof (struct ntp_packet));
 
   // Set the first byte's bits to 00,011,011 for li = 0, vn = 3, and mode = 3. 
