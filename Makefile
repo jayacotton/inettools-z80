@@ -1,91 +1,97 @@
+CFLAGS	= --list 
+#CFLAGS	= -O3 --list --c-code-in-asm
+
 all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac
 
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	zcc +cpm -zorg=4096 -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
+	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
 
 telnet_server.o:telnet_server.c telnetd.h
-	zcc +cpm -O3 --list --c-code-in-asm -DDEBUG -c  telnet_server.c 
+	zcc +cpm $(CFLAGS) -DDEBUG -c  telnet_server.c 
 
 w5500.o: w5500.c w5500.h wizchip_conf.h
-	zcc +cpm -O3 --list --c-code-in-asm -c  w5500.c 
+	zcc +cpm $(CFLAGS) -c  w5500.c 
 
 dhcp.o: dhcp.c dhcp.h
-	zcc +cpm -O3 --list --c-code-in-asm   -c  dhcp.c 
+	zcc +cpm $(CFLAGS)   -c  dhcp.c 
 
 spi.o: spi.c spi.h
-	zcc +cpm -O3 --list --c-code-in-asm  -c  spi.c 
+	zcc +cpm $(CFLAGS)  -c  spi.c 
 
 socket.o: socket.c socket.h
-	zcc +cpm -O3 --list --c-code-in-asm   -c  socket.c 
+	zcc +cpm $(CFLAGS)   -c  socket.c 
 
 ethernet.o: ethernet.c ethernet.h
-	zcc +cpm -O3 --list --c-code-in-asm   -c  ethernet.c 
+	zcc +cpm $(CFLAGS)   -c  ethernet.c 
 
 dns.o: dns.c dns.h
-	zcc +cpm -O3 --list --c-code-in-asm   -c  dns.c 
+	zcc +cpm $(CFLAGS)   -c  dns.c 
 
 wizchip_conf.o: wizchip_conf.c wizchip_conf.h
-	zcc +cpm -O3 --list --c-code-in-asm  -c  wizchip_conf.c 
+	zcc +cpm $(CFLAGS)  -c  wizchip_conf.c 
 
 ifconfig: addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -oifconfig -Wunused addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 
 addrprint.o: addrprint.c 
-	zcc +cpm -O3 --list --c-code-in-asm  -c  addrprint.c 
+	zcc +cpm $(CFLAGS)  -c  addrprint.c 
 
 dig: dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 
 dnsprint.o: dnsprint.c
-	zcc +cpm -O3 --list --c-code-in-asm  -c  dnsprint.c 
+	zcc +cpm $(CFLAGS)  -c  dnsprint.c 
 
 ping: ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o 
 	zcc +cpm -create-app -oping ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
 
 ping.o: ping.c
-	zcc +cpm -O3 --list --c-code-in-asm  -c  ping.c 
+	zcc +cpm $(CFLAGS)  -c  ping.c 
 
 time.o: time.c
-	zcc +cpm -O3 --list --c-code-in-asm -c  time.c 
+	zcc +cpm $(CFLAGS) -c  time.c 
 
 telnet: telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
 	zcc +cpm -create-app -otelnet telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 
 telnet_client.o:
-	zcc +cpm -O3 --list --c-code-in-asm -c  telnet_client.c 
+	zcc +cpm $(CFLAGS) -c  telnet_client.c 
 
 myget: get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
 	zcc +cpm -create-app -omyget get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 
 get.o:
-	zcc +cpm -O3 --list --c-code-in-asm -c  get.c 
+	zcc +cpm $(CFLAGS) -c  get.c 
 
-ntp: ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
-	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
+ntp: ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o
+	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o
 
-ntp.o: ntp.c
-	zcc +cpm -O3 --list --c-code-in-asm -DPDT -c  ntp.c 
+ntp.o: ntp.c 
+	zcc +cpm $(CFLAGS) -DPDT -c  ntp.c 
+
+sysface.o: sysface.c
+	zcc +cpm $(CFLAGS) -c  sysface.c 
 
 date: date.o
 	zcc +cpm -create-app -odate date.o 
 
 date.o: 
-	zcc +cpm -O3 --list --c-code-in-asm -DPDT -c  date.c 
+	zcc +cpm $(CFLAGS) -DPDT -c  date.c 
 
 wget: htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o
 	zcc +cpm -create-app -owget htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o -lm
 
 htget.o: htget.c
-	zcc +cpm -O3 --list --c-code-in-asm -c htget.c
+	zcc +cpm $(CFLAGS) -c htget.c
 
 https: httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
 	zcc +cpm -create-app -ohttps httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 
 httpServer.o:
-	zcc +cpm -O3 --list --c-code-in-asm  -c  httpServer.c 
+	zcc +cpm $(CFLAGS)  -c  httpServer.c 
 
 httpParser.o:
-	zcc +cpm -O3 --list --c-code-in-asm  -c  httpParser.c 
+	zcc +cpm $(CFLAGS)  -c  httpParser.c 
 
 pingnoti: w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o
 	zcc +cpm -create-app -opingnoti ping.c -DNOTIMER w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
@@ -94,7 +100,7 @@ mac: mac.o
 	zcc +cpm -create-app -omac mac.o
 
 mac.o:
-	zcc +cpm -O3 --list --c-code-in-asm -c mac.c
+	zcc +cpm $(CFLAGS) -c mac.c
 
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac 
