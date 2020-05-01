@@ -243,14 +243,14 @@ leaps (uint16_t r)
 {
   return (div (r, 4) - div (r, 100) + div (r, 400));
 }
+  int portno = 123;		// NTP UDP port number.
+  char *host_name = "time.google.com";	// NTP server host-name.
 int
 main (int argc, char *argv[])
 {
   int sockfd;
   int n;			// Socket file descriptor and the n 
   // return result from writing/reading from the socket.
-  int portno = 123;		// NTP UDP port number.
-  char *host_name = "time.google.com";	// NTP server host-name.
   int i;
   int rn;
   unsigned char *p;
@@ -295,9 +295,11 @@ main (int argc, char *argv[])
 #ifdef DEBUG
 printf("you have %d rtc, and its name is %s\n",rtccount(),rtctype());
 #endif
-  if(argc > 1)
+  if(argc >= 1)
 	host_name = argv[1];
+#ifdef DEBUG
 printf("host name %s\n",host_name);
+#endif
 
 	if(rtccount()){
 		if(strcmp(rtctype(),"DS1322") !=0 ){
