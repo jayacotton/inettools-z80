@@ -21,7 +21,7 @@ char *types[4] =
 unsigned char *rtctype()
 {
 #asm
-	ld	bc,$f828	; get rtc device type
+	ld	bc,$2800	; get rtc device type
 	rst	08
 	ld	a,d
 	ld	(_count),a

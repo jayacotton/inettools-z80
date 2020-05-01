@@ -291,8 +291,16 @@ main (int argc, char *argv[])
   pdt = 0;			// assumes pacific standard time
 #endif
 
+/* this could be inproved to deal with int timer clock on rt2014 */
+#ifdef DEBUG
+printf("you have %d rtc, and its name is %s\n",rtccount(),rtctype());
+#endif
+  if(argc > 1)
+	host_name = argv[1];
+printf("host name %s\n",host_name);
+
 	if(rtccount()){
-		if(!strcmp(rtctype(),"DS1322")){
+		if(strcmp(rtctype(),"DS1322") !=0 ){
 			printf("Only works with DS1322\n");
 			exit(0);
 		}
@@ -300,6 +308,7 @@ main (int argc, char *argv[])
 		printf("No RTC configured\n");
 		exit(0);
 	}
+
   memset (&packet, 0, sizeof (struct ntp_packet));
 
   // Set the first byte's bits to 00,011,011 for li = 0, vn = 3, and mode = 3. 
