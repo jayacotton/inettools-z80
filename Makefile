@@ -1,7 +1,7 @@
 CFLAGS	= --list --c-code-in-asm
 #CFLAGS	= -O3 --list --c-code-in-asm
 
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today
+all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone
 
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
@@ -72,10 +72,10 @@ ntp.o: ntp.c
 sysface.o: sysface.c
 	zcc +cpm $(CFLAGS) -c  sysface.c 
 
-date: date.o
-	zcc +cpm -create-app -odate date.o 
+date: date.o sysface.o
+	zcc +cpm -create-app -odate date.o sysface.o
 
-date.o: 
+date.o: date.c
 	zcc +cpm $(CFLAGS) -DPDT -c  date.c 
 
 wget: htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o
@@ -113,6 +113,12 @@ today: today.o sysface.o
 
 today.o: today.c
 	zcc +cpm $(CFLAGS) -c today.c
+
+timezone: timezone.o sysface.o
+	zcc +cpm -create-app -otimezone timezone.o sysface.o
+
+timezone.o: timezone.c
+	zcc +cpm $(CFLAGS) -c timezone.c
 		
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac 
