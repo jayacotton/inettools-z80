@@ -17,7 +17,19 @@ dig: This is a really simple version of dig, it reports a single ip address for 
 
 wget:  This will allow cp/m users to load programs onto there CF card etc using http protocol.
 
-ntp: This program will get the date and time from an ntp server and set the RTC chip.  This requires an RTC/RC2014 board.
+today:  This is code cribed from the z88dk/examples/today.c.  I modified it to work with
+the rc2014 RTC and timer code.  I.e. get the UNIXEPOCH as adjusted for time zone and 
+delta time from last ntp update.
+
+timezone:  Tool for setting your time zone offset.  You will need to compute the
+offset value by hand, since the code to find it is gynormass.  But its not that hard.  
+Just find your time zone and compute the  number of seconds from GMT.  For me its 
+GMT-7 or 25200 seconds.  YMMV.
+
+uptime:  This reads the amount of time your RC2014 has been running since reboot.  Its
+really a handy tool for testing the interrupt timer.  But then so it timer.
+
+ntp: This program will get the date and time from an ntp server and set the RTC chip.  This requires an RTC/RC2014 board.  Currently kinda broken.
 
 date: This reads the date and time from the RTC.  This requires an RTC/RC2014 board.
 
