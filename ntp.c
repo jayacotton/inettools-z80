@@ -326,7 +326,6 @@ main (int argc, char *argv[])
   un.l = my_ntohl (packet.txTm_s);
   un.l = un.l - (uint32_t) NTP_TIMESTAMP_DELTA_HEX;
  // store un.l as the root ntp time
-printf("seconds is %ld\n",un.l);
   EpochSet(un.l); 
   return 0;
 }

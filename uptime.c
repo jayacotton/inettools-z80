@@ -27,6 +27,6 @@ main()
 {
 long time ;
 
-	time = GetUptime(0);
+	time = GetUptime(1);
 	PrintAsTime(time);
 }

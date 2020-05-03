@@ -10,8 +10,9 @@
 #define bf_sysget	0xF8	// HBIOS: SYSGET function
 #define bf_sysgettimer	0xD0	// TIMER subfunction
 #define bf_sysgetsecs	0xD1	// SECONDS subfunction
-#define EpochBuf 2		// start of epoch buffer
-#define UptimeBuf 10		// start of uptime delta buffer.
+#define EpochBuf 0		// start of epoch buffer
+#define UptimeBuf EpochBuf+8	// start of uptime delta buffer.
+#define TZbuf  UptimeBuf+8	// start of time zone buffer.
 
 unsigned int count;
 int lvers;
@@ -28,12 +29,36 @@ below.
 char *types[5] =
 {"DS1302", "BQ4845P", "SIMH", "INT TIMER", "NULL"};
 
-/* for our purpose, EPOCH is time since midnight jan 1 2000 i.e. Y2K
-3,124,137,601 seconds from jan 1 1900 to jan 1 2000.
+/* Get time in UNIXEPOCH, its a 32 bit number good till
+2038.
 ntp provides seconds since midnight jan 1 1900 as a 64 bit number.
 32 bits are seconds, and the other 32 are fractions of a second.
 */
 
+/* set the time zone data (into nvram) */
+void SetTZ(unsigned long zone)
+{
+int i;
+int addr;
+	for(i=0;i<4;i++){
+		addr = TZbuf + (i<<1);
+		SetNvram(addr,(unsigned char )zone & 0xff);
+		zone = zone >> 8;
+	}
+}
+unsigned long GetTZ()
+{
+int i;
+unsigned long res;
+int addr;
+	res = 0;
+	for(i=0;i<4;i++){
+		res = res << 8;
+		addr = TZbuf + ((3-i)<<1);
+		res |= 0xff & GetNvram(addr);
+	}
+	return res;
+}
 /* get and test the bios version number */
 int TestBIOS()
 {
@@ -51,7 +76,7 @@ void EpochSet(unsigned long epoch)
 {
 int i;
 int addr;
-long lepoch;
+unsigned long lepoch;
 	lepoch = epoch;
 /* store the current epoch time value */
 	for(i=0;i<4;i++){
@@ -62,11 +87,14 @@ long lepoch;
 /* save the current uptime in seconds and set the uptime
 to zero WARNING, bug farm here */
 	SetDeltaUptime(GetUptime(1));
-	SetUptime((long) 0);
 }
 
-/* get the Y2K epoch time in seconds since the last NTP time
+/* get the UNIXEPOCH time in seconds since the last NTP time
 check.
+
+UNIXEPOCH + Delta uptime.
+	Delta uptime is current uptime + (delta at ntp check)
+	delta at ntp check is uptime at ntp (stored in nvram) - current uptime.
 */
 unsigned long EpochGet()
 {
@@ -79,7 +107,8 @@ int addr;
 		addr = EpochBuf + ((3-i)<<1);
 		res |= 0xff & GetNvram(addr);
 	}
-	res += GetUptime(0);
+	res += GetDeltaUptime();
+	res -= GetTZ();
 	return res;
 }
 /* get and set the uptime seconds
@@ -117,7 +146,7 @@ unsigned char GetNvram(int addr)
 	return (lval);
 }
 
-void SetDeltaUptime(long uptime)
+void SetDeltaUptime(unsigned long uptime)
 {
 int i;
 int addr;
@@ -127,6 +156,8 @@ int addr;
 		uptime = uptime >> 8;
 	}
 }
+
+/* return a copy of the uptime that was stored in the nvram */
 unsigned long GetDeltaUptime()
 {
 int i;
@@ -138,6 +169,7 @@ int addr;
 		addr = UptimeBuf + (i<<1);
 		res |= GetNvram(addr);
 	}
+	return (GetUptime(1)-res);
 }
 unsigned long GetUptime(int flag)
 {
@@ -149,7 +181,8 @@ unsigned long GetUptime(int flag)
 #endasm
 	if(flag)
 		return (ltime);
-	return (GetDeltaUptime()+ltime);
+/* secs since last ntp */
+	return (ltime - GetDeltaUptime());
 }
 /* when setting the uptime value, save the 
 delta time in the nvram so that uptime can

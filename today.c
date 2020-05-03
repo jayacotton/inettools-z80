@@ -734,7 +734,7 @@ dotime()
 	//time(tvec);                     /* Get the time of day          */
 /* get the time (unix epoch) from ntp + secs since last
 ntp update.  subtract (or add) bias as needed for timezone */
-	tvec = EpochGet() - 25200;
+	tvec = EpochGet();
 	p = localtime(&tvec);            /* Make it more understandable  */
 	year = p->tm_year + 1900;
 	month = p->tm_mon + 1;
