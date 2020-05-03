@@ -17,7 +17,10 @@ void PrintAsTime(long time)
 	time -= (long)hours * 3600;
 	mins  = time/60;
 	time -= (long)mins*60;
-	printf("up %02d days %02d:%02d\n",days,hours,mins);
+	if(days > 1)
+	printf("up %d days %2d:%02d\n",days,hours,mins);
+	else
+	printf("up %d day %2d:%02d\n",days,hours,mins);
 
 }
 main()

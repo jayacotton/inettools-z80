@@ -10,14 +10,14 @@
 #define bf_sysget	0xF8	// HBIOS: SYSGET function
 #define bf_sysgettimer	0xD0	// TIMER subfunction
 #define bf_sysgetsecs	0xD1	// SECONDS subfunction
-#define EpochBuf 0		// start of epoch buffer
-#define UptimeBuf 8		// start of uptime delta buffer.
+#define EpochBuf 2		// start of epoch buffer
+#define UptimeBuf 10		// start of uptime delta buffer.
 
 unsigned int count;
 int lvers;
 int laddr;
 unsigned char lval;
-long ltime;
+unsigned long ltime;
 unsigned char TOD_BUF[8];  /* bcd value of date and time */
 unsigned char *lbuffer;
 /*
@@ -26,7 +26,7 @@ if you add to this list be sure to adjust the code
 below.
 */
 char *types[5] =
-{"DS1322", "BQ4845P", "SIMH", "INT TIMER", "NULL"};
+{"DS1302", "BQ4845P", "SIMH", "INT TIMER", "NULL"};
 
 /* for our purpose, EPOCH is time since midnight jan 1 2000 i.e. Y2K
 3,124,137,601 seconds from jan 1 1900 to jan 1 2000.
@@ -47,15 +47,17 @@ int TestBIOS()
 /* get and set the nvram storage used to keep the 
 current value of EPOCH from ntp time server.
 */
-void EpochSet(long epoch)
+void EpochSet(unsigned long epoch)
 {
 int i;
 int addr;
+long lepoch;
+	lepoch = epoch;
 /* store the current epoch time value */
 	for(i=0;i<4;i++){
-		addr = EpochBuf + i;
-		SetNvram(addr,(unsigned char )epoch & 0xff);
-		epoch = epoch >> 8;
+		addr = EpochBuf + (i<<1);
+		SetNvram(addr,(unsigned char )lepoch & 0xff);
+		lepoch = lepoch >> 8;
 	}
 /* save the current uptime in seconds and set the uptime
 to zero WARNING, bug farm here */
@@ -66,18 +68,18 @@ to zero WARNING, bug farm here */
 /* get the Y2K epoch time in seconds since the last NTP time
 check.
 */
-long *EpochGet()
+unsigned long EpochGet()
 {
 int i;
-long res;
+unsigned long res;
 int addr;
 	res = 0;
 	for(i=0;i<4;i++){
-		res << 8;
-		addr = UptimeBuf + i;
-		res |= GetNvram(addr);
+		res = res << 8;
+		addr = EpochBuf + ((3-i)<<1);
+		res |= 0xff & GetNvram(addr);
 	}
-	res += GetUptime();
+	res += GetUptime(0);
 	return res;
 }
 /* get and set the uptime seconds
@@ -86,13 +88,14 @@ Don't forget the collect the delta uptime from the
 nvram to add into the current uptime value....  
 assumes someone set uptime from ntp
 
+This code is really aimed at ds1302 only.
 */
 void SetNvram(int addr,unsigned char val)
 {
 	laddr = addr;
 	lval	= val;
 #asm	
-	ld	b,$22
+	ld	b,$23
 	ld	a,(_laddr)
 	ld	c,a
 	ld	a,(_lval)
@@ -104,7 +107,7 @@ unsigned char GetNvram(int addr)
 {
 	laddr	= addr;
 #asm
-	ld	b,$23
+	ld	b,$22
 	ld	a,(_laddr)
 	ld	c,a
 	rst	08
@@ -119,20 +122,20 @@ void SetDeltaUptime(long uptime)
 int i;
 int addr;
 	for(i=0;i<4;i++){
-		addr = UptimeBuf + i;
+		addr = UptimeBuf + (i<<1);
 		SetNvram(addr,(unsigned char )uptime & 0xff);
 		uptime = uptime >> 8;
 	}
 }
-long GetDeltaUptime()
+unsigned long GetDeltaUptime()
 {
 int i;
-long res;
+unsigned long res;
 int addr;
 	res = 0;
 	for(i=0;i<4;i++){
 		res << 8;
-		addr = UptimeBuf + i;
+		addr = UptimeBuf + (i<<1);
 		res |= GetNvram(addr);
 	}
 }
@@ -152,13 +155,13 @@ unsigned long GetUptime(int flag)
 delta time in the nvram so that uptime can
 be computed accuratly */
 
-void SetUptime(long time)
+void SetUptime(unsigned long time)
 {
 	ltime = time;
 #asm
 	ld	bc,$f9d1
-	ld	de,(_ltime)
-	ld	hl,(_ltime+2)
+	ld	de,(_ltime+2)
+	ld	hl,(_ltime)
 	rst	08
 #endasm
 }

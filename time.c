@@ -1,51 +1,36 @@
 /*
-
 Time functions for RC2014 running RomWBW with a KIO chip.
-
 The CTC is programed to produce interupts at 20ms per tick.
-
 The time functions will not provide time if the KIO is missing
 or there is no other tick source.  It will provide 0 always.
-
 Initial code R0.1  10/24/2019  Jay Cotton
-
 */
 
 /*  MIT  */
 
 /* The functions:
-
 	Get the time register from the kernel, and store it in
 	TICKSTORE out.  This is used later for computing how long
 	we where doing something.
-
 	void settime(TICKSTORE *out);	
-
 	Get the time delta from the kernel.  This will read the
 	current time tick from the kernel and subtract TICKSTORE in
 	from it.  The result time tick is returned in TICKSTORE out.
-
 	void gettime(TICKSTORE *out, TICKSTORE *in);	
-
 	Wait in this call for time TICKS.  The limit is a 16 bit
 	number of ticks.  On the test system that is about 1300 
 	seconds max.
 	
 	void waittime(unsigned int time);
-
 	This function will format the time tick into an ascii string
 	for printing or storing in a string buffer.  
-
 	Formats are:  
 		0 - Raw decimal convertion.
 		1 - Time in milli seconds.
 		2 - Time in hr:min:sec:milli
-
 	Users should make certain the output buffer is large enough
 	for the output string.
-
 	void formattime(char format, char *out, TICKSTORE *in);
-
 */
 
 #include <stdio.h>
@@ -110,3 +95,4 @@ unsigned long result;
 			break;
 	}
 }
+
