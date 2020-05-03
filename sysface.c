@@ -40,6 +40,9 @@ void SetTZ(unsigned long zone)
 {
 int i;
 int addr;
+#ifdef DEBUG
+printf("TZ offset %ld\n",zone);
+#endif
 	for(i=0;i<4;i++){
 		addr = TZbuf + (i<<1);
 		SetNvram(addr,(unsigned char )zone & 0xff);
@@ -57,6 +60,9 @@ int addr;
 		addr = TZbuf + ((3-i)<<1);
 		res |= 0xff & GetNvram(addr);
 	}
+#ifdef DEBUG
+printf("TZ offset %ld\n",res);
+#endif
 	return res;
 }
 /* get and test the bios version number */
@@ -84,8 +90,7 @@ unsigned long lepoch;
 		SetNvram(addr,(unsigned char )lepoch & 0xff);
 		lepoch = lepoch >> 8;
 	}
-/* save the current uptime in seconds and set the uptime
-to zero WARNING, bug farm here */
+/* save the current uptime in seconds */ 
 	SetDeltaUptime(GetUptime(1));
 }
 
@@ -107,6 +112,7 @@ int addr;
 		addr = EpochBuf + ((3-i)<<1);
 		res |= 0xff & GetNvram(addr);
 	}
+/* Epoch time is UNIXEPOC + Delta seconds - timezone */
 	res += GetDeltaUptime();
 	res -= GetTZ();
 	return res;

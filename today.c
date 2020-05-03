@@ -647,7 +647,7 @@ bugs
 #define LINEWIDTH       72              /* Width of line                */
 
 #include <stdio.h>
-#include "/home/jay/z88dk/include/time.h"
+#include <time.h>
 #include "sysface.h"
 
 #define	EOS		0

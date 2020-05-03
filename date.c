@@ -43,10 +43,12 @@
 //
 //*****************************************************************************
 #include <stdio.h>
+#include "sysface.h"
+
 char *weekday[7] = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat" };
 
-char *monthname[12] =
-  { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+char *monthname[13] =
+  { "NULL","Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
   "Nov", "Dec"
 };
 
@@ -57,21 +59,34 @@ char *monthname[12] =
 #define O_Minute 4
 #define O_Second 5
 
-unsigned char bcd_buffer[8];
-unsigned char bcd_buffer[8];
+unsigned char *bcd_buffer;
+dayofweek(year, month, day)
+int     year;                                   /* Year, 1978 = 1978    */
+int     month;                                  /* Month, January = 1   */
+int     day;                                    /* Day of month, 1 = 1  */
+/*
+ * Return the day of the week on which this date falls: Sunday = 0.
+ * Note, this routine is valid only for the Gregorian calender.
+ */
+{
+        register int yearfactor;
+
+        yearfactor = year + (month - 14)/12;
+        return (( (13 * (month + 10 - (month + 10)/13*12) - 1)/5
+                + day + 77 + 5 * (yearfactor % 100)/4
+                + yearfactor / 400
+                - yearfactor / 100 * 2) % 7);
+}
 
 void get_via_romwbw(unsigned char *sec,unsigned char * min, unsigned char * hr, 
 unsigned char * wday, unsigned char *month,unsigned char *day,unsigned int *year)
 {
-#asm
-	ld	b,$20
-	ld	hl,_bcd_buffer
-	rst	08
-#endasm
+	bcd_buffer = GetTOD();
 	*sec = (bcd_buffer[O_Second] & 0x0f) + ((bcd_buffer[O_Second]>>4) & 0x0f) * 10;
 	*min = (bcd_buffer[O_Minute] & 0x0f) + ((bcd_buffer[O_Minute]>>4) & 0x0f) * 10;
 	*hr = (bcd_buffer[O_Hour] & 0x0f)+((bcd_buffer[O_Hour]>>4) & 0x0f) * 10;
-	*month = (bcd_buffer[O_Month] & 0x0f)+ ((bcd_buffer[O_Month]>>4) & 0x0f) * 10;
+	*month = (bcd_buffer[O_Month] & 0x0f)+ 
+		((bcd_buffer[O_Month]>>4) & 0x0f) * 10;
 	*day = (bcd_buffer[O_Date] & 0x0f)+ ((bcd_buffer[O_Date]>>4) & 0x0f) * 10;
 	*year = (bcd_buffer[O_Year] & 0x0f) + ((bcd_buffer[O_Year]>>4) & 0x0f) * 10;
 }
@@ -87,7 +102,10 @@ uint8_t wday;
 
 	get_via_romwbw(&sec,&min,&hr,&wday,&month,&day,&year);
 #ifdef PDT
-  printf ("%s %d %02d:%02d:%02d PDT %d\n",monthname[month],day,hr,min,sec,year+2000);
+  printf ("%s %s %d %02d:%02d:%02d PDT %d\n",
+	weekday[dayofweek(year+2000,month,day)],
+	monthname[month],
+	day,hr,min,sec,year+2000);
 #else
   printf ("%s %d %02d:%02d:%02d PST %d\n",monthname[month],day,hr,min,sec,year+2000);
 #endif

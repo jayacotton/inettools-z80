@@ -189,6 +189,9 @@ unsigned char high = 0;
 /* convert this to a 6 byte bcd encoded buffer */
 void  set_via_romwbw(uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day, uint8_t month, uint8_t wday, uint16_t year)
 {
+#ifdef DEBUG
+printf("%d %d %d %d %d %d %d\n",seconds,minutes,hour,day,month,wday,year);
+#endif
         /* year  00-99 */
                 if(year > 99)
                         bcd_buffer[O_Year] = year-2000; /*assume this century*/
@@ -207,6 +210,24 @@ void  set_via_romwbw(uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day
                 bcd_buffer[O_Second]    = int2bcd(seconds);
 	SetTOD(bcd_buffer);
 }
+dayofweek(year, month, day)
+int     year;                                   /* Year, 1978 = 1978    */
+int     month;                                  /* Month, January = 1   */
+int     day;                                    /* Day of month, 1 = 1  */
+/*
+ * Return the day of the week on which this date falls: Sunday = 0.
+ * Note, this routine is valid only for the Gregorian calender.
+ */
+{
+        register int yearfactor;
+
+        yearfactor = year + (month - 14)/12;
+        return (( (13 * (month + 10 - (month + 10)/13*12) - 1)/5
+                + day + 77 + 5 * (yearfactor % 100)/4
+                + yearfactor / 400
+                - yearfactor / 100 * 2) % 7);
+}
+
   int portno = 123;		// NTP UDP port number.
   char *host_name = "time.google.com";	// NTP server host-name.
 int
@@ -222,6 +243,9 @@ main (int argc, char *argv[])
   unsigned char destip[4];
   unsigned int destport;
   int wait;
+time_t tvec;
+struct tm *tp;
+
   // Structure that defines the 48 byte NTP packet protocol.
   struct ntp_packet
   {
@@ -327,5 +351,14 @@ main (int argc, char *argv[])
   un.l = un.l - (uint32_t) NTP_TIMESTAMP_DELTA_HEX;
  // store un.l as the root ntp time
   EpochSet(un.l); 
+  tvec = un.l - GetTZ();
+  tp = localtime(&tvec);
+  year = tp->tm_year + 1900;
+  month = tp->tm_mon + 1;
+  day = tp->tm_mday;
+  hours = tp->tm_hour;
+  minutes= tp->tm_min;
+  seconds = tp->tm_sec;
+  set_via_romwbw(seconds, minutes, hours, day, month, dayofweek(year,month,day), year);
   return 0;
 }
