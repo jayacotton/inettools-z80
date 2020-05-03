@@ -1,7 +1,7 @@
 CFLAGS	= --list 
 #CFLAGS	= -O3 --list --c-code-in-asm
 
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac
+all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime
 
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
@@ -102,6 +102,12 @@ mac: mac.o
 mac.o:
 	zcc +cpm $(CFLAGS) -c mac.c
 
+uptime: uptime.o sysface.o
+	zcc +cpm -create-app -ouptime uptime.o sysface.o
+
+uptime.o: uptime.c
+	zcc +cpm $(CFLAGS) -c uptime.c
+		
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac 
 	rm -rf html irc latex email

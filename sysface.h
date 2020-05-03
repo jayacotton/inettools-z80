@@ -1,0 +1,14 @@
+extern long GetUptime(int);
+extern int TestBIOS();
+extern void EpochSet(long);
+extern long *EpochGet();
+extern void SetNvram(int,unsigned char);
+extern unsigned char GetNvram(int );
+extern void SetDeltaUptime(long );
+extern long GetDeltaUptime();
+extern unsigned long GetUptime();
+extern void SetUptime(long time);
+extern void SetTOD(unsigned char *);
+extern unsigned char *GetTOD();
+extern unsigned int RTCCount();
+extern unsigned char *RTCType();
