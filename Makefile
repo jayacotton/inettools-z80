@@ -1,7 +1,7 @@
-CFLAGS	= --list 
+CFLAGS	= --list --c-code-in-asm
 #CFLAGS	= -O3 --list --c-code-in-asm
 
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime
+all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today
 
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
@@ -67,7 +67,7 @@ ntp: ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface
 	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o
 
 ntp.o: ntp.c 
-	zcc +cpm $(CFLAGS) -DPDT -c  ntp.c 
+	zcc +cpm $(CFLAGS) -DUNIXEPOCH -DPDT -c  ntp.c 
 
 sysface.o: sysface.c
 	zcc +cpm $(CFLAGS) -c  sysface.c 
@@ -107,6 +107,12 @@ uptime: uptime.o sysface.o
 
 uptime.o: uptime.c
 	zcc +cpm $(CFLAGS) -c uptime.c
+
+today: today.o sysface.o
+	zcc +cpm -create-app -otoday today.o sysface.o
+
+today.o: today.c
+	zcc +cpm $(CFLAGS) -c today.c
 		
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac 
