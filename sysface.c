@@ -40,9 +40,6 @@ void SetTZ(unsigned long zone)
 {
 int i;
 int addr;
-#ifdef DEBUG
-printf("TZ offset %ld\n",zone);
-#endif
 	for(i=0;i<4;i++){
 		addr = TZbuf + (i<<1);
 		SetNvram(addr,(unsigned char )zone & 0xff);
@@ -52,7 +49,7 @@ printf("TZ offset %ld\n",zone);
 unsigned long GetTZ()
 {
 int i;
-unsigned long res;
+long res;
 int addr;
 	res = 0;
 	for(i=0;i<4;i++){
@@ -60,9 +57,6 @@ int addr;
 		addr = TZbuf + ((3-i)<<1);
 		res |= 0xff & GetNvram(addr);
 	}
-#ifdef DEBUG
-printf("TZ offset %ld\n",res);
-#endif
 	return res;
 }
 /* get and test the bios version number */
@@ -84,14 +78,18 @@ int i;
 int addr;
 unsigned long lepoch;
 	lepoch = epoch;
+#ifdef DEBUG
+printf("%lu\n",lepoch);
+#endif
 /* store the current epoch time value */
 	for(i=0;i<4;i++){
-		addr = EpochBuf + (i<<1);
+		addr = EpochBuf + ((i)<<1);
 		SetNvram(addr,(unsigned char )lepoch & 0xff);
 		lepoch = lepoch >> 8;
 	}
 /* save the current uptime in seconds */ 
-	SetDeltaUptime(GetUptime(1));
+	lepoch = GetUptime(1);
+	SetDeltaUptime(lepoch);
 }
 
 /* get the UNIXEPOCH time in seconds since the last NTP time
@@ -101,7 +99,7 @@ UNIXEPOCH + Delta uptime.
 	Delta uptime is current uptime + (delta at ntp check)
 	delta at ntp check is uptime at ntp (stored in nvram) - current uptime.
 */
-unsigned long EpochGet()
+long EpochGet()
 {
 int i;
 unsigned long res;
@@ -112,6 +110,9 @@ int addr;
 		addr = EpochBuf + ((3-i)<<1);
 		res |= 0xff & GetNvram(addr);
 	}
+#ifdef DEBUG
+printf("%lu\n",res);
+#endif
 /* Epoch time is UNIXEPOC + Delta seconds - timezone */
 	res += GetDeltaUptime();
 	res -= GetTZ();
@@ -129,6 +130,9 @@ void SetNvram(int addr,unsigned char val)
 {
 	laddr = addr;
 	lval	= val;
+#ifdef DEBUG
+printf("Set addr %x to %x\n",laddr,lval);
+#endif
 #asm	
 	ld	b,$23
 	ld	a,(_laddr)
@@ -149,6 +153,9 @@ unsigned char GetNvram(int addr)
 	ld	a,e
 	ld	(_lval),a
 #endasm
+#ifdef DEBUG
+printf("Get addr %x to %x\n",laddr,lval);
+#endif
 	return (lval);
 }
 
@@ -171,11 +178,12 @@ unsigned long res;
 int addr;
 	res = 0;
 	for(i=0;i<4;i++){
-		res << 8;
-		addr = UptimeBuf + (i<<1);
-		res |= GetNvram(addr);
+		res = res << 8;
+		addr = UptimeBuf + ((3-i)<<1);
+		res |= (unsigned char )GetNvram(addr);
 	}
-	return (GetUptime(1)-res);
+	res = GetUptime(1) - res;
+	return (res);
 }
 unsigned long GetUptime(int flag)
 {

@@ -3,7 +3,7 @@ extern void SetTZ(unsigned long);
 extern unsigned long GetUptime(int);
 extern int TestBIOS();
 extern void EpochSet(unsigned long);
-extern unsigned long EpochGet();
+extern long EpochGet();
 extern void SetNvram(int,unsigned char);
 extern unsigned char GetNvram(int );
 extern void SetDeltaUptime(unsigned long );

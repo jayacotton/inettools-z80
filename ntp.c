@@ -11,9 +11,9 @@
 //! \date 4/23/2019
 //! \par Revision history
 //!     4/23/2019       First version 
-//1	4/30/2019	The time convertion has a at 12 GMT with the date.
-//!	5/1/2019	Added RTC loading support.  BUGGY
-//!	10/29/2019	RTC support in RomWBW, removed rtci2c and ctc code.
+//1     4/30/2019       The time convertion has a at 12 GMT with the date.
+//!     5/1/2019        Added RTC loading support.  BUGGY
+//!     10/29/2019      RTC support in RomWBW, removed rtci2c and ctc code.
 //! \author Jay Cotton
 //! \copyright
 //!
@@ -109,8 +109,8 @@
 #define SECS_PER_DAY 86400
 #define SECS_PER_HOUR 3600
 
-extern unsigned int RTCCount();
-extern unsigned char *RTCType();
+extern unsigned int RTCCount ();
+extern unsigned char *RTCType ();
 
 struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6];
@@ -126,6 +126,30 @@ unsigned char run_user_applications;
 #define O_Minute 4
 #define O_Second 5
 unsigned char bcd_buffer[8];
+  // Structure that defines the 48 byte NTP packet protocol.
+struct ntp_packet
+{
+  uint8_t li_vn_mode;		// Eight bits. li, vn, and mode.
+  // li.   Two bits.   Leap indicator.
+  // vn.   Three bits. Version number of the protocol.
+  // mode. Three bits. Client will pick mode 3 for client.
+  uint8_t stratum;		// Eight bits. Stratum level of the local clock.
+  uint8_t poll;			// Eight bits. Maximum interval between successive messages.
+  uint8_t precision;		// Eight bits. Precision of the local clock.
+  uint32_t rootDelay;		// 32 bits. Total round trip delay time.
+  uint32_t rootDispersion;	// 32 bits. Max error aloud from primary clock source.
+  uint32_t refId;		// 32 bits. Reference clock identifier.
+  uint32_t refTm_s;		// 64 bits. Reference time-stamp seconds.
+  uint32_t refTm_f;
+  uint32_t origTm_s;		// 64 bits. Originate time-stamp seconds.
+  uint32_t origTm_f;
+  uint32_t rcTm_s;		// 64 bits. Received time-stamp seconds.
+  uint32_t rcTm_f;
+  uint32_t txTm_s;		// 64 bits and the most important field the client cares 
+  uint32_t txTm_f;
+};				// Total: 384 bits or 48 bytes.
+
+struct ntp_packet packet;
 void
 error (char *msg, int val)
 {
@@ -143,15 +167,8 @@ union
 
 uint16_t year;
 uint8_t month;
-uint8_t day;
-int8_t wday;
-uint8_t hours;
-uint8_t minutes;
-uint8_t seconds;
-uint32_t days;
 uint32_t rem;
 uint16_t guess;
-uint8_t pdt;
 unsigned char buffer1[100];
 
 
@@ -175,61 +192,61 @@ my_ntohl (uint32_t v)
   return un.l;
 
 }
-unsigned char int2bcd(unsigned char input)
-{
-unsigned char high = 0;
 
-        while(input >= 10){
-                high ++;
-                input -=10;
-        }
-        return (high << 4)| input;
+unsigned char
+int2bcd (unsigned char input)
+{
+  unsigned char high = 0;
+
+  while (input >= 10)
+    {
+      high++;
+      input -= 10;
+    }
+  return (high << 4) | input;
 }
 
 /* convert this to a 6 byte bcd encoded buffer */
-void  set_via_romwbw(uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day, uint8_t month, uint8_t wday, uint16_t year)
+void
+set_via_romwbw (uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day,
+		uint8_t month, uint8_t wday, uint16_t year)
 {
 #ifdef DEBUG
-printf("%d %d %d %d %d %d %d\n",seconds,minutes,hour,day,month,wday,year);
+  printf ("%d %d %d %d %d %d %d\n", seconds, minutes, hour, day, month, wday,
+	  year);
 #endif
-        /* year  00-99 */
-                if(year > 99)
-                        bcd_buffer[O_Year] = year-2000; /*assume this century*/
-                else
-                        bcd_buffer[O_Year] = year; /* assume this century */
-                bcd_buffer[O_Year]      = int2bcd(bcd_buffer[O_Year]);
-        /* month 01-12 */
-                bcd_buffer[O_Month]     = int2bcd(month);
-        /* date 01-31 */
-                bcd_buffer[O_Date]      = int2bcd(day);
-        /* hour 00-24 */
-                bcd_buffer[O_Hour]      = int2bcd(hour);
-        /* minute 00-59 */
-                bcd_buffer[O_Minute]    = int2bcd(minutes);
-        /* second 00-59 */
-                bcd_buffer[O_Second]    = int2bcd(seconds);
-	SetTOD(bcd_buffer);
+  if (year > 99)
+    bcd_buffer[O_Year] = year - 2000;	/*assume this century */
+  else
+    bcd_buffer[O_Year] = year;	/* assume this century */
+  bcd_buffer[O_Year] = int2bcd (bcd_buffer[O_Year]);
+  bcd_buffer[O_Month] = int2bcd (month);
+  bcd_buffer[O_Date] = int2bcd (day);
+  bcd_buffer[O_Hour] = int2bcd (hour);
+  bcd_buffer[O_Minute] = int2bcd (minutes);
+  bcd_buffer[O_Second] = int2bcd (seconds);
+  SetTOD (bcd_buffer);
 }
-dayofweek(year, month, day)
-int     year;                                   /* Year, 1978 = 1978    */
-int     month;                                  /* Month, January = 1   */
-int     day;                                    /* Day of month, 1 = 1  */
+
+dayofweek (year, month, day)
+     int year;			/* Year, 1978 = 1978    */
+     int month;			/* Month, January = 1   */
+     int day;			/* Day of month, 1 = 1  */
 /*
  * Return the day of the week on which this date falls: Sunday = 0.
  * Note, this routine is valid only for the Gregorian calender.
  */
 {
-        register int yearfactor;
+  register int yearfactor;
 
-        yearfactor = year + (month - 14)/12;
-        return (( (13 * (month + 10 - (month + 10)/13*12) - 1)/5
-                + day + 77 + 5 * (yearfactor % 100)/4
-                + yearfactor / 400
-                - yearfactor / 100 * 2) % 7);
+  yearfactor = year + (month - 14) / 12;
+  return (((13 * (month + 10 - (month + 10) / 13 * 12) - 1) / 5
+	   + day + 77 + 5 * (yearfactor % 100) / 4
+	   + yearfactor / 400 - yearfactor / 100 * 2) % 7);
 }
 
-  int portno = 123;		// NTP UDP port number.
-  char *host_name = "time.google.com";	// NTP server host-name.
+int portno = 123;		// NTP UDP port number.
+char *host_name = "time.google.com";	// NTP server host-name.
 int
 main (int argc, char *argv[])
 {
@@ -243,44 +260,19 @@ main (int argc, char *argv[])
   unsigned char destip[4];
   unsigned int destport;
   int wait;
-time_t tvec;
-struct tm *tp;
-
-  // Structure that defines the 48 byte NTP packet protocol.
-  struct ntp_packet
-  {
-    uint8_t li_vn_mode;		// Eight bits. li, vn, and mode.
-    // li.   Two bits.   Leap indicator.
-    // vn.   Three bits. Version number of the protocol.
-    // mode. Three bits. Client will pick mode 3 for client.
-    uint8_t stratum;		// Eight bits. Stratum level of the local clock.
-    uint8_t poll;		// Eight bits. Maximum interval between successive messages.
-    uint8_t precision;		// Eight bits. Precision of the local clock.
-    uint32_t rootDelay;		// 32 bits. Total round trip delay time.
-    uint32_t rootDispersion;	// 32 bits. Max error aloud from primary clock source.
-    uint32_t refId;		// 32 bits. Reference clock identifier.
-    uint32_t refTm_s;		// 64 bits. Reference time-stamp seconds.
-    uint32_t refTm_f;
-    uint32_t origTm_s;		// 64 bits. Originate time-stamp seconds.
-    uint32_t origTm_f;
-    uint32_t rcTm_s;		// 64 bits. Received time-stamp seconds.
-    uint32_t rcTm_f;
-    uint32_t txTm_s;		// 64 bits and the most important field the client cares 
-    uint32_t txTm_f;
-  };				// Total: 384 bits or 48 bytes.
-
-  // Create and zero out the packet. All 48 bytes worth.
-
-  struct ntp_packet packet;
+  time_t tvec;
+  struct tm *tp;
 
 /* this could be inproved to deal with int timer clock on rc2014 */
-  if(argc > 1)
-	host_name = argv[1];
 
-	if(strcmp(RTCType(),"DS1302") !=0 ){
-		printf("Only works with DS1322\n");
-		exit(0);
-	}
+  if (argc > 1)
+    host_name = argv[1];
+
+  if (strcmp (RTCType (), "DS1302") != 0)
+    {
+      printf ("Only works with DS1322\n");
+      exit (0);
+    }
 
   memset (&packet, 0, sizeof (struct ntp_packet));
 
@@ -305,21 +297,20 @@ struct tm *tp;
     {
       if (Ethernet_hardwareStatus () == EthernetNoHardware)
 	printf ("Can't find the ethernet h/w\n");
-	else
-      if (Ethernet_linkStatus () == LinkOFF)
+      else if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-	else
-	printf("unknown error\n");	
+      else
+	printf ("unknown error\n");
       exit (0);
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
   DNS_init (SOCK_DNS, DNS_buffer);	// share the data buffer ??
   if (DNS_run (gWIZNETINFO.dns, host_name, HostAddr) == 0)
-	{
-	printf("dns error\n");
-    exit (0);
-	}
+    {
+      printf ("dns error\n");
+      exit (0);
+    }
 
   sockfd = socket (1, Sn_MR_UDP, portno, 0);
 
@@ -328,8 +319,9 @@ struct tm *tp;
 
   // Send it the NTP packet it wants. If n == -1, it failed.
 
-  n =
-    sendto (sockfd, (char *) &packet, sizeof (struct ntp_packet), HostAddr,
+  n = sendto (sockfd, (char *) &packet, 
+		sizeof (struct ntp_packet), 
+		HostAddr,
 	    portno);
 
   if (n < 0)
@@ -338,8 +330,9 @@ struct tm *tp;
   // Wait and receive the packet back from the server. If n == -1, it failed.
 
   while (getSn_RX_RSR (1) < sizeof (struct ntp_packet));
-  n =
-    recvfrom (1, (char *) &packet, sizeof (struct ntp_packet), destip,
+  n = recvfrom (1, (char *) &packet, 
+		sizeof (struct ntp_packet), 
+		destip,
 	      &destport);
   if (n == 0)
     error ("ERROR: no data from server", n);
@@ -349,16 +342,17 @@ struct tm *tp;
 // swap the bytes around to match our machine
   un.l = my_ntohl (packet.txTm_s);
   un.l = un.l - (uint32_t) NTP_TIMESTAMP_DELTA_HEX;
- // store un.l as the root ntp time
-  EpochSet(un.l); 
-  tvec = un.l - GetTZ();
-  tp = localtime(&tvec);
+  // store un.l as the root ntp time
+  EpochSet (un.l);
+//  tvec = un.l - GetTZ ();
+	tvec = EpochGet();
+  tp = localtime (&tvec);
   year = tp->tm_year + 1900;
   month = tp->tm_mon + 1;
-  day = tp->tm_mday;
-  hours = tp->tm_hour;
-  minutes= tp->tm_min;
-  seconds = tp->tm_sec;
-  set_via_romwbw(seconds, minutes, hours, day, month, dayofweek(year,month,day), year);
+  set_via_romwbw (tp->tm_sec,
+		  tp->tm_min,
+		  tp->tm_hour,
+		  tp->tm_mday,
+		  month, dayofweek (year, month, tp->tm_mday), year);
   return 0;
 }
