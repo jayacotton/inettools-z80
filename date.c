@@ -102,12 +102,15 @@ uint8_t wday;
 
 	get_via_romwbw(&sec,&min,&hr,&wday,&month,&day,&year);
 #ifdef PDT
-  printf ("%s %s %d %02d:%02d:%02d PDT %d\n",
+  printf ("%s %s %d %02d:%02d:%02d %d\n",
 	weekday[dayofweek(year+2000,month,day)],
 	monthname[month],
 	day,hr,min,sec,year+2000);
 #else
-  printf ("%s %d %02d:%02d:%02d PST %d\n",monthname[month],day,hr,min,sec,year+2000);
+  printf ("%s %s %d %02d:%02d:%02d %d\n",
+	weekday[dayofweek(year+2000,month,day)],
+	monthname[month],
+	day,hr,min,sec,year+2000);
 #endif
   return 0;
 }

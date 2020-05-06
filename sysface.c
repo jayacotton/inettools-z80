@@ -36,7 +36,7 @@ ntp provides seconds since midnight jan 1 1900 as a 64 bit number.
 */
 
 /* set the time zone data (into nvram) */
-void SetTZ(unsigned long zone)
+void SetTZ(long zone)
 {
 int i;
 int addr;
@@ -46,7 +46,7 @@ int addr;
 		zone = zone >> 8;
 	}
 }
-unsigned long GetTZ()
+long GetTZ()
 {
 int i;
 long res;
@@ -102,7 +102,7 @@ UNIXEPOCH + Delta uptime.
 long EpochGet()
 {
 int i;
-unsigned long res;
+long res;
 int addr;
 	res = 0;
 	for(i=0;i<4;i++){
@@ -115,7 +115,7 @@ printf("%lu\n",res);
 #endif
 /* Epoch time is UNIXEPOC + Delta seconds - timezone */
 	res += GetDeltaUptime();
-	res -= GetTZ();
+	res += GetTZ();
 	return res;
 }
 /* get and set the uptime seconds

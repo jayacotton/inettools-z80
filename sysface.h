@@ -1,5 +1,5 @@
-extern unsigned long GetTZ();
-extern void SetTZ(unsigned long);
+extern long GetTZ();
+extern void SetTZ(long);
 extern unsigned long GetUptime(int);
 extern int TestBIOS();
 extern void EpochSet(unsigned long);

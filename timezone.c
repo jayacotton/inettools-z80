@@ -8,11 +8,23 @@ information.  You type it we store it.
 #include <stdlib.h>
 #include "sysface.h"
 
-unsigned long zone_off;
+long zone_off;
 
-void main(int argc, char * argv[])
+void
+main (int argc, char *argv[])
 {
-	zone_off = atoi(argv[1]);
-	printf("You set UTC-%lu\n",zone_off);	
-	SetTZ(zone_off);
+  if (argc <= 1)
+    {
+      zone_off = GetTZ ();
+	if(zone_off >0) 
+		printf("Your offset is UTC+%ld seconds\n",zone_off);
+	else
+		printf("Your offset is UTC%ld seconds\n",zone_off);
+    }
+  else
+    {
+      zone_off = atoi (argv[1]);
+      printf ("You set UTC %ld seconds\n", zone_off);
+      SetTZ (zone_off);
+    }
 }
