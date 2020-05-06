@@ -6,10 +6,53 @@ This code is based on software for the W5500 chip.  The code includes the follow
 ifconfig:  this is the poor mans version,  It has no options and shows your ip address and a few other parameters.
 
 ping:  this is about a simple a ping as you can get.  Round trip time values work when RC2014/RomWBW timer support is present.  The time values are in 20ms intervals.  
+C>ping www.nasa.gov                                                             
+Shift Register SPI Wiznet v1.0                                                  
+PING WWW.NASA.GOV (13.227.73.96)                                                
+ 52 bytes from 13.227.73.96: icmp_seq=4321 time=80 ms                           
+ 52 bytes from 13.227.73.96: icmp_seq=4322 time=80 ms                           
+ 52 bytes from 13.227.73.96: icmp_seq=4323 time=80 ms                           
+ 52 bytes from 13.227.73.96: icmp_seq=4324 time=80 ms                           
+ 52 bytes from 13.227.73.96: icmp_seq=4325 time=80 ms        
 
 pingnoti: this is ping without a timer.  
-
+C>pingnoti www.nasa.gov                                                         
+Shift Register SPI Wiznet v1.0                                                  
+PING WWW.NASA.GOV (13.227.73.116)                                               
+ 52 bytes from 13.227.73.116: icmp_seq=4321                                     
+ 52 bytes from 13.227.73.116: icmp_seq=4322                                     
+ 52 bytes from 13.227.73.116: icmp_seq=4323                                     
+ 52 bytes from 13.227.73.116: icmp_seq=4324                                     
+ 52 bytes from 13.227.73.116: icmp_seq=4325                                     
+                                            
 telnet:  This is a terminal program to talking to a host machine.
+
+C>telnet 192.168.0.120                                                          
+Shift Register SPI Wiznet v1.0                                                  
+Connected...                                                                    
+                                                                                
+Ubuntu 19.04                                                                    
+jay-Ultra-27 login: jay                                                         
+Password:                                                                       
+Last login: Tue May  5 16:44:59 PDT 2020 from 192.168.0.131 on pts/5            
+Welcome to Ubuntu 19.04 (GNU/Linux 5.0.0-15-generic x86_64)                     
+                                                                                
+ * Documentation:  https://help.ubuntu.com                                      
+ * Management:     https://landscape.canonical.com                              
+ * Support:        https://ubuntu.com/advantage                                 
+                                                                                
+                                                                                
+1 update can be installed immediately.                                          
+0 of these updates are security updates.                                        
+                                                                                
+Your Ubuntu release is not supported anymore.                                   
+For upgrade information, please visit:                                          
+http://www.ubuntu.com/releaseendoflife                                          
+                                                                                
+New release '19.10' available.                                                  
+Run 'do-release-upgrade' to upgrade to it.                                      
+                                                                                
+jay@jay-Ultra-27:~$ 
 
 telnetd:  This is an attempt to allow CP/M to work via telnet console.   HIGHLY BROKEN at this time.
 
@@ -17,14 +60,28 @@ dig: This is a really simple version of dig, it reports a single ip address for 
 
 wget:  This will allow cp/m users to load programs onto there CF card etc using http protocol.
 
+NOTE:  the time code uses nvram in the RTC to store operational data.  Since there are 32 locations in nvram and I use 12, things are a bit tight.
+
 today:  This is code cribed from the z88dk/examples/today.c.  I modified it to work with
 the rc2014 RTC and timer code.  I.e. get the UNIXEPOCH as adjusted for time zone and 
 delta time from last ntp update.
-
+today does this
+C>today                                                                         
+Today is Tuesday, the fifth day of May, two thousand and twenty. In             
+fifteen seconds, the time will be sixteen minutes before ten PM,                
+Daylight Savings Time. The moon is waxing gibbous.                              
+                                                                    
 timezone:  Tool for setting your time zone offset.  You will need to compute the
 offset value by hand, since the code to find it is gynormass.  But its not that hard.  
 Just find your time zone and compute the  number of seconds from GMT.  For me its 
-GMT-7 or 25200 seconds.  YMMV.
+GMT-7 or -25200 seconds.  YMMV.
+To set,
+C>timezone -25200                                                               
+You set UTC -25200 seconds    
+
+Now you can check your timezone value by useing timezone without a time value.
+C>timezone                                                                      
+Your offset is UTC-25200 seconds  
 
 uptime:  This reads the amount of time your RC2014 has been running since reboot.  Its
 really a handy tool for testing the interrupt timer.  But then so it timer.
