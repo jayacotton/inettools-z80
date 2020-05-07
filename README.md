@@ -71,22 +71,26 @@ Today is Tuesday, the fifth day of May, two thousand and twenty. In
 fifteen seconds, the time will be sixteen minutes before ten PM,                
 Daylight Savings Time. The moon is waxing gibbous.                              
                                                                     
-timezone:  Tool for setting your time zone offset.  You will need to compute the
-offset value by hand, since the code to find it is gynormass.  But its not that hard.  
-Just find your time zone and compute the  number of seconds from GMT.  For me its 
-GMT-7 or -25200 seconds.  YMMV.
+timezone:  Tool for setting your time zone offset.  You will need to know your ICOA time zone code.
+For me that is PDT in summer and PST in winter.  Not all locals have 'daylight savings' time.
+
 To set,
-C>timezone -25200                                                               
-You set UTC -25200 seconds    
+C>timezone PDT                                                                  
+Your offset is UTC -25200 seconds PDT PACIFIC DAYLIGHT TIME  
 
 Now you can check your timezone value by useing timezone without a time value.
 C>timezone                                                                      
-Your offset is UTC-25200 seconds  
-
+Your offset is UTC -25200 seconds PDT PACIFIC DAYLIGHT TIME                     
+                                                                 
 uptime:  This reads the amount of time your RC2014 has been running since reboot.  Its
 really a handy tool for testing the interrupt timer.  But then so it timer.
 
-ntp: This program will get the date and time from an ntp server and set the RTC chip.  This requires an RTC/RC2014 board.  Currently kinda broken.
+ntp: This program will get the date and time from an ntp server and set the RTC chip.  
+This requires an RTC/RC2014 board.  Ntp's default nist server is time.google.com.
+If you want a different one, then you must type in the server http address.
+
+C>ntp                                                                           
+Shift Register SPI Wiznet v1.0  
 
 date: This reads the date and time from the RTC.  This requires an RTC/RC2014 board.
 
