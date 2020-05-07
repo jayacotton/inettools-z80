@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "sysface.h"
 
 #define bf_sysver	0xF1	// BIOS: VER function
@@ -11,9 +12,9 @@
 #define bf_sysgettimer	0xD0	// TIMER subfunction
 #define bf_sysgetsecs	0xD1	// SECONDS subfunction
 #define EpochBuf 0		// start of epoch buffer
-#define UptimeBuf EpochBuf+8	// start of uptime delta buffer.
-#define TZbuf  UptimeBuf+8	// start of time zone buffer.
-
+#define UptimeBuf EpochBuf+4	// start of uptime delta buffer.
+#define TZbuf  UptimeBuf+4	// start of time zone buffer.
+#define TZtxt  TZbuf+4
 unsigned int count;
 int lvers;
 int laddr;
@@ -36,6 +37,28 @@ ntp provides seconds since midnight jan 1 1900 as a 64 bit number.
 */
 
 /* set the time zone data (into nvram) */
+void SetTZtxt(char *txt)
+{
+int i;
+int addr;
+	for(i=0;i< 4;i++){
+		addr = TZtxt+(i<<1);
+		SetNvram(addr,txt[i]);	
+	}
+}
+char TZName[6];
+
+char *GetTZtxt()
+{
+int i;
+int addr;
+	memset(TZName,0,6);
+	for(i=0;i<4;i++){
+		addr = TZtxt+((i)<<1);
+		TZName[i] = GetNvram(addr);	
+	}
+	return &TZName;
+}
 void SetTZ(long zone)
 {
 int i;
