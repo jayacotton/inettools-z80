@@ -29,7 +29,7 @@ main (int argc, char *argv[])
 {
   if (argc <= 1)
     {
-	text1 = GetTZtxt();
+      text1 = GetTZtxt ();
       GetZoneT ();
       printf ("Your offset is UTC %ld seconds %s %s\n", zone_off, text1,
 	      text2);
@@ -41,7 +41,7 @@ main (int argc, char *argv[])
       printf ("Your offset is UTC %ld seconds %s %s\n", zone_off, text1,
 	      text2);
       SetTZ (zone_off);
-	SetTZtxt(text1);
+      SetTZtxt (text1);
     }
 }
 

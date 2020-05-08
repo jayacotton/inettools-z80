@@ -211,7 +211,7 @@ void
 set_via_romwbw (uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day,
 		uint8_t month, uint8_t wday, uint16_t year)
 {
-#ifdef DEBUG
+#if 0
   printf ("%d %d %d %d %d %d %d\n", seconds, minutes, hour, day, month, wday,
 	  year);
 #endif
@@ -319,10 +319,8 @@ main (int argc, char *argv[])
 
   // Send it the NTP packet it wants. If n == -1, it failed.
 
-  n = sendto (sockfd, (char *) &packet, 
-		sizeof (struct ntp_packet), 
-		HostAddr,
-	    portno);
+  n = sendto (sockfd, (char *) &packet,
+	      sizeof (struct ntp_packet), HostAddr, portno);
 
   if (n < 0)
     error ("ERROR writing to socket", n);
@@ -330,10 +328,8 @@ main (int argc, char *argv[])
   // Wait and receive the packet back from the server. If n == -1, it failed.
 
   while (getSn_RX_RSR (1) < sizeof (struct ntp_packet));
-  n = recvfrom (1, (char *) &packet, 
-		sizeof (struct ntp_packet), 
-		destip,
-	      &destport);
+  n = recvfrom (1, (char *) &packet,
+		sizeof (struct ntp_packet), destip, &destport);
   if (n == 0)
     error ("ERROR: no data from server", n);
   if (n < 0)
@@ -342,10 +338,8 @@ main (int argc, char *argv[])
 // swap the bytes around to match our machine
   un.l = my_ntohl (packet.txTm_s);
   un.l = un.l - (uint32_t) NTP_TIMESTAMP_DELTA_HEX;
-  // store un.l as the root ntp time
   EpochSet (un.l);
-//  tvec = un.l - GetTZ ();
-	tvec = EpochGet();
+  tvec = EpochGet ();
   tp = localtime (&tvec);
   year = tp->tm_year + 1900;
   month = tp->tm_mon + 1;

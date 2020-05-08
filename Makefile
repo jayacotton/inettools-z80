@@ -1,4 +1,4 @@
-CFLAGS	= --list --c-code-in-asm
+CFLAGS	= --list --c-code-in-asm 
 #CFLAGS	= -O3 --list --c-code-in-asm
 
 all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone
@@ -7,7 +7,7 @@ telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_
 	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
 
 telnet_server.o:telnet_server.c telnetd.h
-	zcc +cpm $(CFLAGS) -DDEBUG -c  telnet_server.c 
+	zcc +cpm $(CFLAGS) -DDEBUG -c telnet_server.c 
 
 w5500.o: w5500.c w5500.h wizchip_conf.h
 	zcc +cpm $(CFLAGS) -c  w5500.c 
@@ -119,16 +119,17 @@ timezone: timezone.o sysface.o
 
 timezone.o: timezone.c
 	zcc +cpm $(CFLAGS) -c timezone.c
-		
+
 clean:
-	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac 
+	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac timezone today uptime test
 	rm -rf html irc latex email
 
 install:
 	sudo cp ./*.COM /var/www/html/. 
 
 ship:
-	rm -rf irc latex email *.o *.err *.lis *.def *.lst *.sym *.exe driver dnsprnt get ctc ntp myget test ctc ntp wget telnet ping dig ifconfig date https
+	rm -rf irc latex email *.o *.err *.lis *.def *.lst *.sym *.exe driver dnsprnt get ctc ntp myget 
+	rm -rf test ctc ntp wget telnet ping dig ifconfig date https timezone today uptime test 
 
 documents:
 	doxygen 

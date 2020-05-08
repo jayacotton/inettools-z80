@@ -12,9 +12,9 @@
 #define bf_sysgettimer	0xD0	// TIMER subfunction
 #define bf_sysgetsecs	0xD1	// SECONDS subfunction
 #define EpochBuf 0		// start of epoch buffer
-#define UptimeBuf EpochBuf+4	// start of uptime delta buffer.
-#define TZbuf  UptimeBuf+4	// start of time zone buffer.
-#define TZtxt  TZbuf+4
+#define UptimeBuf EpochBuf+5	// start of uptime delta buffer.
+#define TZbuf  UptimeBuf+5	// start of time zone buffer.
+#define TZtxt  TZbuf+5
 unsigned int count;
 int lvers;
 int laddr;
@@ -62,11 +62,13 @@ int addr;
 void SetTZ(long zone)
 {
 int i;
+long lzone;
 int addr;
+	lzone = zone;
 	for(i=0;i<4;i++){
 		addr = TZbuf + (i<<1);
-		SetNvram(addr,(unsigned char )zone & 0xff);
-		zone = zone >> 8;
+		SetNvram(addr,(unsigned char )lzone & 0xff);
+		lzone = lzone >> 8;
 	}
 }
 long GetTZ()
