@@ -211,10 +211,6 @@ void
 set_via_romwbw (uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day,
 		uint8_t month, uint8_t wday, uint16_t year)
 {
-#if 0
-  printf ("%d %d %d %d %d %d %d\n", seconds, minutes, hour, day, month, wday,
-	  year);
-#endif
   if (year > 99)
     bcd_buffer[O_Year] = year - 2000;	/*assume this century */
   else
@@ -246,7 +242,7 @@ dayofweek (year, month, day)
 }
 
 int portno = 123;		// NTP UDP port number.
-char *host_name = "time.google.com";	// NTP server host-name.
+char host_name[256];
 int
 main (int argc, char *argv[])
 {
@@ -265,8 +261,10 @@ main (int argc, char *argv[])
 
 /* this could be inproved to deal with int timer clock on rc2014 */
 
-  if (argc > 1)
-    host_name = argv[1];
+  if (argc == 2)
+    strcpy(host_name , argv[1]);
+	else
+    strcpy(host_name, "time.google.com");
 
   if (strcmp (RTCType (), "DS1302") != 0)
     {
