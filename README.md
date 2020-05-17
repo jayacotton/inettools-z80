@@ -3,7 +3,8 @@ Inet tools for z80-rc2014 tcp/ip stack code.
 
 This code is based on software for the W5500 chip.  The code includes the following programs:
 
-ifconfig:  this is the poor mans version,  It has no options and shows your ip address and a few other parameters.
+ifconfig:  this is the poor mans version,  It has no options and shows your ip address and a few other parameters.  The most important part of this is that it uses DHCP to get your IP address from 
+your router.  
 
 ping:  this is about a simple a ping as you can get.  Round trip time values work when RC2014/RomWBW timer support is present.  The time values are in 20ms intervals.  
 C>ping www.nasa.gov                                                             
@@ -15,7 +16,9 @@ PING WWW.NASA.GOV (13.227.73.96)
  52 bytes from 13.227.73.96: icmp_seq=4324 time=80 ms                           
  52 bytes from 13.227.73.96: icmp_seq=4325 time=80 ms        
 
-pingnoti: this is ping without a timer.  
+pingnoti: this is ping without a timer.  IF you don't have a CTC to drive
+the interrupt timer, then you need this version.
+
 C>pingnoti www.nasa.gov                                                         
 Shift Register SPI Wiznet v1.0                                                  
 PING WWW.NASA.GOV (13.227.73.116)                                               
@@ -31,8 +34,7 @@ C>telnet 192.168.0.120
 Shift Register SPI Wiznet v1.0                                                  
 Connected...                                                                    
                                                                                 
-Ubuntu 19.04                                                                    
-jay-Ultra-27 login: jay                                                         
+login: jay                                                         
 Password:                                                                       
 Last login: Tue May  5 16:44:59 PDT 2020 from 192.168.0.131 on pts/5            
 Welcome to Ubuntu 19.04 (GNU/Linux 5.0.0-15-generic x86_64)                     
@@ -45,14 +47,7 @@ Welcome to Ubuntu 19.04 (GNU/Linux 5.0.0-15-generic x86_64)
 1 update can be installed immediately.                                          
 0 of these updates are security updates.                                        
                                                                                 
-Your Ubuntu release is not supported anymore.                                   
-For upgrade information, please visit:                                          
-http://www.ubuntu.com/releaseendoflife                                          
-                                                                                
-New release '19.10' available.                                                  
-Run 'do-release-upgrade' to upgrade to it.                                      
-                                                                                
-jay@jay-Ultra-27:~$ 
+$
 
 telnetd:  This is an attempt to allow CP/M to work via telnet console.   HIGHLY BROKEN at this time.
 
@@ -91,10 +86,28 @@ If you want a different one, then you must type in the server http address.
 
 C>ntp                                                                           
 Shift Register SPI Wiznet v1.0  
+OR
+C>ntp time.google.com
+Shift Register SPI Wiznet v1.0
 
 date: This reads the date and time from the RTC.  This requires an RTC/RC2014 board.
+L>date
+Sat May 16 22:56:50 2020
+
+digit:  This runs a wall clock using ASCII art to draw digits and loops at about 4 hz.
+you can exit with ctrl-c.  This does require that your terminal work with vt100 commands.
+
+C>l:digit
+ 2222   2222         555555  9999         44  44  6666  
+    22 22  22   ::   55     99  99   ::   44  44 66     
+   22     22         55555   99999        444444 66666  
+  22     22     ::       55     99   ::       44 66  66 
+222222 222222        55555   9999             44  6666  
 
 mac:  This is a tool that collects and stores the mac address for your wiznet card.
+
+wizreset:  THis will clear all the data out of your wiznet chip.  Its basically a hardware
+reset.
 
 In addition to these programs there are a few test programs, best to ignore them for now.
 
