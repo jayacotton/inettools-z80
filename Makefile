@@ -1,10 +1,27 @@
 CFLAGS	= --list --c-code-in-asm 
 #CFLAGS	= -O3 --list --c-code-in-asm
+DESTDIR = ~/HostFileBdos/d/
+CP = cp
 
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone
+all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone wizreset digit
 
+digit: digit.o sysface.o
+	zcc +cpm -create-app -odigit digit.o sysface.o
+	$(CP) DIGIT.COM $(DESTDIR)digit.com
+
+digit.o: digit.c
+	zcc +cpm $(CFLAGS) -c digit.c
+
+wizreset: wizreset.o w5500.o spi.o wizchip_conf.o
+	zcc +cpm -create-app -owizreset wizreset.o w5500.o spi.o wizchip_conf.o
+	$(CP) WIZRESET.COM $(DESTDIR)wizreset.com
+
+wizreset.o: wizreset.c
+	zcc +cpm $(CFLAGS) -c wizreset.c
+	
 telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
 	zcc +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
+	$(CP) TELNETD.COM $(DESTDIR)telnetd.com
 
 telnet_server.o:telnet_server.c telnetd.h
 	zcc +cpm $(CFLAGS) -DDEBUG -c telnet_server.c 
@@ -32,18 +49,21 @@ wizchip_conf.o: wizchip_conf.c wizchip_conf.h
 
 ifconfig: addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -oifconfig -Wunused addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
+	$(CP) IFCONFIG.COM $(DESTDIR)ifconfig.com
 
 addrprint.o: addrprint.c 
 	zcc +cpm $(CFLAGS)  -c  addrprint.c 
 
 dig: dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
 	zcc +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
+	$(CP) DIG.COM $(DESTDIR)dig.com
 
 dnsprint.o: dnsprint.c
 	zcc +cpm $(CFLAGS)  -c  dnsprint.c 
 
 ping: ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o 
 	zcc +cpm -create-app -oping ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
+	$(CP) PING.COM $(DESTDIR)ping.com
 
 ping.o: ping.c
 	zcc +cpm $(CFLAGS)  -c  ping.c 
@@ -53,12 +73,14 @@ time.o: time.c
 
 telnet: telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
 	zcc +cpm -create-app -otelnet telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
+	$(CP) TELNET.COM $(DESTDIR)telnet.com
 
 telnet_client.o:
 	zcc +cpm $(CFLAGS) -c  telnet_client.c 
 
 myget: get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
 	zcc +cpm -create-app -omyget get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
+	cp MYGET.COM $(DESTDIR)myget.com
 
 get.o:
 	zcc +cpm $(CFLAGS) -c  get.c 
@@ -74,6 +96,7 @@ sysface.o: sysface.c
 
 date: date.o sysface.o
 	zcc +cpm -create-app -odate date.o sysface.o
+	$(CP) DATE.COM $(DESTDIR)date.com
 
 date.o: date.c
 	zcc +cpm $(CFLAGS) -DPDT -c  date.c 
@@ -95,6 +118,7 @@ httpParser.o:
 
 pingnoti: w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o
 	zcc +cpm -create-app -opingnoti ping.c -DNOTIMER w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
+	$(CP) PINGNOTI.COM $(DESTDIR)pingnoti.com
 
 mac: mac.o
 	zcc +cpm -create-app -omac mac.o
@@ -104,12 +128,14 @@ mac.o:
 
 uptime: uptime.o sysface.o
 	zcc +cpm -create-app -ouptime uptime.o sysface.o
+	$(CP) UPTIME.COM $(DESTDIR)uptime.com
 
 uptime.o: uptime.c
 	zcc +cpm $(CFLAGS) -c uptime.c
 
 today: today.o sysface.o
 	zcc +cpm -create-app -otoday today.o sysface.o
+	$(CP) TODAY.COM $(DESTDIR)today.com
 
 today.o: today.c
 	zcc +cpm $(CFLAGS) -c today.c
