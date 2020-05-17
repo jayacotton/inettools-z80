@@ -101,6 +101,7 @@ uint16_t year;
 uint8_t wday;
 
 	get_via_romwbw(&sec,&min,&hr,&wday,&month,&day,&year);
+// fix this code.  we know the timezone 
 #ifdef PDT
   printf ("%s %s %d %02d:%02d:%02d %d\n",
 	weekday[dayofweek(year+2000,month,day)],
