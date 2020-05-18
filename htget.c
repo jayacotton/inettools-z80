@@ -68,7 +68,7 @@
 #include "w5500.h"
 #include "trace.h"
 #include "ctype.h"
-#include "time.h"
+#include "ltime.h"
 
 static int sock;
 static char buf[512];
@@ -176,7 +176,7 @@ char DNS_buffer[256];
 char dnsname[80];
 extern unsigned char HostAddr[4];
 unsigned char run_user_applications;
-
+#pragma output REGISTER_SP = 0xc000
 int
 main (int argc, char *argv[])
 {

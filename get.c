@@ -131,7 +131,7 @@ char dnsname[80];
 extern unsigned char HostAddr[4];
 unsigned char run_user_applications;
 FILE *fp;
-
+#pragma output REGISTER_SP = 0xc000
 int
 main (int argc, char *argv[])
 {

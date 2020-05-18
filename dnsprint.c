@@ -58,13 +58,14 @@
 wiz_NetInfo gWIZNETINFO;
 unsigned char run_user_applications;
 
-char DNS_buffer[2048];
+char DNS_buffer[256];
 
 unsigned char mac[6] = {0x98,0x76,0xb6,0x11,0x00,0xc4};
 unsigned char ip[4];
 unsigned char dns[4];
 unsigned char remip[4];
 unsigned char dnsname[80];
+#pragma output REGISTER_SP = 0xc000
 void main(int argc, char *argv[])
 {
 	if(argc > 1){

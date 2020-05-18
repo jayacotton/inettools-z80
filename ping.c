@@ -55,7 +55,7 @@
 #include "ethernet.h"
 #include "dns.h"
 #include "spi.h"
-#include "time.h"
+#include "ltime.h"
 #include <math.h>
 
 PINGMSGR PingRequest;		// Variable for Ping Request
@@ -75,7 +75,7 @@ struct TICKSTORE t1;
 struct TICKSTORE t2;
 
 extern void wait_1ms (unsigned int);
-
+#pragma output REGISTER_SP = 0xc000
 void
 main (int argc, char *argv[])
 {
@@ -398,6 +398,12 @@ restaddr(addr);
       else
 	{
 // get total time for ping
+#ifdef NOTIMER
+	  printf
+	(" %d bytes from %d.%d.%d.%d: icmp_seq=%x\n", (rlen+6), 
+	     (addr[0]), (addr[1]), (addr[2]), (addr[3]), 
+		htons(PingReply.SeqNum));
+#else
 	GetTime(&t2,&t1);
 	  /*  Output the Destination IP and the size of the Ping Reply Message */
 //	ftoa(t2.t.time*TICK,6,data_buf);
@@ -405,6 +411,7 @@ restaddr(addr);
 	(" %d bytes from %d.%d.%d.%d: icmp_seq=%x time=%ld ms \n", (rlen+6), 
 	     (addr[0]), (addr[1]), (addr[2]), (addr[3]), 
 		htons(PingReply.SeqNum),t2.t.time*20);
+#endif
 	  /*  SET ping_reply_receiver to '1' and go out the while_loop (waitting for ping reply) */
 	  ping_reply_received = 1;
 	}

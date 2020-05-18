@@ -243,6 +243,7 @@ dayofweek (year, month, day)
 
 int portno = 123;		// NTP UDP port number.
 char host_name[256];
+#pragma output REGISTER_SP = 0xc000
 int
 main (int argc, char *argv[])
 {
