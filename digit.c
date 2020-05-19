@@ -120,6 +120,19 @@ draw (unsigned char *digit[], int line)
   printf ("%s", digit[line]);
 }
 
+  unsigned char stone;
+waitone ()
+{
+  bcd_buffer = GetTOD ();
+  stone = bcd_buffer[O_Second] & 0xf;
+  while (1)
+    {
+      bcd_buffer = GetTOD ();
+      if (stone != (bcd_buffer[O_Second] & 0xf))
+	return;
+    }
+}
+
 void
 main ()
 {
@@ -144,10 +157,11 @@ main ()
 	  draw (numbers[(bcd_buffer[O_Second] & 0xf)], i);
 	  printf ("\n");
 	}
-	printf("%c[A",ASCII_ESC);
-	printf("%c[A",ASCII_ESC);
-	printf("%c[A",ASCII_ESC);
-	printf("%c[A",ASCII_ESC);
-	printf("%c[A",ASCII_ESC);
+      printf ("%c[A", ASCII_ESC);
+      printf ("%c[A", ASCII_ESC);
+      printf ("%c[A", ASCII_ESC);
+      printf ("%c[A", ASCII_ESC);
+      printf ("%c[A", ASCII_ESC);
+      waitone ();
     }
 }
