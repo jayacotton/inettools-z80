@@ -103,7 +103,7 @@ negotiate (int sock, unsigned char *buf, int len)
 
 unsigned char dnsname[80];
 wiz_NetInfo gWIZNETINFO;
-unsigned char DNS_buffer[248];
+unsigned char DNS_buffer[256];
 unsigned char skip_dns;
 unsigned char run_user_applications;
 extern char HostAddr[4];
@@ -159,7 +159,6 @@ main (int argc, char *argv[])
 	printf ("Can't find the ethernet h/w\n");
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-      exit (0);
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);

@@ -65,7 +65,6 @@ unsigned char ip[4];
 unsigned char dns[4];
 unsigned char remip[4];
 unsigned char dnsname[80];
-#pragma output REGISTER_SP = 0xc000
 void main(int argc, char *argv[])
 {
 	if(argc > 1){
@@ -79,7 +78,6 @@ void main(int argc, char *argv[])
 			printf("Can't find the ethernet h/w\n");
 		if(Ethernet_linkStatus() == LinkOFF)
 			printf("Plug in the cable\n");
-		exit(0);
 	}
 	Ethernet_localIP(ip);
 	Ethernet_localDNS(dns);

@@ -35,7 +35,7 @@ Initial code R0.1  10/24/2019  Jay Cotton
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "time.h"
+#include "ltime.h"
 #include <math.h>
 
 unsigned int hl,de;

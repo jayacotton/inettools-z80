@@ -429,6 +429,7 @@ TRACE("dns_answer");
     return 1;			// No error
   else
     return 0;
+    return 1;			// No error
 }
 
 

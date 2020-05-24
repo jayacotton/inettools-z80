@@ -10,7 +10,7 @@
 #include "httpParser.h"
 #include "httpUtil.h"
 #include "ethernet.h"
-#include "time.h"
+#include "ltime.h"
 #include "trace.h"
 
 #ifdef	_USE_SDCARD_
@@ -359,7 +359,7 @@ send_http_response_body (uint8_t s, uint8_t * uri_name, uint8_t * buf,
 			 uint32_t start_addr, uint32_t file_len)
 {
   int8_t get_seqnum;
-  uint32_t send_len;
+  unsigned int send_len;
   uint8_t p;
   uint8_t flag_datasend_end = 0;
 
@@ -398,7 +398,7 @@ send_http_response_body (uint8_t s, uint8_t * uri_name, uint8_t * buf,
   send_len = DATA_BUF_SIZE - 1;
 	memset(buffer,0,DATA_BUF_SIZE);
   printf ("send_len = %ld\n", send_len);
-  fr = fread (buffer, send_len, 1, file);
+  fr = fread (buffer, 1,send_len,  file);
   if (fr == 0)
     {
       send_len = 0;
@@ -412,7 +412,7 @@ send_http_response_body (uint8_t s, uint8_t * uri_name, uint8_t * buf,
   // Requested content send to HTTP client
 
   if (send_len)
-    send (s, buf, send_len);
+    send (s, buf, (unsigned short)send_len);
   else
     flag_datasend_end = 1;
 
@@ -621,6 +621,7 @@ http_process_handler (uint8_t s, st_http_request * p_http_request)
 uint8_t
 http_get_cgi_handler (uint8_t * name, uint8_t * buf, uint32_t * file_len)
 {
+return NULL;
 }
 
 uint8_t
@@ -628,4 +629,5 @@ http_post_cgi_handler (uint8_t * uri_name,
 		       st_http_request * p_http_request,
 		       uint8_t * buf, uint32_t * file_len)
 {
+return NULL;
 }

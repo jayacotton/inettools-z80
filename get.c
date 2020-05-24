@@ -120,6 +120,7 @@ xreadline (void)
     }
   writes (2, "htpget: overlong/misformatted header\n");
   exit (1);
+  return 0;
 }
 
 struct wiz_NetInfo_t gWIZNETINFO;
@@ -131,7 +132,6 @@ char dnsname[80];
 extern unsigned char HostAddr[4];
 unsigned char run_user_applications;
 FILE *fp;
-#pragma output REGISTER_SP = 0xc000
 int
 main (int argc, char *argv[])
 {
@@ -139,8 +139,7 @@ main (int argc, char *argv[])
   struct hostent *h;
   uint16_t port = 80;
   char *pp;
-  unsigned char *p;
-  char *fp;
+  char *p;
   int i;
 
   int of;
@@ -154,9 +153,10 @@ main (int argc, char *argv[])
       exit (1);
     }
   memcpy (gWIZNETINFO.mac, mac, 6);
-  fp = fopen("MYGET.CFG","r");
-  fscanf(fp,"%d.%d.%d.%d",&HostAddr[0],&HostAddr[1],&HostAddr[2],&HostAddr[3]);
-  fclose(fp);
+  fp = fopen ("MYGET.CFG", "r");
+  fscanf (fp, "%d.%d.%d.%d", &HostAddr[0], &HostAddr[1], &HostAddr[2],
+	  &HostAddr[3]);
+  fclose (fp);
   TRACE ("Ethernet_begin");
   if (Ethernet_begin (mac) == 0)
     {
@@ -164,7 +164,6 @@ main (int argc, char *argv[])
 	printf ("Can't find the ethernet h/w\n");
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-      exit (0);
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
@@ -184,13 +183,13 @@ main (int argc, char *argv[])
 /* there be bugs here.  If a port is specified 
 things can get sideways */
 
-  fp = argv[1];
-sprintf(dnsname,"%d.%d.%d.%d", HostAddr[0], HostAddr[1],
-		HostAddr[2], HostAddr[3]);
+  p = argv[1];
+  sprintf (dnsname, "%d.%d.%d.%d", HostAddr[0], HostAddr[1],
+	   HostAddr[2], HostAddr[3]);
 
   xwrites ("GET /");
-  if (fp)
-    xwrites (fp);
+  if (p)
+    xwrites (p);
   xwrites (" HTTP/1.1\r\n");
   xwrites ("Host: ");
   xwrites (dnsname);
@@ -234,7 +233,7 @@ sprintf(dnsname,"%d.%d.%d.%d", HostAddr[0], HostAddr[1],
     }
   while (code == 100 && !looped++);
 
-	remove(argv[1]);
+  remove (argv[1]);
   of = open (argv[1], O_WRONLY | O_CREAT, 0666);
   if (of == -1)
     {

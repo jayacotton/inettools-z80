@@ -3,16 +3,16 @@
 //! \file ping.c
 //! \brief PING is used to test for the existance of a remote server.
 //! \details Loosly based on the documents found at:
-//!	 https://tools.ietf.org/html/rfc2151 
+//!      https://tools.ietf.org/html/rfc2151 
 //!
 //! \version 2.0
 //! \date 4/13/2019
 //! \par Revision history
-//!	4/13/2019  This version.  Copied from wiznet somewhere, now
-//!		can't find the location.
-//!		Modified extensivly for CP/M and z88dk.
-//!		When I get milisecond timeing working, I will
-//!		add loop time.
+//!     4/13/2019  This version.  Copied from wiznet somewhere, now
+//!             can't find the location.
+//!             Modified extensivly for CP/M and z88dk.
+//!             When I get milisecond timeing working, I will
+//!             add loop time.
 //! \author Jay Cotton
 //! \copyright
 //!
@@ -57,6 +57,7 @@
 #include "spi.h"
 #include "ltime.h"
 #include <math.h>
+#include "trace.h"
 
 PINGMSGR PingRequest;		// Variable for Ping Request
 PINGMSGR PingReply;		// Variable for Ping Reply
@@ -69,17 +70,17 @@ uint8_t rep = 0;
 int run_user_applications;
 struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
+
 unsigned char DNS_buffer[2048];
 unsigned char save_addr[4];
 struct TICKSTORE t1;
 struct TICKSTORE t2;
 
 extern void wait_1ms (unsigned int);
-#pragma output REGISTER_SP = 0xc000
 void
 main (int argc, char *argv[])
 {
-unsigned char tmp;
+  unsigned char tmp;
   unsigned char ping_sockfd;
   unsigned char skip_dns;
   unsigned char remip[4];
@@ -112,7 +113,6 @@ unsigned char tmp;
 	printf ("Can't find the ethernet h/w\n");
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-      exit (0);
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
@@ -133,51 +133,44 @@ unsigned char tmp;
     {
       run_user_applications = 1;
     }
-//  Display_Net_Conf ();
   if (run_user_applications)
     {
-printf("PING %s (%d.%d.%d.%d) \n",argv[1],  
-		  remip[0], remip[1],remip[2],remip[3]);
-//      printf ("------------PING_TEST_START-----------------------\r\n");
+      printf ("PING %s (%d.%d.%d.%d) \n", argv[1],
+	      remip[0], remip[1], remip[2], remip[3]);
       tmp = ping_auto (0, remip);
-
-//      if (tmp == SUCCESS)
-//	printf ("-----------PING TEST OK----------\r\n");
- //     else
-//	printf ("----------ERROR  = %d----------\r\n", tmp);
-
-
     }
-
 }
 
 uint8_t
 ping_auto (uint8_t s, uint8_t * addr)
 {
   uint8_t i;
-  int32_t len = 0;
+  unsigned int len = 0;
   uint8_t cnt = 0;
+TRACE("");
   for (i = 0; i <= 5; i++)
     {
-
+TRACE("");
       switch (getSn_SR (s))
 	{
 	case SOCK_CLOSED:
 	  sock_close (s);
 	  IINCHIP_WRITE (Sn_PROTO (s), IPPROTO_ICMP);	// set ICMP Protocol
 	  if (socket (s, Sn_MR_IPRAW, 3000, 0) != 0)
-	    {		// open the SOCKET with IPRAW mode, if fail then Error
+	    {			// open the SOCKET with IPRAW mode, if fail then Error
 	      printf ("\r\n socket %d fail r\n", (0));
 #ifdef PING_DEBUG
 	      return SOCKET_ERROR;
 #endif
 	    }
 	  /* Check socket register */
+TRACE("");
 	  while (getSn_SR (s) != SOCK_IPRAW);
 	  wait_1ms (1000);	// wait 1000ms
 	  wait_1ms (1000);	// wait 1000ms
 	  break;
 	case SOCK_IPRAW:
+TRACE("");
 	  ping_request (s, addr);
 	  req++;
 	  while (1)
@@ -204,9 +197,11 @@ ping_auto (uint8_t s, uint8_t * addr)
 
 	  break;
 	default:
+TRACE("");
 	  break;
 
 	}
+TRACE("");
 #ifdef PING_DEBUG
       if (req >= 3)
 	{
@@ -221,7 +216,7 @@ ping_auto (uint8_t s, uint8_t * addr)
 	}
 #endif
     }
-	    return SUCCESS;
+  return SUCCESS;
 }
 
 
@@ -309,15 +304,16 @@ ping_count (uint8_t s, uint16_t pCount, uint8_t * addr)
 #endif
     }
 
-
+  return 0;
 }
 
 uint8_t
 ping_request (uint8_t s, uint8_t * addr)
 {
   uint16_t i;
-int n;
+  int n;
 
+TRACE("");
   //Initailize flag for ping reply
   ping_reply_received = 0;
   /* make header of the ping-request  */
@@ -338,30 +334,38 @@ int n;
 
 // get time tick base
 
-	SetTime(&t1);
+  SetTime (&t1);
   /* sendto ping_request to destination */
-  if ((n=sendto (s, (uint8_t *) & PingRequest, sizeof (PingRequest), addr, 3000))
-      == 0)
+TRACE("");
+  if ((n =
+       sendto (s, (uint8_t *) & PingRequest, sizeof (PingRequest), addr,
+	       3000)) == 0)
     {				// Send Ping-Request to the specified peer.
       printf ("\r\n Fail to send ping-reply packet  r\n");
     }
   else
     {
-  //    printf ("%d bytes from ");
-//printf( "%d.%d.%d.%d: ",   (addr[0]),  (addr[1]),  (addr[2]),  (addr[3])) ;
- //     printf (" icmp_seq=%x CheckSum:%x\r\n", htons (PingRequest.SeqNum), htons (PingRequest.CheckSum));
+#ifdef DEBUG
+          printf ("%d bytes from ");
+          printf( "%d.%d.%d.%d: ",   (addr[0]),  (addr[1]),  (addr[2]),  (addr[3])) ;
+          printf (" icmp_seq=%x CheckSum:%x\r\n", htons (PingRequest.SeqNum), htons (PingRequest.CheckSum));
+#endif
     }
   return 0;
 }				// ping request
 
-void saveaddr(unsigned char *addr)
+void
+saveaddr (unsigned char *addr)
 {
-	memcpy(save_addr,addr,4);
+  memcpy (save_addr, addr, 4);
 }
-void restaddr(unsigned char *addr)
+
+void
+restaddr (unsigned char *addr)
 {
-	memcpy(addr,save_addr,4);
+  memcpy (addr, save_addr, 4);
 }
+
 uint8_t
 ping_reply (uint8_t s, uint8_t * addr, uint16_t rlen)
 {
@@ -376,9 +380,9 @@ ping_reply (uint8_t s, uint8_t * addr, uint16_t rlen)
 
 
   /* receive data from a destination */
-saveaddr(addr);
+  saveaddr (addr);
   len = recvfrom (s, (uint8_t *) data_buf, rlen, addr, &port);
-restaddr(addr);
+  restaddr (addr);
   if (data_buf[0] == PING_REPLY)
     {
       PingReply.Type = data_buf[0];
@@ -400,17 +404,16 @@ restaddr(addr);
 // get total time for ping
 #ifdef NOTIMER
 	  printf
-	(" %d bytes from %d.%d.%d.%d: icmp_seq=%x\n", (rlen+6), 
-	     (addr[0]), (addr[1]), (addr[2]), (addr[3]), 
-		htons(PingReply.SeqNum));
+	    (" %d bytes from %d.%d.%d.%d: icmp_seq=%x\n", (rlen + 6),
+	     (addr[0]), (addr[1]), (addr[2]), (addr[3]),
+	     htons (PingReply.SeqNum));
 #else
-	GetTime(&t2,&t1);
+	  GetTime (&t2, &t1);
 	  /*  Output the Destination IP and the size of the Ping Reply Message */
-//	ftoa(t2.t.time*TICK,6,data_buf);
 	  printf
-	(" %d bytes from %d.%d.%d.%d: icmp_seq=%x time=%ld ms \n", (rlen+6), 
-	     (addr[0]), (addr[1]), (addr[2]), (addr[3]), 
-		htons(PingReply.SeqNum),t2.t.time*20);
+	    (" %d bytes from %d.%d.%d.%d: icmp_seq=%x time=%ld ms \n",
+	     (rlen + 6), (addr[0]), (addr[1]), (addr[2]), (addr[3]),
+	     htons (PingReply.SeqNum), t2.t.time * 20);
 #endif
 	  /*  SET ping_reply_receiver to '1' and go out the while_loop (waitting for ping reply) */
 	  ping_reply_received = 1;
@@ -520,12 +523,12 @@ wait_1ms (unsigned int cnt)
 {
   unsigned int i;
 #ifndef NOTIMER
-	i = cnt / 25;	// 1 = .02 sec.  
-	if(i < 1) i = 1;
-	WaitTime(i);
+  i = cnt / 25;			// 1 = .02 sec.  
+  if (i < 1)
+    i = 1;
+  WaitTime (i);
 #else
-	for(i=0;i<cnt;i++)
-		spi_delay(500);
+  for (i = 0; i < cnt; i++)
+    spi_delay (500);
 #endif
 }
-

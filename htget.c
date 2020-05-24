@@ -166,6 +166,7 @@ xreadline (void)
     }
   writes (2, "htpget: overlong/misformatted header\n");
   exit (1);
+return 0;
 }
 
 struct wiz_NetInfo_t gWIZNETINFO;
@@ -176,7 +177,6 @@ char DNS_buffer[256];
 char dnsname[80];
 extern unsigned char HostAddr[4];
 unsigned char run_user_applications;
-#pragma output REGISTER_SP = 0xc000
 int
 main (int argc, char *argv[])
 {

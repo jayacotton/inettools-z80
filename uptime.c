@@ -29,4 +29,5 @@ long time ;
 
 	time = GetUptime(1);
 	PrintAsTime(time);
+	return 0;
 }

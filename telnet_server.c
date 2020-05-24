@@ -154,21 +154,28 @@ returning later */
 	ei	
 #endasm
 }
+int z;
 unsigned char CONST()
 {
 #asm
+	di
+	push	ix
+	push	iy
 	push	hl
 	push	de
 	push	bc
 #endasm
-LED(0x80);
+//LED(0x80);
 	do_loop = 0;
 	if(getSn_RX_RSR (Socket)){
 #asm
 	pop	bc
 	pop	de
 	pop	hl
+	pop	iy
+	pop	ix
 	ld	a,255	; ff means there is data
+	ei
 	ret
 #endasm
 	} else {
@@ -176,50 +183,65 @@ LED(0x80);
 	pop	bc
 	pop	de
 	pop	hl
+	pop	iy
+	pop	ix
 	ld	a,0	; zero means no data
 	cp	a,0	; force z flag
+	ei
 	ret
 #endasm
 	}
+return z;
 }
 unsigned char CONIN()
 {
-int z;
 #asm
+	di
 	push	hl
 	push	de
 	push	bc
+	push	ix
+	push	iy
 #endasm
-LED(0x40);
+//LED(0x40);
 	do_loop = 0;
 	do{
 		z = recv (Socket, &x_x, 1);
 	}while(z==0);
 #asm
+	pop	iy
+	pop	ix
 	pop	bc
 	pop	de
 	pop	hl
 	ld	a,(_x_x)
 	and	a,7fh 
-	ret
+	ei
 #endasm
+	return (unsigned char )z;
 }
 void CONOUT(unsigned char x)
 {
 #asm
+	di
+	push	ix
+	push	iy
 	push	hl
 	push	de
 	push	bc
 	ld	a,c
 	ld	(_x_x),a
 #endasm
-LED(0x20);
+//LED(0x20);
 	do_loop = 0;
         send (Socket, &x_x, 1);
 #asm
 	pop	bc
 	pop	de
 	pop	hl
+	pop	iy
+	pop	ix
+	ei
 #endasm
 }
 main ()
@@ -244,12 +266,15 @@ assign the console to that device. */
       exit (0);
     }
   Ethernet_localIP (ip);
-//  printf ("inet %d.%d.%d.%d ", ip[0], ip[1], ip[2], ip[3]);
-//  printf ("23\n");
-	CONINIT();
+  printf ("inet %d.%d.%d.%d ", ip[0], ip[1], ip[2], ip[3]);
+  printf ("23\n");
+
+  CONINIT();
   Port = 23;			/* make it hard coded for now */
   Socket = 2;			/* hard code this also */
+/* make a socket */
   socket (Socket, Sn_MR_TCP, Port, 0);
+/* get a listen set up */
   while (listen (Socket) != SOCK_OK);
 /* wait here for a telnet session to start */
   while (getSn_RX_RSR (Socket) == 0)
@@ -257,8 +282,10 @@ assign the console to that device. */
     }
   send (Socket, "CP/M 2.2 Telnet Deamon\n\r", 24);
 /* loop */
-//text_con("testing the CONOUT code");
-	
+
+text_con("testing the CONOUT code");
+
+SNAP(0xe603,32,0);	
   do_loop = 1;
   while (do_loop)
     {				/* should be looking for an exit condition */
@@ -317,7 +344,6 @@ others will just be dumped for now */
 /* end of loop */
 	}
     }
-#asm
-	jp	0 
-#endasm
+return 0;
 }
+

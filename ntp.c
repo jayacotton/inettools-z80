@@ -243,7 +243,6 @@ dayofweek (year, month, day)
 
 int portno = 123;		// NTP UDP port number.
 char host_name[256];
-#pragma output REGISTER_SP = 0xc000
 int
 main (int argc, char *argv[])
 {
@@ -298,9 +297,6 @@ main (int argc, char *argv[])
 	printf ("Can't find the ethernet h/w\n");
       else if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-      else
-	printf ("unknown error\n");
-      exit (0);
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);

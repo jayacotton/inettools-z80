@@ -63,7 +63,7 @@ session and assign hardwired addresses.
 #include <stdio.h>
 extern unsigned char tfl;
 
-unsigned char DHCP_buffer[2048];
+unsigned char DHCP_buffer[256];
 extern struct wiz_NetInfo_t gWIZNETINFO;
 extern unsigned char run_user_applications;
 extern char w5500_present;
@@ -121,7 +121,7 @@ unsigned int lm[6];
 unsigned int
 Ethernet_begin (unsigned char *mac)
 {
-  unsigned char my_dhcp_retry;
+  unsigned char my_dhcp_retry = 0;
 int i;
 TRACE("");
   spi_init();	// since we alway run on spi bus
@@ -131,6 +131,7 @@ TRACE("");
   DHCP_reset_static (mac);
   TRACE ("DHCP_init");
   DHCP_init (SOCK_DHCP, DHCP_buffer);
+	setPMAGIC(3);
 TRACE("");
   while (run_user_applications == 0)
     {
@@ -172,7 +173,7 @@ TRACE("");
 	  break;
 	}
     }
-
+	return 0;
 }
 
 //! Ethernet_hardwareStatus, 

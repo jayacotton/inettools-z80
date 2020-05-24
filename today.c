@@ -136,6 +136,7 @@ datetxt (buffer, year, month, day)
       else
 	return (nbrtxt (op, year, 0));
     }
+return 0;
 }
 
 
@@ -738,6 +739,7 @@ main (argc, argv)
 #ifdef	UNIX
   execl (COOKIEPROGRAM, "cookie", 0);
 #endif
+return 0;
 }
 
 void

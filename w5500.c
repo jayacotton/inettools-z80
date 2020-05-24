@@ -58,7 +58,7 @@
 #include "spi.h"
 #include "trace.h"
 
-unsigned char w5500_present;
+unsigned char w5500_present = 1;
 
 #define _W5500_SPI_VDM_OP_          0x00
 #define _W5500_SPI_FDM_OP_LEN1_     0x01
@@ -112,7 +112,7 @@ softReset ()
 //{
 //  unsigned char version;
 
- // w5500_present = 0;		// no yet ...
+ // w5500_present = 0;          // no yet ...
 //  if (!softReset ())
 //    return 0;
 //  writeMR (0x08);
@@ -127,7 +127,7 @@ softReset ()
 //  version = readVERSIONR_W5500 ();
 //  if (version != 4)
 //    return 0;
-//  w5500_present++;		// found it
+//  w5500_present++;            // found it
 
 //}
 
@@ -159,13 +159,13 @@ WIZCHIP_READ (uint32_t AddrSel)
 
   AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
 
-  SpiSendData ((AddrSel & 0x00FF0000) >> 16);
-  SpiSendData ((AddrSel & 0x0000FF00) >> 8);
-  SpiSendData ((AddrSel & 0x000000FF) >> 0);
+  SpiSendData ((unsigned char) ((AddrSel >> 16) & 0xff));
+  SpiSendData ((unsigned char) ((AddrSel >> 8) & 0xff));
+  SpiSendData ((unsigned char) ((AddrSel & 0xFF)));
   ret = SpiRecvData ();
   CSoff ();
 #ifdef DEBUG
-printf("input byte 0x%02x\n",ret);
+  printf ("input byte 0x%02x\n", ret);
 #endif
   TRACE ("<-WIZCHIP_READ");
   return ret;
@@ -179,12 +179,12 @@ WIZCHIP_WRITE (uint32_t AddrSel, unsigned char wb)
 
   AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
 
-  SpiSendData ((AddrSel & 0x00FF0000) >> 16);
-  SpiSendData ((AddrSel & 0x0000FF00) >> 8);
-  SpiSendData ((AddrSel & 0x000000FF) >> 0);
+  SpiSendData ((unsigned char)(AddrSel >> 16) & 0xFF);
+  SpiSendData ((unsigned char)(AddrSel >>  8) & 0xFF);
+  SpiSendData ((unsigned char)(AddrSel )      & 0xFF);
   SpiSendData (wb);
 #ifdef DEBUG
-printf("output byte 0x%02x\n",wb);
+  printf ("output byte 0x%02x\n", wb);
 #endif
   CSoff ();
 }
@@ -200,26 +200,27 @@ WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
 
   AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
 
-  SpiSendData ((AddrSel & 0x00FF0000) >> 16);
-  SpiSendData ((AddrSel & 0x0000FF00) >> 8);
-  SpiSendData ((AddrSel & 0x000000FF) >> 0);
+  SpiSendData ((unsigned char)(AddrSel >> 16) & 0xFF);
+  SpiSendData ((unsigned char)(AddrSel >>  8) & 0xFF);
+  SpiSendData ((unsigned char)(AddrSel )      & 0xFF);
 #ifdef SPI_BURST_READ
   //printf ("burst_read %d\n", len);
 #asm
-	in	_shift_rdtr
+  in _shift_rdtr
 #endasm
-  p = pBuf;
+    p = pBuf;
   rs = spi_burst_read (p, len);
   p += rs;
   if (rs < len)
     {
       len = len - rs;
-    //  printf ("read more %d\n", len);
+      //  printf ("read more %d\n", len);
       while (len > 0)
 	{
 	  rs = spi_burst_read (p, len);
 	  len = len - rs;
-//	  printf ("read more %d\n", len);
+	  p += rs;
+//        printf ("read more %d\n", len);
 	}
     }
 #else
@@ -238,9 +239,9 @@ WIZCHIP_WRITE_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
 
   AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
 
-  SpiSendData ((AddrSel & 0x00FF0000) >> 16);
-  SpiSendData ((AddrSel & 0x0000FF00) >> 8);
-  SpiSendData ((AddrSel & 0x000000FF) >> 0);
+  SpiSendData ((unsigned char)(AddrSel >> 16) & 0xFF);
+  SpiSendData ((unsigned char)(AddrSel >>  8) & 0xFF);
+  SpiSendData ((unsigned char)(AddrSel )      & 0xFF);
   for (i = 0; i < len; i++)
     SpiSendData (pBuf[i]);
 

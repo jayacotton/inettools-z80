@@ -69,7 +69,7 @@ char *msg;
 {
 int i;
 int j;
-unsigned char *where;
+char *where;
 int ascii;
 int dism;
 int dec;

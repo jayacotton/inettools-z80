@@ -120,8 +120,8 @@ draw (unsigned char *digit[], int line)
   printf ("%s", digit[line]);
 }
 
-  unsigned char stone;
-waitone ()
+unsigned char stone;
+void waitone ()
 {
   bcd_buffer = GetTOD ();
   stone = bcd_buffer[O_Second] & 0xf;

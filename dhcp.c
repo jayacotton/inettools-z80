@@ -322,7 +322,7 @@ makeDHCPMSG (void)
   *(ptmp + 3) = (uint8_t) ((DHCP_XID & 0x000000FF) >> 0);
   pDHCPMSG->secs = DHCP_SECS;
   ptmp = (uint8_t *) (&pDHCPMSG->flags);
-  *(ptmp + 0) = (uint8_t) ((DHCP_FLAGSBROADCAST & 0xFF00) >> 8);
+  *(ptmp + 0) = (uint8_t) (((DHCP_FLAGSBROADCAST>>8) & 0x00ff) );
   *(ptmp + 1) = (uint8_t) ((DHCP_FLAGSBROADCAST & 0x00FF) >> 0);
 
   pDHCPMSG->ciaddr[0] = 0;
@@ -976,6 +976,7 @@ check_DHCP_leasedIP (void)
 
       return 0;
     }
+return 1;
 }
 
 void
@@ -1074,6 +1075,7 @@ NibbleToHex (uint8_t nibble)
     return nibble + '0';
   else
     return nibble + ('A' - 0x0A);
+	return 0;
 }
 
 //unsigned int

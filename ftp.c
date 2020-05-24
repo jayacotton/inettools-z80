@@ -130,7 +130,7 @@ int port;
 int data_port;
 int data_sock;
 
-unsigned char DNS_buffer[248];	/* smaller ??? */
+unsigned char DNS_buffer[256];	/* smaller ??? */
 int skip_dns;
 
 extern int UI ();

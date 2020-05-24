@@ -249,6 +249,7 @@ unsigned char *l_buffer;
 //! read spi buss in burst mode.  Note: we can only read
 //! 256 bytes, so return 256 or less bytes read.
 
+#ifdef NOTNOW
 unsigned int spi_burst_read(unsigned char *buffer, unsigned int len)
 {
 	l_buffer = buffer;
@@ -259,13 +260,14 @@ unsigned int spi_burst_read(unsigned char *buffer, unsigned int len)
 	} 
 #asm
 	ld	c,_shift_rdtr 
-	ld	hl,_l_buffer
+	ld	hl,(_l_buffer)
 	ld	a,(_l_len)
 	ld	b,a
 	inir
 #endasm
-	return l_len;
+	return ((unsigned int)l_len);
 }
+#endif
 unsigned char
 spi_byte_io (unsigned char byte_out)
 {
