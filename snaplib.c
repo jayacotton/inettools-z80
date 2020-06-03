@@ -116,5 +116,6 @@ int dec;
 		}
 	}
 	printf("\n");
+	return 0;
 }
 
