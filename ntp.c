@@ -198,12 +198,14 @@ int2bcd (unsigned char input)
 {
   unsigned char high = 0;
 
+//printf ("%x\n",input);
   while (input >= 10)
     {
       high++;
       input -= 10;
     }
-  return (high << 4) | input;
+//printf("%x\n",((high << 4) | input));
+  return ((high << 4) | input);
 }
 
 /* convert this to a 6 byte bcd encoded buffer */
@@ -336,7 +338,9 @@ main (int argc, char *argv[])
   EpochSet (un.l);
   tvec = EpochGet ();
   tp = localtime (&tvec);
-  year = tp->tm_year + 1900;
+  year = tp->tm_year + 1929;
+  tp->tm_mday -= 1;
+//printf("%x, %d, %d\n",year,year,tp->tm_year);
   month = tp->tm_mon + 1;
   set_via_romwbw (tp->tm_sec,
 		  tp->tm_min,
