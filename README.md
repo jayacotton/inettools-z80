@@ -1,14 +1,25 @@
 # inettools-z80
 Inet tools for z80-rc2014 tcp/ip stack code.
 
+Updates to the code base include FRAM support for storing all the parameters I was stashing on the
+disk or in the NVRAM on the RTC chip.  At this point, you should be able to build and run the code
+base without having an RTC board in your machine, but you will need an FRAM chip.
+
+Future plan is the create a disk file version of the FRAM code, so all the parameters can be saved
+on a disk file, as a last resort.
+
+
 This code is based on software for the W5500 chip.  The code includes the following programs:
 
-ifconfig:  this is the poor mans version,  It has no options and shows your ip address and a few other parameters.  The most important part of this is that it uses DHCP to get your IP address from 
-your router.  
+ifconfig:  ifconfig -s will read the addresses from the w5500 and store them in the FRAM.  ifconfig 
+with no parameters will print the values from the FRAM.
+
+This is the poor mans version,  It has no options and shows your ip address and a few other parameters.  
+The most important part of this is that it uses DHCP to get your IP address from your router.  
 
 ping:  this is about a simple a ping as you can get.  Round trip time values work when RC2014/RomWBW timer support is present.  The time values are in 20ms intervals.  
 C>ping www.nasa.gov                                                             
-Shift Register SPI Wiznet v1.0                                                  
+<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
 PING WWW.NASA.GOV (13.227.73.96)                                                
  52 bytes from 13.227.73.96: icmp_seq=4321 time=80 ms                           
  52 bytes from 13.227.73.96: icmp_seq=4322 time=80 ms                           
@@ -20,7 +31,7 @@ pingnoti: this is ping without a timer.  IF you don't have a CTC to drive
 the interrupt timer, then you need this version.
 
 C>pingnoti www.nasa.gov                                                         
-Shift Register SPI Wiznet v1.0                                                  
+<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
 PING WWW.NASA.GOV (13.227.73.116)                                               
  52 bytes from 13.227.73.116: icmp_seq=4321                                     
  52 bytes from 13.227.73.116: icmp_seq=4322                                     
@@ -31,7 +42,7 @@ PING WWW.NASA.GOV (13.227.73.116)
 telnet:  This is a terminal program to talking to a host machine.
 
 C>telnet 192.168.0.120                                                          
-Shift Register SPI Wiznet v1.0                                                  
+<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
 Connected...                                                                    
                                                                                 
 login: jay                                                         
@@ -55,7 +66,8 @@ dig: This is a really simple version of dig, it reports a single ip address for 
 
 wget:  This will allow cp/m users to load programs onto there CF card etc using http protocol.
 
-NOTE:  the time code uses nvram in the RTC to store operational data.  Since there are 32 locations in nvram and I use 12, things are a bit tight.
+NOTE:  the time code uses (nvram or FRAM, and later a disk file) in the RTC to store operational data.  
+Since there are 32 locations in nvram and I use 12, things are a bit tight.  Note: FRAM has 8k of space.
 
 today:  This is code cribed from the z88dk/examples/today.c.  I modified it to work with
 the rc2014 RTC and timer code.  I.e. get the UNIXEPOCH as adjusted for time zone and 
@@ -85,10 +97,10 @@ This requires an RTC/RC2014 board.  Ntp's default nist server is time.google.com
 If you want a different one, then you must type in the server http address.
 
 C>ntp                                                                           
-Shift Register SPI Wiznet v1.0  
+<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
 OR
 C>ntp time.google.com
-Shift Register SPI Wiznet v1.0
+<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
 
 date: This reads the date and time from the RTC.  This requires an RTC/RC2014 board.
 L>date
@@ -105,6 +117,7 @@ C>l:digit
 222222 222222        55555   9999             44  6666  
 
 mac:  This is a tool that collects and stores the mac address for your wiznet card.
+mac -r will print out the mac address as stored in the FRAM
 
 wizreset:  THis will clear all the data out of your wiznet chip.  Its basically a hardware
 reset.
@@ -122,6 +135,7 @@ Using the RomWbW code see https://github.com/wwarthen/RomWBW for more info on th
 
 The code is built using the z88dk tool chain, see z88dk.org for more info on the tool chain.
 All of this work has been conducted on linux ubuntu v18.
+You can also build this code on windows with cygwin installed.
 
 This code is really preliminary in nature, it works in an ideal environment, but falls on its face when any kind of
 out of band condition turns up.  Most often with the DHCP server gets tired of the FeatherWing asking questions.
@@ -136,6 +150,9 @@ A note:  MYGET.COM needs a configuration file on the cp/m disk called MYGET.CFG.
 http host you are using for uploading (downloading) ... loading your code onto the cp/m disk.  
 To make that work, you need to install an http server on your host machine, and populate the source directory with
 files to transfer...  
+
+If you have an FRAM chip on your MT011 board you can just do a build, but you may want to edit
+Makefile and remove the -DFRAM flag.  I suspect that I may be the only user with FRAM for a while.
 
 Make commands are:  make clean, make all (or target name), make install, make documents, make ship
 make install puts files into /var/www/html.  This is the default publishing
