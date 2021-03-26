@@ -61,15 +61,15 @@
 #define SnapTight 0x20
 
 int snapmem(here,addr,size,flags,msg)
-char *here;
-char *addr;
+unsigned char *here;
+unsigned char *addr;
 int size;
 int flags;
 char *msg;
 {
 int i;
 int j;
-char *where;
+unsigned char *where;
 int ascii;
 int dism;
 int dec;

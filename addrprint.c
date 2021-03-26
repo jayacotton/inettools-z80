@@ -49,22 +49,45 @@
 #include "wizchip_conf.h"
 #include "trace.h"
 
+#ifdef FRAM
+#include "fram.h"
+#endif
+
 wiz_NetInfo gWIZNETINFO;
 unsigned char run_user_applications;
 
 unsigned char mac[6] = {0x98,0x76,0xb6,0x11,0x00,0xc4};
 unsigned char ip[4];
 
-void main()
+void main(int argc,char *argv[])
 {
 	if(Ethernet_begin(mac) == 0){
-TRACE("error checking ");
 		if(Ethernet_hardwareStatus() == EthernetNoHardware)
 			printf("Can't find the ethernet h/w\n");
 		if(Ethernet_linkStatus() == LinkOFF)
 			printf("Plug in the cable\n");
 	}
-TRACE("Seems to be working");
+#ifdef FRAM
+	if(argc > 1){
+		Ethernet_localIP(ip);
+		FramSetIP(ip);
+		Ethernet_localSN(ip);
+		FramSetMask(ip);
+		Ethernet_localDNS(ip);
+		FramSetDns(ip);
+		Ethernet_localGW(ip);
+		FramSetGate(ip);
+	}
+	FramGetIP(ip);
+	printf("inet %d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
+	FramGetMask(ip);
+	printf("netmask %d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
+	FramGetDns(ip);
+	printf("dns server %d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
+	FramGetGate(ip);
+	printf("Default Gateway %d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
+	printf("ether %02x.%02x.%02x.%02x.%02x.%02x",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+#else
 	Ethernet_localIP(ip);
 	printf("inet %d.%d.%d.%d ",ip[0],ip[1],ip[2],ip[3]);
 	Ethernet_localSN(ip);
@@ -72,4 +95,5 @@ TRACE("Seems to be working");
 	Ethernet_localDNS(ip);
 	printf("dns server %d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
 	printf("ether %02x.%02x.%02x.%02x.%02x.%02x",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+#endif
 }

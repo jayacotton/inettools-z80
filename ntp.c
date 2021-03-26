@@ -339,7 +339,7 @@ main (int argc, char *argv[])
   tvec = EpochGet ();
   tp = localtime (&tvec);
   year = tp->tm_year + 1929;
-  tp->tm_mday -= 1;
+//  tp->tm_mday -= 1;
 //printf("%x, %d, %d\n",year,year,tp->tm_year);
   month = tp->tm_mon + 1;
   set_via_romwbw (tp->tm_sec,

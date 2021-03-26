@@ -49,7 +49,7 @@ extern unsigned int Ethernet_hardwareStatus();
 extern unsigned int Ethernet_linkStatus();
 extern void Ethernet_localIP(unsigned char *);
 extern void Ethernet_localSN(unsigned char *);
-//extern void Ethernet_localGW(unsigned char *);
+extern void Ethernet_localGW(unsigned char *);
 extern void Ethernet_localDNS(unsigned char *);
 extern void Ethernet_localIP(unsigned char *);
 extern void Display_Net_Conf();

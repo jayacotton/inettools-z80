@@ -7,6 +7,10 @@
 #include <string.h>
 #include "sysface.h"
 
+#ifdef FRAM
+#include "fram.h"
+#endif
+
 #define bf_sysver	0xF1	// BIOS: VER function
 #define bf_sysget	0xF8	// HBIOS: SYSGET function
 #define bf_sysgettimer	0xD0	// TIMER subfunction
@@ -39,17 +43,26 @@ ntp provides seconds since midnight jan 1 1900 as a 64 bit number.
 /* set the time zone data (into nvram) */
 void SetTZtxt(char *txt)
 {
+#ifdef FRAM
+	FramSetTZText(txt);
+#else
 int i;
 int addr;
 	for(i=0;i< 4;i++){
 		addr = TZtxt+(i<<1);
 		SetNvram(addr,txt[i]);	
 	}
+#endif
 }
 char TZName[6];
 
 char *GetTZtxt()
 {
+#ifdef FRAM
+	memset(TZName,0,6);
+	FramGetTZText((unsigned char*)TZName);
+	return &TZName;
+#else
 int i;
 int addr;
 	memset(TZName,0,6);
@@ -58,9 +71,13 @@ int addr;
 		TZName[i] = GetNvram(addr);	
 	}
 	return &TZName;
+#endif
 }
 void SetTZ(long zone)
 {
+#ifdef FRAM
+	FramSetTZ(zone);
+#else
 int i;
 long lzone;
 int addr;
@@ -70,9 +87,13 @@ int addr;
 		SetNvram(addr,(unsigned char )lzone & 0xff);
 		lzone = lzone >> 8;
 	}
+#endif
 }
 long GetTZ()
 {
+#ifdef FRAM
+	return(FramGetTZ());
+#else
 int i;
 long res;
 int addr;
@@ -83,6 +104,7 @@ int addr;
 		res |= 0xff & GetNvram(addr);
 	}
 	return res;
+#endif
 }
 /* get and test the bios version number */
 int TestBIOS()
@@ -99,9 +121,12 @@ current value of EPOCH from ntp time server.
 */
 void EpochSet(unsigned long epoch)
 {
+unsigned long lepoch;
+#ifdef FRAM
+	FramSetEpoch(epoch);
+#else
 int i;
 int addr;
-unsigned long lepoch;
 	lepoch = epoch;
 #ifdef DEBUG
 printf("%lu\n",lepoch);
@@ -113,6 +138,7 @@ printf("%lu\n",lepoch);
 		lepoch = lepoch >> 8;
 	}
 /* save the current uptime in seconds */ 
+#endif
 	lepoch = GetUptime(1);
 	SetDeltaUptime(lepoch);
 }
@@ -130,11 +156,15 @@ int i;
 long res;
 int addr;
 	res = 0;
+#ifdef FRAM
+	res = FramGetEpoch();	
+#else
 	for(i=0;i<4;i++){
 		res = res << 8;
 		addr = EpochBuf + ((3-i)<<1);
 		res |= 0xff & GetNvram(addr);
 	}
+#endif
 #ifdef DEBUG
 printf("%lu\n",res);
 #endif
@@ -186,6 +216,9 @@ printf("Get addr %x to %x\n",laddr,lval);
 
 void SetDeltaUptime(unsigned long uptime)
 {
+#ifdef FRAM
+	FramSetDeltaUptime(uptime);
+#else
 int i;
 int addr;
 	for(i=0;i<4;i++){
@@ -193,6 +226,7 @@ int addr;
 		SetNvram(addr,(unsigned char )uptime & 0xff);
 		uptime = uptime >> 8;
 	}
+#endif
 }
 
 /* return a copy of the uptime that was stored in the nvram */
@@ -202,11 +236,15 @@ int i;
 unsigned long res;
 int addr;
 	res = 0;
+#ifdef FRAM
+	res = FramGetDeltaUptime();
+#else
 	for(i=0;i<4;i++){
 		res = res << 8;
 		addr = UptimeBuf + ((3-i)<<1);
 		res |= (unsigned char )GetNvram(addr);
 	}
+#endif
 	res = GetUptime(1) - res;
 	return (res);
 }

@@ -82,12 +82,14 @@ spi_probe ()
 {
 TRACE("");
     return SHIFTOUT;
+#ifdef NEVER
 return BITBANGOR;
   if (inp (spi_base) == 204)
     return BITBANGOR;
   if (inp (shift_base) == 63)
     return SHIFTOUT;
   return 0;
+#endif
 }
 
 //! spi_init, is called by the user level code.  If configures the
@@ -103,10 +105,10 @@ TRACE("");
   if (spi_unit == BITBANGOR){
 	_spi_sel = spi_sel;
 	_spi_data = spi_data;	// clock and data same port
-        printf ("Bit Banger SPI bus V1.0\n");
+//        printf ("Bit Banger SPI bus V1.0\n");
 	}
   else if (spi_unit == SHIFTOUT){
-        printf ("Shift Register SPI Wiznet v1.0\n");
+ //       printf ("Shift Register SPI Wiznet v1.0\n");
 	shift_wrtr_ 	= _shift_wrtr;
 	shift_rdtr_ 	= _shift_rdtr;
 	shift_rdntr_ 	= _shift_rdntr;
@@ -345,3 +347,62 @@ spi_read (unsigned char *buf, int len)
   while (len--)
     buf[i++] = spi_byte_io (0xff);
 }
+
+#ifdef FRAM
+//! NEW SPI code for use with FRAM expecting to migrate some functions
+//unsigned char SpiSel[] = {0,1,8,0x10,0x20};
+void SpiSelect(unsigned char Port)
+{
+#ifdef NEVER
+	lbyte_out = cvtr[Port];
+#asm
+	ld	a,(_lbyte_out)
+	out	(5eh),a
+#endasm	
+#else
+	spi_select(Port);
+#endif
+}
+void SpiCommand(unsigned char Cmd)
+{
+	lbyte_out = Cmd;
+#asm
+	ld	a,(_lbyte_out)
+	out	(5ch),a
+#endasm
+}
+void SpiWrite(unsigned char Byte)
+{
+	lbyte_out = Byte;
+#asm
+	ld	a,(_lbyte_out)
+	out	(5ch),a
+#endasm
+}
+void SpiWrite16(unsigned int Addr)
+{
+	lbyte_out = (Addr>>8)&0xff;
+#asm
+	ld	a,(_lbyte_out)
+	out	(5ch),a
+#endasm
+	lbyte_out = (Addr)&0xff;
+#asm
+	ld	a,(_lbyte_out)
+	out	(5ch),a
+#endasm
+}
+// for vauge reasons we must write an ff to the bus
+// and read back data right behind it....
+unsigned char SpiRead()
+{
+	lbyte_out = 0xff;
+#asm
+	ld	a,(_lbyte_out)
+	out	(5ch),a
+	in	a,(5ch)
+	ld	(_byte_in),a
+#endasm
+	return byte_in;	
+}
+#endif

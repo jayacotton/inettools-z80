@@ -760,7 +760,7 @@ ntp update.  subtract (or add) bias as needed for timezone */
   p = localtime (&tvec);	/* Make it more understandable  */
   year = p->tm_year + 1929;
   month = p->tm_mon + 1;
-	p->tm_mday -= 1;
+//	p->tm_mday -= 1;
   process (year, month, p->tm_mday, p->tm_hour,
 	   p->tm_min, p->tm_sec, p->tm_isdst);
 }

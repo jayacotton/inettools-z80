@@ -18,7 +18,10 @@ unsigned char EtherDns	[4];	/* the dns server address */
 } INET_DATA;
 
 typedef struct time_zone {
-unsigned int TimeZone [2];	/* the time zone */
+unsigned long TimeZone;		/* the time zone */
+unsigned char TimeZoneText[4];
+unsigned long Epoch;		/* time epoch since 1970 */
+unsigned long DeltaUptime;
 } TIME_ZONE;
 
 typedef struct cpnet_data {
@@ -32,16 +35,34 @@ TIME_ZONE Fram2;
 CPNET_DATA Fram3;
 };
 
-extern void FramSetMac(unsigned char *);
+extern void FramSetDeltaUptime(unsigned long);
+extern unsigned long FramGetDeltaUptime();
+extern void FramSetEpoch(long);
+extern long FramGetEpoch();
+extern void FramWrite(struct storage *);
+extern void FramSetMac(unsigned int *);
+extern void FramGetMac(unsigned int *);
+extern void FramSetTZ(long);
+extern long FramGetTZ();
+extern void FramSetTZText(unsigned char *);
+extern void FramGetTZText(unsigned char *);
+extern void FramSetIP(unsigned char *);
+extern void FramGetIP(unsigned char *);
+extern void FramSetDns(unsigned char *);
+extern void FramGetDns(unsigned char *);
+extern void FramSetGate(unsigned char *);
+extern void FramGetGate(unsigned char *);
+extern void FramSetMask(unsigned char *);
+extern void FramGetMask(unsigned char *);
 extern void FramRead(struct storage *);
 extern void FramDumper();
 
 /*  FRAM defines for use with the SPI bus */
 
-#define FRam 	2
-#define SD	1
-#define ENET	0
-#define PARK	3
+#define FRam 	4
+#define ENET	2
+#define SD	3
+#define PARK1	1
 
 /* fram chip command bytes */
 

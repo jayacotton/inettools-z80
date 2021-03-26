@@ -1,4 +1,3 @@
-
 //******************************************************************************
 //
 //! \file ethernet.c
@@ -8,7 +7,7 @@
 //! \version 1.0
 //! \date 4/13/2019
 //! \par Revision history
-//!  	4/13/2019	Ver 1.0 created to support INET tools on CP/M
+//!     4/13/2019       Ver 1.0 created to support INET tools on CP/M
 //! \author Jay Cotton
 //! \copyright
 //!
@@ -51,6 +50,10 @@
 #include <stdlib.h>
 #include "spi.h"
 #include "trace.h"
+#ifdef FRAM
+#include "fram.h"
+#endif
+#pragma printf "%s %d %02x"
 
 /*
 Set up a dhcp session and get an IP address from the
@@ -59,10 +62,7 @@ session and assign hardwired addresses.
 */
 
 #define SOCK_DHCP 6
-
-#include <stdio.h>
 extern unsigned char tfl;
-
 unsigned char DHCP_buffer[256];
 extern struct wiz_NetInfo_t gWIZNETINFO;
 extern unsigned char run_user_applications;
@@ -100,52 +100,68 @@ DHCP_reset_static (unsigned char *mac)
 /* get the mac address from mac.cfg */
 
 FILE *f;
-void get_mac(unsigned char *mac)
+void
+get_mac (unsigned char *mac)
 {
-unsigned int lm[6];
-	if((f = fopen("mac.cfg","r")) != 0){
-		fscanf(f,"%d,%d,%d,%d,%d,%d",&lm[0],&lm[1],&lm[2],&lm[3],&lm[4],&lm[5]);
-		fclose(f);
-		mac[0]=lm[0];
-		mac[1]=lm[1];
-		mac[2]=lm[2];
-		mac[3]=lm[3];
-		mac[4]=lm[4];
-		mac[5]=lm[5];
-	}else{
-		printf("Please run mac.com to init mac.cfg\n");
-	}
+  unsigned int lm[6];
+#ifdef FRAM
+	FramGetMac(lm);
+      mac[0] = lm[0];
+      mac[1] = lm[1];
+      mac[2] = lm[2];
+      mac[3] = lm[3];
+      mac[4] = lm[4];
+      mac[5] = lm[5];
+#else
+  if ((f = fopen ("mac.cfg", "r")) != 0)
+    {
+      fscanf (f, "%d,%d,%d,%d,%d,%d", &lm[0], &lm[1], &lm[2], &lm[3], &lm[4],
+	      &lm[5]);
+      fclose (f);
+      mac[0] = lm[0];
+      mac[1] = lm[1];
+      mac[2] = lm[2];
+      mac[3] = lm[3];
+      mac[4] = lm[4];
+      mac[5] = lm[5];
+    }
+  else
+    {
+      printf ("Please run mac.com to init mac.cfg\n");
+    }
+#endif
 }
+
 //! Ethernet_begin, is called by the user level code to get things started.  It will
 //! init the spi bus, dhcp, get an IP address, setup the mac address.
 unsigned int
 Ethernet_begin (unsigned char *mac)
 {
   unsigned char my_dhcp_retry = 0;
-int i;
-TRACE("");
-  spi_init();	// since we alway run on spi bus
-TRACE("");
+  int i;
+  TRACE ("");
+  spi_init ();			// since we alway run on spi bus
+  TRACE ("");
   run_user_applications = 0;
-  get_mac(mac);
+  get_mac (mac);
   DHCP_reset_static (mac);
   TRACE ("DHCP_init");
   DHCP_init (SOCK_DHCP, DHCP_buffer);
-	setPMAGIC(3);
-TRACE("");
+  setPMAGIC (3);
+  TRACE ("");
   while (run_user_applications == 0)
     {
       TRACE ("DHCP_run");
       switch ((i = DHCP_run ()))
 	{
 	case DHCP_IP_ASSIGN:
-      TRACE ("DHCP_IP_ASSIGN");
+	  TRACE ("DHCP_IP_ASSIGN");
 	  break;
 	case DHCP_IP_CHANGED:
-      TRACE ("DHCP_IP_CHANGED");
+	  TRACE ("DHCP_IP_CHANGED");
 	  break;
 	case DHCP_IP_LEASED:
-      TRACE ("DHCP_IP_LEASED");
+	  TRACE ("DHCP_IP_LEASED");
 	  run_user_applications = 1;
 	  getIPfromDHCP (gWIZNETINFO.ip);
 	  getGWfromDHCP (gWIZNETINFO.gw);
@@ -153,7 +169,7 @@ TRACE("");
 	  getDNSfromDHCP (gWIZNETINFO.dns);
 	  break;
 	case DHCP_FAILED:
-      TRACE ("DHCP_FAILED");
+	  TRACE ("DHCP_FAILED");
 	  my_dhcp_retry++;
 	  if (my_dhcp_retry > MY_MAX_DHCP_RETRY)
 	    {
@@ -166,14 +182,14 @@ TRACE("");
 	    }
 	  break;
 	case DHCP_RUNNING:
-	TRACE("DHCP_RUNNING");
-	break;
+	  TRACE ("DHCP_RUNNING");
+	  break;
 	default:
-	//printf("DHCP_UNKNOWN: %d\n",i);
+	  //printf("DHCP_UNKNOWN: %d\n",i);
 	  break;
 	}
     }
-	return 0;
+  return 0;
 }
 
 //! Ethernet_hardwareStatus, 
@@ -214,28 +230,30 @@ Ethernet_localIP (unsigned char *ip)
 }
 
 //! Ethernet_localGW, get my gateway address
-//void
-//Ethernet_localGW (unsigned char *ip)
-//{
-//  getGWfromDHCP (ip);
-//}
+void
+Ethernet_localGW (unsigned char *ip)
+{
+  getGWfromDHCP (ip);
+}
 //! Ethernet_localSN, Get my network mask
 void
 Ethernet_localSN (unsigned char *ip)
 {
   getSNfromDHCP (ip);
 }
+
 //! Ethernet_localDNS, Get my DNS server address
 void
 Ethernet_localDNS (unsigned char *ip)
 {
   getDNSfromDHCP (ip);
 }
+
 //! Display_Net_Conf, print a bunch of addresses
 void
 Display_Net_Conf ()
 {
-  printf ("MAC: %x.%x.%x.%x.%x.%x\n",
+  printf ("MAC: %d.%d.%d.%d.%d.%d\n",
 	  gWIZNETINFO.mac[0], gWIZNETINFO.mac[1],
 	  gWIZNETINFO.mac[2], gWIZNETINFO.mac[3],
 	  gWIZNETINFO.mac[4], gWIZNETINFO.mac[5]);
