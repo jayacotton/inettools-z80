@@ -1,115 +1,173 @@
-CFLAGS	= -list --c-code-in-asm  -Wall -pragma-include:zpragma.inc 
-#CFLAGS	= -O3 --list --c-code-in-asm
-DESTDIR = ~/HostFileBdos/c/
+CFLAGS	= +cpm --list --c-code-in-asm  -Wall -pragma-include:zpragma.inc -DFRAM
+# this is a windows specific dir for cygwin use
+DESTDIR = /cygdrive/c/users/lbmgm/HostFileBdos/c/
+# this is a linux/unix path
+#DESTDIR = ~/HostFileBdos/c/
 CP = cp
 
 all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone wizreset digit
 
-digit: digit.c sysface.o
-	zcc +cpm -create-app -$(CFLAGS) -odigit digit.c sysface.o
+digit: digit.o sysface.o libfram.o spi.o
+	zcc  +cpm -create-app -odigit digit.o sysface.o libfram.o spi.o
 	$(CP) DIGIT.COM $(DESTDIR)digit.com
 
-wizreset: wizreset.c w5500.o spi.o wizchip_conf.o
-	zcc +cpm -create-app -$(CFLAGS) -owizreset wizreset.c w5500.o spi.o wizchip_conf.o
+digit.o: digit.c
+	zcc $(CFLAGS) -c digit.c
+
+wizreset: wizreset.o w5500.o spi.o wizchip_conf.o
+	zcc  +cpm -create-app -owizreset wizreset.o w5500.o spi.o wizchip_conf.o
 	$(CP) WIZRESET.COM $(DESTDIR)wizreset.com
 
-telnetd: telnet_server.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	zcc +cpm -create-app -$(CFLAGS) -otelnetd telnet_server.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c
+wizreset.o: wizreset.c
+	zcc $(CFLAGS) -c wizreset.c
+
+telnetd: telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o 
+	zcc  +cpm -create-app -otelnetd telnet_server.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o snaplib.c libfram.o
 	$(CP) TELNETD.COM $(DESTDIR)telnetd.com
 
+telnet_server.o: telnet_server.c
+	zcc $(CFLAGS) -c telnet_server.c
+
 w5500.o: w5500.c w5500.h wizchip_conf.h
-	zcc +cpm $(CFLAGS) -c  w5500.c 
+	zcc  $(CFLAGS) -c  w5500.c 
 
 dhcp.o: dhcp.c dhcp.h
-	zcc +cpm $(CFLAGS)   -c  dhcp.c 
+	zcc  $(CFLAGS)   -c  dhcp.c 
 
 spi.o: spi.c spi.h
-	zcc +cpm $(CFLAGS)  -c  spi.c 
+	zcc  $(CFLAGS)  -c  spi.c 
 
 socket.o: socket.c socket.h
-	zcc +cpm $(CFLAGS)   -c  socket.c 
+	zcc  $(CFLAGS)   -c  socket.c 
 
 ethernet.o: ethernet.c ethernet.h
-	zcc +cpm $(CFLAGS)   -c  ethernet.c 
+	zcc  $(CFLAGS)   -c  ethernet.c 
 
 dns.o: dns.c dns.h
-	zcc +cpm $(CFLAGS)   -c  dns.c 
+	zcc  $(CFLAGS)   -c  dns.c 
 
 wizchip_conf.o: wizchip_conf.c wizchip_conf.h
-	zcc +cpm $(CFLAGS)  -c  wizchip_conf.c 
+	zcc  $(CFLAGS)  -c  wizchip_conf.c 
 
-ifconfig: addrprint.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
-	zcc +cpm -m -create-app -oifconfig -Wunused -$(CFLAGS) addrprint.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
+ifconfig: addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o libfram.o
+	zcc  +cpm -m -create-app -oifconfig -Wunused addrprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o libfram.o
 	$(CP) IFCONFIG.COM $(DESTDIR)ifconfig.com
 
-dig: dnsprint.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
-	zcc +cpm -create-app -$(CFLAGS) -odig dnsprint.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o
+addrprint.o: addrprint.c
+	zcc $(CFLAGS) -c addrprint.c
+
+dig: dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o libfram.o
+	zcc  +cpm -create-app -odig dnsprint.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o libfram.o
 	$(CP) DIG.COM $(DESTDIR)dig.com
 
-ping: ping.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o 
-	zcc +cpm -create-app -$(CFLAGS) -oping ping.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
+dnsprint.o: dnsprint.c
+	zcc $(CFLAGS) -c dnsprint.c
+
+ping: ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o libfram.o
+	zcc  +cpm -create-app -oping ping.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm libfram.o
 	$(CP) PING.COM $(DESTDIR)ping.com
 
-time.o: time.c
-	zcc +cpm $(CFLAGS) -c  time.c 
+ping.o: ping.c
+	zcc $(CFLAGS) -c ping.c
 
-telnet: telnet_client.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
-	zcc +cpm -create-app -$(CFLAGS) -otelnet telnet_client.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
+time.o: time.c
+	zcc $(CFLAGS) -c  time.c 
+
+telnet: telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o
+	zcc +cpm -create-app -otelnet telnet_client.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o
 	$(CP) TELNET.COM $(DESTDIR)telnet.com
 
-myget: get.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
-	zcc +cpm -create-app -$(CFLAGS) -omyget get.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
+telnet_client.o: telnet_client.c
+	zcc $(CFLAGS) -c telnet_client.c
+
+myget: get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o
+	zcc +cpm -create-app -omyget get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o
 	cp MYGET.COM $(DESTDIR)myget.com
 
-ntp: ntp.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o
-	zcc +cpm -create-app -$(CFLAGS) -ontp ntp.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o
+get.o: get.c
+	zcc $(CFLAGS) -c get.c
+
+ntp: ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o libfram.o
+	zcc +cpm -create-app -ontp ntp.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o sysface.o libfram.o
 	$(CP) NTP.COM $(DESTDIR)ntp.com
 
-sysface.o: sysface.c
-	zcc +cpm $(CFLAGS) -c  sysface.c 
+ntp.o: ntp.c
+	zcc $(CFLAGS) -c ntp.c
 
-date: date.c sysface.o
-	zcc +cpm -create-app -$(CFLAGS) -odate date.c sysface.o
+sysface.o: sysface.c
+	zcc  $(CFLAGS) -c  sysface.c 
+
+date: date.o sysface.o libfram.o spi.o
+	zcc  +cpm -create-app -odate date.o sysface.o libfram.o spi.o
 	$(CP) DATE.COM $(DESTDIR)date.com
 
-wget: htget.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o
-	zcc +cpm -create-app -$(CFLAGS) -owget htget.c w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o -lm
+date.o: date.c
+	zcc $(CFLAGS) -c date.c
+
+wget: htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o libfram.o
+	zcc +cpm -create-app -owget htget.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o time.o -lm libfram.o
 	$(CP) WGET.COM $(DESTDIR)wget.com
 
-https: httpServer.c httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o
-	zcc +cpm -create-app -$(CFLAGS) -ohttps httpServer.c httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o 
-	$(CP) HTTPS.COM $(DESTDIR)https.com
-httpParser.o:
-	zcc +cpm $(CFLAGS)  -c  httpParser.c 
+htget.o: htget.c
+	zcc $(CFLAGS) -c htget.c
 
-pingnoti: w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o
-	zcc +cpm -create-app -$(CFLAGS) -opingnoti ping.c -DNOTIMER w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm
+https: httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o
+	zcc  +cpm -create-app -ohttps httpServer.o httpParser.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libfram.o
+	$(CP) HTTPS.COM $(DESTDIR)https.com
+
+httpServer.o: httpServer.c
+	zcc $(CFLAGS) -c httpServer.c
+
+httpParser.o: httpParser.c
+	zcc  $(CFLAGS)  -c  httpParser.c 
+
+pingnoti: pingn.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o libfram.o
+	zcc  +cpm -create-app -opingnoti pingn.o -DNOTIMER w5500.o dhcp.o spi.o socket.o ethernet.o dns.o time.o -lm libfram.o
 	$(CP) PINGNOTI.COM $(DESTDIR)pingnoti.com
 
-mac: mac.o
-	zcc +cpm -create-app -omac mac.o
+pingn.o: ping.c
+	zcc $(CFLAGS) -DNOTIMER -c ping.c -o pingn.o
+
+mac: mac.o libfram.o spi.o snaplib.o
+	zcc  +cpm -create-app -m -omac mac.o libfram.o spi.o snaplib.o
 	$(CP) MAC.COM $(DESTDIR)mac.com
 
-mac.o:
-	zcc +cpm $(CFLAGS) -c mac.c
+snaplib.o:
+	zcc  $(CFLAGS) -c snaplib.c
 
-uptime: uptime.c sysface.o
-	zcc +cpm -create-app -$(CFLAGS) -ouptime uptime.c sysface.o
+mac.o:
+	zcc  $(CFLAGS) -c mac.c
+
+libfram.o:
+	zcc  $(CFLAGS) -c libfram.c
+
+uptime: uptime.o sysface.o libfram.o spi.o
+	zcc +cpm -create-app -ouptime uptime.o sysface.o libfram.o spi.o
 	$(CP) UPTIME.COM $(DESTDIR)uptime.com
 
-today: today.c sysface.o
-	zcc +cpm -create-app -$(CFLAGS) -otoday today.c sysface.o
+uptime.o: uptime.c
+	zcc $(CFLAGS) -c uptime.c
+
+today: today.o sysface.o libfram.o spi.o
+	zcc  +cpm -create-app -otoday today.o sysface.o libfram.o spi.o
 	$(CP) TODAY.COM $(DESTDIR)today.com
 
-timezone: timezone.c sysface.o
-	zcc +cpm -create-app -$(CFLAGS) -otimezone timezone.c sysface.o
+today.o: today.c
+	zcc $(CFLAGS) -c today.c
+
+timezone: timezone.o sysface.o libfram.o spi.o
+	zcc +cpm -create-app -otimezone timezone.o sysface.o libfram.o spi.o
 	$(CP) TIMEZONE.COM $(DESTDIR)timezone.com
+
+timezone.o: timezone.c
+	zcc $(CFLAGS) -c timezone.c
+
 clean:
 	$(RM) *.o *.err *.lis *.def *.lst *.sym *.exe *.COM  driver ifconfig dnsprnt ping dig ftp telnet wget myget get ctc ntp date https clock pingnoti telnetd mac timezone today uptime test
 	rm -rf html irc latex email
 
 install:
-	sudo cp ./*.COM /var/www/html/. 
+	cp ./*.COM /srv/www/htdocs/. 
 
 ship:
 	rm -rf irc latex email *.o *.err *.lis *.def *.lst *.sym *.exe driver dnsprnt get ctc ntp myget 
