@@ -56,7 +56,7 @@
 wiz_NetInfo gWIZNETINFO;
 unsigned char run_user_applications;
 
-unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
+unsigned int mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
 
 unsigned char ip[4];
 unsigned int
@@ -107,6 +107,7 @@ main (int argc, char *argv[])
   printf ("dns server %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
   FramGetGate (ip);
   printf ("Default Gateway %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+  FramGetMac(mac);
   printf ("ether %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2],
 	  mac[3], mac[4], mac[5]);
 #else
