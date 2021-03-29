@@ -1,6 +1,6 @@
 CFLAGS	= +cpm --list --c-code-in-asm  -Wall -pragma-include:zpragma.inc -DFRAM
 # this is a windows specific dir for cygwin use
-DESTDIR = /cygdrive/c/users/lbmgm/HostFileBdos/c/
+DESTDIR = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
 # this is a linux/unix path
 #DESTDIR = ~/HostFileBdos/c/
 CP = cp
@@ -138,7 +138,7 @@ snaplib.o:
 mac.o:
 	zcc  $(CFLAGS) -c mac.c
 
-libfram.o:
+libfram.o: libfram.c 
 	zcc  $(CFLAGS) -c libfram.c
 
 uptime: uptime.o sysface.o libfram.o spi.o
