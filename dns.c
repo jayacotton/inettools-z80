@@ -22,6 +22,8 @@
 //! Copyright (c)  2013, WIZnet Co., LTD.
 //! All rights reserved.
 //!
+//!  <2021/3/30>  Added Host file support
+//!
 //! Redistribution and use in source and binary forms, with or without
 //! modification, are permitted provided that the following conditions
 //! are met:
@@ -55,6 +57,9 @@
 #include "socket.h"
 #include "dns.h"
 #include "types.h"
+#ifdef HOSTS
+#include "hosts.h"
+#endif
 
 #ifdef _DNS_DEBUG_
 #include <stdio.h>
@@ -349,7 +354,7 @@ dns_answer (uint8_t * msg, uint8_t * cp, uint8_t * ip_from_dns)
  *                1 - Success,
  */
 int8_t
-parseDNSMSG (struct dhdr * pdhdr, uint8_t * pbuf, uint8_t * ip_from_dns)
+parseDNSMSG (struct dhdr *pdhdr, uint8_t * pbuf, uint8_t * ip_from_dns)
 {
   uint16_t tmp;
   uint16_t i;
@@ -389,12 +394,14 @@ parseDNSMSG (struct dhdr * pdhdr, uint8_t * pbuf, uint8_t * ip_from_dns)
   for (i = 0; i < pdhdr->qdcount; i++)
     {
       cp = dns_question (msg, cp);
-      if (!cp){
+      if (!cp)
+	{
 #ifdef _DNS_DEBUG_
-TRACE("dns_question");
-      printf ("MAX_DOMAIN_NAME is too small, it should be redfine in dns.h\n");
+	  TRACE ("dns_question");
+	  printf
+	    ("MAX_DOMAIN_NAME is too small, it should be redfine in dns.h\n");
 #endif
-	return -1;
+	  return -1;
 	}
     }
 
@@ -402,12 +409,14 @@ TRACE("dns_question");
   for (i = 0; i < pdhdr->ancount; i++)
     {
       cp = dns_answer (msg, cp, ip_from_dns);
-      if (!cp){
+      if (!cp)
+	{
 #ifdef _DNS_DEBUG_
-TRACE("dns_answer");
-      printf ("MAX_DOMAIN_NAME is too small, it should be redfine in dns.h\n");
+	  TRACE ("dns_answer");
+	  printf
+	    ("MAX_DOMAIN_NAME is too small, it should be redfine in dns.h\n");
 #endif
-	return -1;
+	  return -1;
 	}
     }
 
@@ -429,7 +438,7 @@ TRACE("dns_answer");
     return 1;			// No error
   else
     return 0;
-    return 1;			// No error
+  return 1;			// No error
 }
 
 
@@ -536,6 +545,10 @@ DNS_init (uint8_t s, uint8_t * buf)
   DNS_SOCKET = s;		// SOCK_DNS
   pDNSMSG = buf;		// User's shared buffer
   DNS_MSGID = DNS_MSG_ID;
+#ifdef HOSTS
+  Hosts_Init ();
+	Hosts_Dump();
+#endif
 }
 
 /* DNS CLIENT RUN */
@@ -547,22 +560,24 @@ DNS_run (uint8_t * dns_ip, uint8_t * name, uint8_t * ip_from_dns)
   uint8_t ip[4];
   uint16_t len, port;
   int8_t ret_check_timeout;
-
-	ret = 0;
+#ifdef HOSTS
+  HOSTIP *hip;
+#endif
+  ret = 0;
   retry_count = 0;
   dns_1s_tick = 0;
-
+#ifdef HOSTS
+  hip = Hosts_Lookup (name);
+  if (hip)
+    {
+      memcpy (ip_from_dns, hip, 4);
+      return 1;
+    }
+#endif
   // Socket open
   socket (DNS_SOCKET, Sn_MR_UDP, 0, 0);
-
-#ifdef _DNS_DEBUG_
-  printf ("> DNS Query to DNS Server : %d.%d.%d.%d\r\n", dns_ip[0], dns_ip[1],
-	  dns_ip[2], dns_ip[3]);
-#endif
-
   len = dns_makequery (0, (char *) name, pDNSMSG, MAX_DNS_BUF_SIZE);
   sendto (DNS_SOCKET, pDNSMSG, len, dns_ip, IPPORT_DOMAIN);
-
   while (1)
     {
       if ((len = getSn_RX_RSR (DNS_SOCKET)) > 0)
@@ -570,10 +585,6 @@ DNS_run (uint8_t * dns_ip, uint8_t * name, uint8_t * ip_from_dns)
 	  if (len > MAX_DNS_BUF_SIZE)
 	    len = MAX_DNS_BUF_SIZE;
 	  len = recvfrom (DNS_SOCKET, pDNSMSG, len, ip, &port);
-#ifdef _DNS_DEBUG_
-	  printf ("> Receive DNS message from %d.%d.%d.%d(%d). len = %d\r\n",
-		  ip[0], ip[1], ip[2], ip[3], port, len);
-#endif
 	  ret = parseDNSMSG (&dhp, pDNSMSG, ip_from_dns);
 	  break;
 	}
@@ -581,22 +592,14 @@ DNS_run (uint8_t * dns_ip, uint8_t * name, uint8_t * ip_from_dns)
       ret_check_timeout = check_DNS_timeout ();
       if (ret_check_timeout < 0)
 	{
-
-#ifdef _DNS_DEBUG_
-	  printf ("> DNS Server is not responding : %d.%d.%d.%d\r\n",
-		  dns_ip[0], dns_ip[1], dns_ip[2], dns_ip[3]);
-#endif
 	  return 0;		// timeout occurred
 	}
       else if (ret_check_timeout == 0)
 	{
-
-#ifdef _DNS_DEBUG_
-	  printf ("> DNS Timeout\r\n");
-#endif
 	  sendto (DNS_SOCKET, pDNSMSG, len, dns_ip, IPPORT_DOMAIN);
 	}
     }
+
   sock_close (DNS_SOCKET);
   // Return value
   // 0 > :  failed / 1 - success

@@ -7,6 +7,7 @@
 #include "trace.h"
 #include "socket.h"
 #include "telnetd.h"
+#include <malloc.h>
 
 /* since cp/m does not have login/password protocol and
 there are no user accounts (as in modern os's) the setup

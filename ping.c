@@ -58,6 +58,8 @@
 #include "ltime.h"
 #include <math.h>
 #include "trace.h"
+#include <malloc.h>
+
 
 PINGMSGR PingRequest;		// Variable for Ping Request
 PINGMSGR PingReply;		// Variable for Ping Reply
@@ -87,12 +89,15 @@ main (int argc, char *argv[])
   unsigned char dnsname[80];
   unsigned char ip[4];
   unsigned char dns[4];
-
+unsigned char *t;
   char *p;
   ping_sockfd = 3;		// was so in an example
   skip_dns = 0;
   memset (dnsname, 0, 80);
   memcpy (gWIZNETINFO.mac, mac, 6);
+t = calloc(10,1);
+printf("%x\n",t);
+free(t);
   if (argc > 1)
     {
       strcat (dnsname, argv[1]);
