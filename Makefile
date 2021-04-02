@@ -6,7 +6,7 @@ DESTDIR1 = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
 #DESTDIR = ~/HostFileBdos/c/
 CP = cp
 
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone wizreset digit calloc
+all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone wizreset digit 
 
 digit: digit.o sysface.o libfram.o spi.o
 	zcc  +cpm -create-app -odigit digit.o sysface.o libfram.o spi.o
