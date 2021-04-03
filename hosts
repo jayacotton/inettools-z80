@@ -1,0 +1,10 @@
+192.168.0.120	server			linux-host
+209.237.226.90	www.opensource.org	opensource
+13.227.75.41	www.nasa.gov		nasa
+
+
+# example of a hosts file.  Note: comments must follow after
+# the address prototypes above.  (oversite)
+# test file for the hosts function
+#
+
