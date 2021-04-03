@@ -73,7 +73,7 @@ int run_user_applications;
 struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
 
-unsigned char DNS_buffer[2048];
+unsigned char DNS_buffer[256];
 unsigned char save_addr[4];
 struct TICKSTORE t1;
 struct TICKSTORE t2;
@@ -89,15 +89,19 @@ main (int argc, char *argv[])
   unsigned char dnsname[80];
   unsigned char ip[4];
   unsigned char dns[4];
-unsigned char *t;
+#ifdef DEBUG
+  unsigned int total;
+  unsigned int max;
+#endif
   char *p;
   ping_sockfd = 3;		// was so in an example
   skip_dns = 0;
   memset (dnsname, 0, 80);
   memcpy (gWIZNETINFO.mac, mac, 6);
-t = calloc(10,1);
-printf("%x\n",t);
-free(t);
+#ifdef DEBUG
+  mallinfo (&total, &max);
+  printf ("total %d max %d\n", total, max);
+#endif
   if (argc > 1)
     {
       strcat (dnsname, argv[1]);
@@ -152,10 +156,10 @@ ping_auto (uint8_t s, uint8_t * addr)
   uint8_t i;
   unsigned int len = 0;
   uint8_t cnt = 0;
-TRACE("");
+  TRACE ("");
   for (i = 0; i <= 5; i++)
     {
-TRACE("");
+      TRACE ("");
       switch (getSn_SR (s))
 	{
 	case SOCK_CLOSED:
@@ -169,13 +173,13 @@ TRACE("");
 #endif
 	    }
 	  /* Check socket register */
-TRACE("");
+	  TRACE ("");
 	  while (getSn_SR (s) != SOCK_IPRAW);
 	  wait_1ms (1000);	// wait 1000ms
 	  wait_1ms (1000);	// wait 1000ms
 	  break;
 	case SOCK_IPRAW:
-TRACE("");
+	  TRACE ("");
 	  ping_request (s, addr);
 	  req++;
 	  while (1)
@@ -202,11 +206,11 @@ TRACE("");
 
 	  break;
 	default:
-TRACE("");
+	  TRACE ("");
 	  break;
 
 	}
-TRACE("");
+      TRACE ("");
 #ifdef PING_DEBUG
       if (req >= 3)
 	{
@@ -318,7 +322,7 @@ ping_request (uint8_t s, uint8_t * addr)
   uint16_t i;
   int n;
 
-TRACE("");
+  TRACE ("");
   //Initailize flag for ping reply
   ping_reply_received = 0;
   /* make header of the ping-request  */
@@ -341,7 +345,7 @@ TRACE("");
 
   SetTime (&t1);
   /* sendto ping_request to destination */
-TRACE("");
+  TRACE ("");
   if ((n =
        sendto (s, (uint8_t *) & PingRequest, sizeof (PingRequest), addr,
 	       3000)) == 0)
@@ -351,9 +355,10 @@ TRACE("");
   else
     {
 #ifdef DEBUG
-          printf ("%d bytes from ");
-          printf( "%d.%d.%d.%d: ",   (addr[0]),  (addr[1]),  (addr[2]),  (addr[3])) ;
-          printf (" icmp_seq=%x CheckSum:%x\r\n", htons (PingRequest.SeqNum), htons (PingRequest.CheckSum));
+      printf ("%d bytes from ");
+      printf ("%d.%d.%d.%d: ", (addr[0]), (addr[1]), (addr[2]), (addr[3]));
+      printf (" icmp_seq=%x CheckSum:%x\r\n", htons (PingRequest.SeqNum),
+	      htons (PingRequest.CheckSum));
 #endif
     }
   return 0;

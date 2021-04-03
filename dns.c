@@ -547,7 +547,9 @@ DNS_init (uint8_t s, uint8_t * buf)
   DNS_MSGID = DNS_MSG_ID;
 #ifdef HOSTS
   Hosts_Init ();
+#ifdef DEBUG
 	Hosts_Dump();
+#endif
 #endif
 }
 

@@ -45,36 +45,54 @@ Hosts_Init ()
   HostRoot = calloc (sizeof (HOSTNAME), 1);
   b1 = calloc (80, 1);
   b2 = calloc (80, 1);
-printf("heap %x\n",heap);
-printf("HostRoot %x, b1 %x, b2 %x\n",HostRoot,b1,b2);
-TRACE(" ");
+#ifdef DEBUG
+  {
+    int max;
+    int total;
+    mallinfo (&total, &max);
+    printf ("total %d max %d\n", total, max);
+  }
+  printf ("heap %x\n", heap);
+  printf ("HostRoot %x, b1 %x, b2 %x\n", HostRoot, b1, b2);
+#endif
+  TRACE (" ");
   if (HostRoot)
     {
-TRACE(" ");
+      TRACE (" ");
       p = HostRoot;
       in = fopen ("hosts", "r");
       if (in)
 	{
-TRACE(" ");
+	  TRACE (" ");
 	  while (fscanf
 		 (in, "%d.%d.%d.%d %s %s", &p->ip.ip[0], &p->ip.ip[1],
 		  &p->ip.ip[2], &p->ip.ip[3], b1, b2) != EOF)
 	    {
-TRACE(" ");
+	      if (p->ip.ip[0] + p->ip.ip[1] + p->ip.ip[2] + p->ip.ip[3] == 0)
+		break;
+	      TRACE (" ");
 	      p->name = calloc (strlen (b1), 1);
 	      if (p->name == 0)
 		return;
-TRACE(" ");
+	      TRACE (" ");
 	      p->alias = calloc (strlen (b2), 1);
 	      if (p->alias == 0)
 		return;
-TRACE(" ");
+	      TRACE (" ");
 	      strupr (b1);
 	      strupr (b2);
 	      strcpy (p->name, b1);
 	      strcpy (p->alias, b2);
-      printf ("%d.%d.%d.%d\t%s\t%s", p->ip.ip[0], p->ip.ip[1],
-	      p->ip.ip[2], p->ip.ip[3], p->name, p->alias);
+#ifdef DEBUG
+	      {
+		int max;
+		int total;
+		mallinfo (&total, &max);
+		printf ("total %d max %d\n", total, max);
+	      }
+	      printf ("%d.%d.%d.%d\t%s\t%s\n", p->ip.ip[0], p->ip.ip[1],
+		      p->ip.ip[2], p->ip.ip[3], p->name, p->alias);
+#endif
 	      p->next = calloc (sizeof (HOSTNAME), 1);
 	      if (p->next == 0)
 		return;
@@ -93,10 +111,11 @@ Hosts_Dump ()
   HOSTNAME *p;
 
   p = HostRoot;
-	if(p == 0) return;
+  if (p == 0)
+    return;
   do
     {
-      printf ("%d.%d.%d.%d\t%s\t%s", p->ip.ip[0], p->ip.ip[1],
+      printf ("%d.%d.%d.%d\t%s\t%s\n", p->ip.ip[0], p->ip.ip[1],
 	      p->ip.ip[2], p->ip.ip[3], p->name, p->alias);
       p = p->next;
     }
@@ -115,7 +134,8 @@ Hosts_Lookup (char *name)
   char *c;
   c = strupr (name);
   p = HostRoot;
-	if(p == 0) return NULL;
+  if (p == 0)
+    return NULL;
   do
     {
       if (strstr (p->name, c))

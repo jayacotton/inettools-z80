@@ -63,7 +63,7 @@ session and assign hardwired addresses.
 
 #define SOCK_DHCP 6
 extern unsigned char tfl;
-unsigned char DHCP_buffer[256];
+unsigned char DHCP_buffer[548];
 extern struct wiz_NetInfo_t gWIZNETINFO;
 extern unsigned char run_user_applications;
 extern char w5500_present;

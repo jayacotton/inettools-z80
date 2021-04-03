@@ -38,7 +38,7 @@ Function Implementation Part
 */
 wiz_NetInfo gWIZNETINFO;
 unsigned char run_user_applications;
-unsigned char buff[256];
+unsigned char buff[548];
 int
 main (void)
 {
