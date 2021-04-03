@@ -70,11 +70,12 @@ today:  This is code cribed from the z88dk/examples/today.c.  I modified it to w
 the rc2014 RTC and timer code.  I.e. get the UNIXEPOCH as adjusted for time zone and 
 delta time from last ntp update.
 today does this
+```
 C>today                                                                         
 Today is Tuesday, the fifth day of May, two thousand and twenty. In             
 fifteen seconds, the time will be sixteen minutes before ten PM,                
 Daylight Savings Time. The moon is waxing gibbous.                              
-                                                                    
+```                                                                    
 timezone:  Tool for setting your time zone offset.  You will need to know your ICOA time zone code.
 For me that is PDT in summer and PST in winter.  Not all locals have 'daylight savings' time.
 
