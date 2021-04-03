@@ -18,8 +18,7 @@ This is the poor mans version,  It has no options and shows your ip address and 
 The most important part of this is that it uses DHCP to get your IP address from your router.  
 
 ping:  this is about a simple a ping as you can get.  Round trip time values work when RC2014/RomWBW timer support is present.  The time values are in 20ms intervals.  
-C>ping www.nasa.gov                                                             
-<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
+C>ping www.nasa.gov                                                                                                               
 PING WWW.NASA.GOV (13.227.73.96)                                                
  52 bytes from 13.227.73.96: icmp_seq=4321 time=80 ms                           
  52 bytes from 13.227.73.96: icmp_seq=4322 time=80 ms                           
@@ -30,8 +29,7 @@ PING WWW.NASA.GOV (13.227.73.96)
 pingnoti: this is ping without a timer.  IF you don't have a CTC to drive
 the interrupt timer, then you need this version.
 
-C>pingnoti www.nasa.gov                                                         
-<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
+C>pingnoti www.nasa.gov                                                                                                           
 PING WWW.NASA.GOV (13.227.73.116)                                               
  52 bytes from 13.227.73.116: icmp_seq=4321                                     
  52 bytes from 13.227.73.116: icmp_seq=4322                                     
@@ -41,8 +39,7 @@ PING WWW.NASA.GOV (13.227.73.116)
                                             
 telnet:  This is a terminal program to talking to a host machine.
 
-C>telnet 192.168.0.120                                                          
-<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
+C>telnet 192.168.0.120                                                                                                            
 Connected...                                                                    
                                                                                 
 login: jay                                                         
@@ -96,11 +93,9 @@ ntp: This program will get the date and time from an ntp server and set the RTC 
 This requires an RTC/RC2014 board.  Ntp's default nist server is time.google.com.
 If you want a different one, then you must type in the server http address.
 
-C>ntp                                                                           
-<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
+C>ntp                                                                                                                             
 OR
-C>ntp time.google.com
-<<<< latest edit removes this noise >>>>Shift Register SPI Wiznet v1.0                                                  
+C>ntp time.google.com                                                 
 
 date: This reads the date and time from the RTC.  This requires an RTC/RC2014 board.
 L>date
@@ -108,14 +103,14 @@ Sat May 16 22:56:50 2020
 
 digit:  This runs a wall clock using ASCII art to draw digits and loops at about 4 hz.
 you can exit with ctrl-c.  This does require that your terminal work with vt100 commands.
-
+```
 C>l:digit
  2222   2222         555555  9999         44  44  6666  
     22 22  22   ::   55     99  99   ::   44  44 66     
    22     22         55555   99999        444444 66666  
   22     22     ::       55     99   ::       44 66  66 
 222222 222222        55555   9999             44  6666  
-
+```
 mac:  This is a tool that collects and stores the mac address for your wiznet card.
 mac -r will print out the mac address as stored in the FRAM
 
