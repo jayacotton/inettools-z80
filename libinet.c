@@ -797,14 +797,16 @@ DiskSetMac (unsigned int *mac)
 }
 
 FILE *File;
-unsigned char name = "c:inet.cfg"
+unsigned char *name = "c:inet.cfg";
+
 // Note:  we will have to keep track of the default 
 // boot drive or default system drive (it moves)
 // write back to the DISK
-  void
-  DiskWrite (struct storage *ram) {
+void
+DiskWrite (struct storage *ram)
+{
   File = fopen (name, "w");
-  fwrite (ram, sizeof (storage), 1, File);
+  fwrite (ram, sizeof (struct storage), 1, File);
   fclose (File);
 }
 
@@ -815,7 +817,7 @@ DiskRead (struct storage *ram)
   File = fopen (name, "r");
   if (File == 0)
     return;
-  fread (fram, sizeof (storage), 1, File);
+  fread (ram, sizeof (struct storage), 1, File);
   fclose (File);
 }
 
@@ -823,8 +825,8 @@ void
 DiskDumper ()
 {
   printf ("EtherAddr %x.%x.%x.%x.%x.%x\n",
-	  s.Disk1.EtherAddr[0], s.Disk1.EtherAddr[1], s.Disk1.EtherAddr[2],
-	  s.Disk1.EtherAddr[3], s.Disk1.EtherAddr[4], s.Disk1.EtherAddr[5]);
+	  s.Fram1.EtherAddr[0], s.Fram1.EtherAddr[1], s.Fram1.EtherAddr[2],
+	  s.Fram1.EtherAddr[3], s.Fram1.EtherAddr[4], s.Fram1.EtherAddr[5]);
 }
 #endif
 

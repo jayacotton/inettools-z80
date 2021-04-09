@@ -3,8 +3,8 @@
 CFLAGS	= +cpm -Wall -pragma-include:zpragma.inc 
 LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2
 # configure the inet storage option
-STORE = -DFRAM
-#STORE = -DDISK 
+#STORE = -DFRAM
+STORE = -DDISK 
 #STORE = -DNVRAM 
 # this is a windows specific dir for cygwin use
 DESTDIR = ~/projects/cpnet-z80/contrib/HostFileBdos/c/

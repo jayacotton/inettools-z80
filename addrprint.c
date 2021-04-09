@@ -49,13 +49,8 @@
 #include "wizchip_conf.h"
 #include "trace.h"
 
-#ifdef FRAM
-#include "fram.h"
-#endif
-#ifdef DISK
-#include "fram.h"
-#include "disk.h"
-#endif
+#include "inet.h"
+
 wiz_NetInfo gWIZNETINFO;
 unsigned char run_user_applications;
 
@@ -65,16 +60,15 @@ unsigned char ip[4];
 unsigned int
 DeltaTimeINET ()
 {
-	return(FramGetEpoch()-FramGetTofU());
+	return(InetGetEpoch()-InetGetTofU());
 }
 
 void
 main (int argc, char *argv[])
 {
-#ifdef FRAM
   if (argc > 1)
     {
-	FramSetTofU(FramGetEpoch());
+	InetSetTofU(InetGetEpoch());
       if (Ethernet_begin (mac) == 0)
 	{
 	  if (Ethernet_hardwareStatus () == EthernetNoHardware)
@@ -83,17 +77,17 @@ main (int argc, char *argv[])
 	    printf ("Plug in the cable\n");
 	}
       Ethernet_localIP (ip);
-      FramSetIP (ip);
+      InetSetIP (ip);
       Ethernet_localSN (ip);
-      FramSetMask (ip);
+      InetSetMask (ip);
       Ethernet_localDNS (ip);
-      FramSetDns (ip);
+      InetSetDns (ip);
       Ethernet_localGW (ip);
-      FramSetGate (ip);
+      InetSetGate (ip);
     }
   if (DeltaTimeINET () > 1440)
     {
-	FramSetTofU(FramGetEpoch());
+	InetSetTofU(InetGetEpoch());
       if (Ethernet_begin (mac) == 0)
 	{
 	  if (Ethernet_hardwareStatus () == EthernetNoHardware)
@@ -102,60 +96,18 @@ main (int argc, char *argv[])
 	    printf ("Plug in the cable\n");
 	}
     }
-  FramGetIP (ip);
+  InetGetIP (ip);
   printf ("inet %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  FramGetMask (ip);
+  InetGetMask (ip);
   printf ("netmask %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  FramGetDns (ip);
+  InetGetDns (ip);
   printf ("dns server %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  FramGetGate (ip);
+  InetGetGate (ip);
   printf ("Default Gateway %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  FramGetMac(mac);
+  InetGetMac(mac);
   printf ("ether %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2],
 	  mac[3], mac[4], mac[5]);
-#elif DISK
-  if (argc > 1)
-    {
-	DiskSetTofU(DiskGetEpoch());
-      if (Ethernet_begin (mac) == 0)
-	{
-	  if (Ethernet_hardwareStatus () == EthernetNoHardware)
-	    printf ("Can't find the ethernet h/w\n");
-	  if (Ethernet_linkStatus () == LinkOFF)
-	    printf ("Plug in the cable\n");
-	}
-      Ethernet_localIP (ip);
-      DiskSetIP (ip);
-      Ethernet_localSN (ip);
-      DiskSetMask (ip);
-      Ethernet_localDNS (ip);
-      DiskSetDns (ip);
-      Ethernet_localGW (ip);
-      DiskSetGate (ip);
-    }
-  if (DeltaTimeINET () > 1440)
-    {
-	DiskSetTofU(DiskGetEpoch());
-      if (Ethernet_begin (mac) == 0)
-	{
-	  if (Ethernet_hardwareStatus () == EthernetNoHardware)
-	    printf ("Can't find the ethernet h/w\n");
-	  if (Ethernet_linkStatus () == LinkOFF)
-	    printf ("Plug in the cable\n");
-	}
-    }
-  DiskGetIP (ip);
-  printf ("inet %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  DiskGetMask (ip);
-  printf ("netmask %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  DiskGetDns (ip);
-  printf ("dns server %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  DiskGetGate (ip);
-  printf ("Default Gateway %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  DiskGetMac(mac);
-  printf ("ether %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2],
-	  mac[3], mac[4], mac[5]);
-#else
+#ifdef NEVER
   if (Ethernet_begin (mac) == 0)
     {
       if (Ethernet_hardwareStatus () == EthernetNoHardware)
