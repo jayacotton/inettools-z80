@@ -1,0 +1,24 @@
+extern void InetSetTofU (unsigned long);
+extern unsigned long InetGetTofU ();
+extern void InetSetUptime (unsigned long);
+extern unsigned long InetGetUptime (int);
+extern void InetSetDeltaUptime (unsigned long);
+extern unsigned long InetGetDeltaUptime ();
+extern void InetSetEpoch (long);
+extern long InetGetEpoch ();
+extern void InetSetMac (unsigned int *);
+extern void InetGetMac (unsigned int *);
+extern void InetSetTZ (long);
+extern long InetGetTZ ();
+extern void InetSetTZText (unsigned char *);
+extern void InetGetTZText (unsigned char *);
+extern void InetSetIP (unsigned char *);
+extern void InetGetIP (unsigned char *);
+extern void InetSetDns (unsigned char *);
+extern void InetGetDns (unsigned char *);
+extern void InetSetGate (unsigned char *);
+extern void InetGetGate (unsigned char *);
+extern void InetSetMask (unsigned char *);
+extern void InetGetMask (unsigned char *);
+extern void InetDumper ();
+
