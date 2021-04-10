@@ -7,9 +7,7 @@
 #include <string.h>
 #include "sysface.h"
 
-#ifdef FRAM
-#include "fram.h"
-#endif
+#include "inet.h"
 
 #define bf_sysver	0xF1	// BIOS: VER function
 #define bf_sysget	0xF8	// HBIOS: SYSGET function
@@ -43,8 +41,8 @@ ntp provides seconds since midnight jan 1 1900 as a 64 bit number.
 /* set the time zone data (into nvram) */
 void SetTZtxt(char *txt)
 {
-#ifdef FRAM
-	FramSetTZText(txt);
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	InetSetTZText(txt);
 #else
 int i;
 int addr;
@@ -58,9 +56,9 @@ char TZName[6];
 
 char *GetTZtxt()
 {
-#ifdef FRAM
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
 	memset(TZName,0,6);
-	FramGetTZText((unsigned char*)TZName);
+	InetGetTZText((unsigned char*)TZName);
 	return &TZName;
 #else
 int i;
@@ -75,8 +73,8 @@ int addr;
 }
 void SetTZ(long zone)
 {
-#ifdef FRAM
-	FramSetTZ(zone);
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	InetSetTZ(zone);
 #else
 int i;
 long lzone;
@@ -91,8 +89,8 @@ int addr;
 }
 long GetTZ()
 {
-#ifdef FRAM
-	return(FramGetTZ());
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	return(InetGetTZ());
 #else
 int i;
 long res;
@@ -122,8 +120,8 @@ current value of EPOCH from ntp time server.
 void EpochSet(unsigned long epoch)
 {
 unsigned long lepoch;
-#ifdef FRAM
-	FramSetEpoch(epoch);
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	InetSetEpoch(epoch);
 #else
 int i;
 int addr;
@@ -156,8 +154,8 @@ int i;
 long res;
 int addr;
 	res = 0;
-#ifdef FRAM
-	res = FramGetEpoch();	
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	res = InetGetEpoch();	
 #else
 	for(i=0;i<4;i++){
 		res = res << 8;
@@ -216,8 +214,8 @@ printf("Get addr %x to %x\n",laddr,lval);
 
 void SetDeltaUptime(unsigned long uptime)
 {
-#ifdef FRAM
-	FramSetDeltaUptime(uptime);
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	InetSetDeltaUptime(uptime);
 #else
 int i;
 int addr;
@@ -236,8 +234,8 @@ int i;
 unsigned long res;
 int addr;
 	res = 0;
-#ifdef FRAM
-	res = FramGetDeltaUptime();
+#if defined(FRAM) || defined(DISK) || defined(NVRAM)
+	res = InetGetDeltaUptime();
 #else
 	for(i=0;i<4;i++){
 		res = res << 8;

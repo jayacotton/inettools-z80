@@ -831,5 +831,217 @@ DiskDumper ()
 #endif
 
 #ifdef NVRAM
+void
+NvramSetTofU (unsigned long time)
+{
+}
 
+void
+NvramSetMask (unsigned char *ip)
+{
+}
+
+void
+NvramSetUptime (unsigned long time)
+{
+}
+
+void
+NvramSetIP (unsigned char *ip)
+{
+}
+
+void
+NvramSetGate (unsigned char *ip)
+{
+}
+
+void
+NvramSetDeltaUptime (unsigned long time)
+{
+  int i;
+  int addr;
+  for (i = 0; i < 4; i++)
+    {
+      addr = UptimeBuf + (i << 1);
+      SetNvram (addr, (unsigned char) uptime & 0xff);
+      uptime = uptime >> 8;
+    }
+}
+
+void
+NvramSetEpoch (long time)
+{
+  int i;
+  int addr;
+  for (i = 0; i < 4; i++)
+    {
+      addr = EpochBuf + ((i) << 1);
+      SetNvram (addr, (unsigned char) lepoch & 0xff);
+      lepoch = lepoch >> 8;
+    }
+
+}
+
+void
+NvramSetMac (unsigned int *ip)
+{
+}
+
+void
+NvramSetTZ (long zone)
+{
+  int i;
+  long lzone;
+  int addr;
+  lzone = zone;
+  for (i = 0; i < 4; i++)
+    {
+      addr = TZbuf + (i << 1);
+      SetNvram (addr, (unsigned char) lzone & 0xff);
+      lzone = lzone >> 8;
+    }
+
+}
+
+void
+NvramSetTZText (unsigned char *txt)
+{
+  int i;
+  int addr;
+  for (i = 0; i < 4; i++)
+    {
+      addr = TXtxt + (i << 1);
+      SetNvram (addr, txt[i]);
+    }
+}
+
+void
+NvramSetDns (unsigned char *ip)
+{
+}
+
+void
+NvramGetDns (unsigned char *ip)
+{
+}
+
+void
+NvramGetGate (unsigned char *ip)
+{
+}
+
+unsigned long
+NvramGetDeltaUptime ()
+{
+  for (i = 0; i < 4; i++)
+    {
+      res = res << 8;
+      addr = UptimeBuf + ((3 - i) << 1);
+      res |= (unsigned char) GetNvram (addr);
+    }
+  return res;
+}
+
+long
+NvramGetTZ ()
+{
+  int i;
+  long res;
+  int addr;
+  res = 0;
+  for (i = 0; i < 4; i++)
+    {
+      res = res << 8;
+      addr = TZbuf + ((3 - i) << 1);
+      res |= 0xff & GetNvram (addr);
+    }
+  return res;
+}
+
+void
+NvramGetTZText (unsigned char *txt)
+{
+  int i;
+  int addr;
+  memset (TZName, 0, 6);
+  for (i = 0; i < 4; i++)
+    {
+      addr = TZtxt + ((i) << 1);
+      TZName[i] = GetNvram (addr);
+    }
+  return &TZName;
+
+}
+
+long
+NvramGetEpoch ()
+{
+  int i;
+  long res;
+  int addr;
+
+  for (i = 0; i < 4; i++)
+    {
+      res = res << 8;
+      addr = EpochBuf + ((3 - i) << 1);
+      res |= 0xff & GetNvram (addr);
+    }
+  return res;
+}
+
+void
+NvramGetIP (unsigned char *ip)
+{
+}
+
+void
+NvramGetMask (unsigned char *ip)
+{
+}
+
+void
+NvramGetMac (unsigned int *ip)
+{
+}
+
+unsigned long
+NvramGetTofU ()
+{
+  return time;
+}
+
+unsigned long
+NvramGetUptime (int flag)
+{
+  return GetUptime (flag);
+}
+
+void
+NvramRead (struct storage *ram)
+{
+  int i;
+  unsigned char *p;
+  p = (unsigned char *) ram;
+  for (i = 0; i < sizeof (struct storage); i++)
+    {
+      SetNvram (i, *p++);
+    }
+}
+
+void
+NvramWrite (struct storage *ram)
+{
+  int i;
+  unsigned char *p p = (unsigned char *) ram;
+for (i = 0:i < sizeof (struct storage); i++)
+    {
+      *p++ = GetNvram (i);
+    }
+}
+
+void
+NvramDumper ()
+{
+}
 #endif

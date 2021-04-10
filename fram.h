@@ -24,7 +24,7 @@ typedef struct time_zone
   unsigned char TimeZoneText[4];
   unsigned long Epoch;		/* time epoch since 1970 */
   unsigned long DeltaUptime;
-	unsigned long Uptime;
+  unsigned long Uptime;
 } TIME_ZONE;
 
 typedef struct cpnet_data

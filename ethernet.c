@@ -50,9 +50,8 @@
 #include <stdlib.h>
 #include "spi.h"
 #include "trace.h"
-#ifdef FRAM
-#include "fram.h"
-#endif
+#include "inet.h"
+
 #pragma printf "%s %d %02x"
 
 /*
@@ -104,8 +103,8 @@ void
 get_mac (unsigned char *mac)
 {
   unsigned int lm[6];
-#ifdef FRAM
-	FramGetMac(lm);
+#if defined(FRAM)  || defined(DISK) || defined(NVRAMA)
+	InetGetMac(lm);
       mac[0] = lm[0];
       mac[1] = lm[1];
       mac[2] = lm[2];
