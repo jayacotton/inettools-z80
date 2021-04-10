@@ -5,9 +5,8 @@ Updates to the code base include FRAM support for storing all the parameters I w
 disk or in the NVRAM on the RTC chip.  At this point, you should be able to build and run the code
 base without having an RTC board in your machine, but you will need an FRAM chip.
 
-Future plan is the create a disk file version of the FRAM code, so all the parameters can be saved
-on a disk file, as a last resort.
-
+The newest version compiles for FRAM, DISK, NVRAM support.  Note that NVRAM is so small that
+it will not hold all the data.
 
 This code is based on software for the W5500 chip.  The code includes the following programs:
 
