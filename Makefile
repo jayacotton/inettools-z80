@@ -7,10 +7,10 @@ STORE = -DFRAM
 #STORE = -DDISK 
 #STORE = -DNVRAM 
 # this is a windows specific dir for cygwin use
-DESTDIR = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
-DESTDIR1 = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
+#DESTDIR = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
+#DESTDIR1 = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
 # this is a linux/unix path
-#DESTDIR = ~/HostFileBdos/c/
+DESTDIR = ~/HostFileBdos/c/
 CP = cp
 
 all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone wizreset digit 

@@ -56,6 +56,7 @@
 #include <stdio.h>
 #include "w5500.h"
 #include "spi.h"
+#undef DEBUG
 #include "trace.h"
 
 unsigned char w5500_present = 1;

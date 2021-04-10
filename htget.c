@@ -117,7 +117,7 @@ xread (void)
   if (bufend != buf && bufend > readp)
     {
       len = bufend - readp;
-      memcpy (buf, readp, bufend - readp);
+      memcpy (buf, readp, (int)(bufend - readp));
       bufend = buf;
       readp = buf;
       return len;
@@ -138,7 +138,7 @@ xreadline (void)
 
   if (readp != buf && bufend > readp)
     {
-      memcpy (buf, readp, bufend - readp);
+      memcpy (buf, readp, (int)(bufend - readp));
       bufend -= (readp - buf);
     }
   readp = buf;
@@ -340,7 +340,7 @@ things can get sideways */
      bit differently */
   if (code == 200)
     {
-      if (write (of, readp, bufend - readp) < 0)
+      if (write (of, readp, (int)(bufend - readp)) < 0)
 	{
 	  printf ("ERROR:write");
 	exit(1);

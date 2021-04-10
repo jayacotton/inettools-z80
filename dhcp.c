@@ -210,7 +210,7 @@ int8_t dhcp_state = STATE_DHCP_INIT;	// DHCP state
 int8_t dhcp_retry_count = 0;
 
 uint32_t dhcp_lease_time = INFINITE_LEASETIME;
-volatile uint32_t dhcp_tick_1s = 0;	// unit 1 second
+volatile uint32_t dhcp_tick_1s = 0xfff;	// unit 1 second
 uint32_t dhcp_tick_next = DHCP_WAIT_TIME;
 
 uint32_t DHCP_XID;		// Any number
@@ -376,7 +376,7 @@ send_DHCP_DISCOVER (void)
 
   makeDHCPMSG ();
 
-  k = 4;			// because MAGIC_COOKIE already made by makeDHCPMSG()
+  k = 4;	// because MAGIC_COOKIE already made by makeDHCPMSG()
 
   // Option Request Param
   pDHCPMSG->OPT[k++] = dhcpMessageType;
@@ -617,7 +617,7 @@ TRACE("parseDHCPMSG");
       len =
 	recvfrom (DHCP_SOCKET, (uint8_t *) pDHCPMSG, len, svr_addr,
 		  &svr_port);
-#ifdef _DHCP_DEBUG_
+#ifdef DEBUG
       printf ("DHCP message : %d.%d.%d.%d(%d) %d received. \r\n", svr_addr[0],
 	      svr_addr[1], svr_addr[2], svr_addr[3], svr_port, len);
 #endif
@@ -708,6 +708,7 @@ TRACE("parseDHCPMSG");
 	    }			// switch
 	}			// while
     }				// if
+TRACE("done parseDHCPMSG");
   return type;
 }
 
@@ -972,7 +973,8 @@ check_DHCP_leasedIP (void)
       send_DHCP_DECLINE ();
 
       ret = dhcp_tick_1s;
-      while ((dhcp_tick_1s - ret) < 2);	// wait for 1s over; wait to complete to send DECLINE message;
+      while ((dhcp_tick_1s - ret) < 2)
+	dhcp_tick_1s--;	// wait for 1s over; wait to complete to send DECLINE message;
 
       return 0;
     }
