@@ -26,6 +26,7 @@ does not change, nor will the port change.
 #include "w5500.h"
 #include "trace.h"
 #include "ctype.h"
+#include "inet.h"
 
 
 static int sock;
@@ -71,7 +72,7 @@ xread (void)
   if (bufend != buf && bufend > readp)
     {
       len = bufend - readp;
-      memcpy (buf, readp, (int)(bufend - readp));
+      memcpy (buf, readp, (int) (bufend - readp));
       bufend = buf;
       readp = buf;
       return len;
@@ -92,7 +93,7 @@ xreadline (void)
 
   if (readp != buf && bufend > readp)
     {
-      memcpy (buf, readp, (int)(bufend - readp));
+      memcpy (buf, readp, (int) (bufend - readp));
       bufend -= (readp - buf);
     }
   readp = buf;
@@ -152,14 +153,9 @@ main (int argc, char *argv[])
       printf ("GET <FILENAME>\n");
       exit (1);
     }
-  memcpy (gWIZNETINFO.mac, mac, 6);
-  fp = fopen ("MYGET.CFG", "r");
-  fscanf (fp, "%d.%d.%d.%d", &HostAddr[0], &HostAddr[1], &HostAddr[2],
-	  &HostAddr[3]);
-  fclose (fp);
+  InetGetMac (gWIZNETINFO.mac);
+
   TRACE ("Ethernet_begin");
-//DHCP_reset_static(mac);
-//Display_Net_Conf();
   if (Ethernet_begin (mac) == 0)
     {
       if (Ethernet_hardwareStatus () == EthernetNoHardware)
@@ -169,19 +165,14 @@ main (int argc, char *argv[])
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
-//Display_Net_Conf();
-
+  DNS_init (SOCK_DNS, DNS_buffer);
+  DNS_run (gWIZNETINFO.dns, "server", HostAddr);
   sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);
   if (sock == -1)
     {
       printf ("ERROR:socket");
       exit (1);
     }
-//  printf ("HOST:  %d.%d.%d.%d\n",
- //         HostAddr[0], HostAddr[1],
-  //        HostAddr[2], HostAddr[3]);
-//printf("Sock: %d\n",sock);
-//printf("Port: %d\n",port);
   if (connect (sock, HostAddr, port) < 0)
     {
       printf ("ERROR:connect");
@@ -252,7 +243,7 @@ things can get sideways */
      bit differently */
   if (code == 200)
     {
-      if (write (of, readp, (int)(bufend - readp)) < 0)
+      if (write (of, readp, (int) (bufend - readp)) < 0)
 	{
 	  printf ("ERROR:write");
 	  exit (1);
