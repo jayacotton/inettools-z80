@@ -26,7 +26,7 @@ non white space string.
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
-#include <trace.h>
+#include "trace.h"
 
 FILE *in;
 HOSTNAME *HostRoot;

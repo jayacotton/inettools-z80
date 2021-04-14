@@ -107,21 +107,4 @@ main (int argc, char *argv[])
   InetGetMac(mac);
   printf ("ether %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2],
 	  mac[3], mac[4], mac[5]);
-#ifdef NEVER
-  if (Ethernet_begin (mac) == 0)
-    {
-      if (Ethernet_hardwareStatus () == EthernetNoHardware)
-	printf ("Can't find the ethernet h/w\n");
-      if (Ethernet_linkStatus () == LinkOFF)
-	printf ("Plug in the cable\n");
-    }
-  Ethernet_localIP (ip);
-  printf ("inet %d.%d.%d.%d ", ip[0], ip[1], ip[2], ip[3]);
-  Ethernet_localSN (ip);
-  printf ("netmask %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  Ethernet_localDNS (ip);
-  printf ("dns server %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  printf ("ether %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2],
-	  mac[3], mac[4], mac[5]);
-#endif
 }

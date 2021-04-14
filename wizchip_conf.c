@@ -122,7 +122,7 @@ uint8_t wizchip_spi_readbyte(void)        {return 0;}
  * null function is called.
  */
 //void 	wizchip_spi_writebyte(uint8_t wb) {};
-void 	wizchip_spi_writebyte(uint8_t wb) {}
+void 	wizchip_spi_writebyte() {}
 
 /**
  * @brief Default function to burst read in SPI interface.
@@ -130,7 +130,7 @@ void 	wizchip_spi_writebyte(uint8_t wb) {}
  * null function is called.
  */
 //void 	wizchip_spi_readburst(uint8_t* pBuf, uint16_t len) 	{}; 
-void 	wizchip_spi_readburst(uint8_t* pBuf, uint16_t len) 	{}
+void 	wizchip_spi_readburst() 	{}
 
 /**
  * @brief Default function to burst write in SPI interface.
@@ -138,7 +138,7 @@ void 	wizchip_spi_readburst(uint8_t* pBuf, uint16_t len) 	{}
  * null function is called.
  */
 //void 	wizchip_spi_writeburst(uint8_t* pBuf, uint16_t len) {};
-void 	wizchip_spi_writeburst(uint8_t* pBuf, uint16_t len) {}
+void 	wizchip_spi_writeburst() {}
 
 /**
  * @\ref _WIZCHIP instance

@@ -289,7 +289,6 @@ struct storage s;
 void
 FramSetTofU (unsigned long time)
 {
-  spi_init ();
   FramRead (&s);
   s.Fram4.TofU = time;
   FramWrite (&s);
@@ -298,7 +297,6 @@ FramSetTofU (unsigned long time)
 unsigned long
 FramGetTofU ()
 {
-  spi_init ();
   FramRead (&s);
   return (s.Fram4.TofU);
 }
@@ -306,7 +304,6 @@ FramGetTofU ()
 void
 FramSetUptime (unsigned long time)
 {
-  spi_init ();
   FramRead (&s);
   s.Fram2.Uptime = time;
   FramWrite (&s);
@@ -315,7 +312,6 @@ FramSetUptime (unsigned long time)
 unsigned long
 FramGetUptime (int flag)
 {
-  spi_init ();
   FramRead (&s);
   if (flag)
     return (s.Fram2.Uptime);
@@ -326,7 +322,6 @@ void
 FramSetGate (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -339,7 +334,6 @@ void
 FramGetGate (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -351,7 +345,6 @@ void
 FramSetIP (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -364,7 +357,6 @@ void
 FramGetIP (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -376,7 +368,6 @@ void
 FramSetMask (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -389,7 +380,6 @@ void
 FramGetMask (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -401,7 +391,6 @@ void
 FramSetDns (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -414,7 +403,6 @@ void
 FramGetDns (unsigned char *ip)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 4; i++)
     {
@@ -425,7 +413,6 @@ FramGetDns (unsigned char *ip)
 void
 FramSetDeltaUptime (unsigned long uptime)
 {
-  spi_init ();
   FramRead (&s);
   s.Fram2.DeltaUptime = uptime;
   FramWrite (&s);
@@ -434,7 +421,6 @@ FramSetDeltaUptime (unsigned long uptime)
 unsigned long
 FramGetDeltaUptime ()
 {
-  spi_init ();
   FramRead (&s);
   return (s.Fram2.DeltaUptime);
 }
@@ -442,7 +428,6 @@ FramGetDeltaUptime ()
 void
 FramSetEpoch (long epoch)
 {
-  spi_init ();
   FramRead (&s);
   s.Fram2.Epoch = epoch;
   FramWrite (&s);
@@ -451,7 +436,6 @@ FramSetEpoch (long epoch)
 long
 FramGetEpoch ()
 {
-  spi_init ();
   FramRead (&s);
   return (s.Fram2.Epoch);
 }
@@ -459,7 +443,6 @@ FramGetEpoch ()
 void
 FramSetTZ (long zone)
 {
-  spi_init ();
   FramRead (&s);
   s.Fram2.TimeZone = zone;
   FramWrite (&s);
@@ -468,7 +451,6 @@ FramSetTZ (long zone)
 long
 FramGetTZ ()
 {
-  spi_init ();
   FramRead (&s);
   return (s.Fram2.TimeZone);
 }
@@ -476,7 +458,6 @@ FramGetTZ ()
 void
 FramSetTZText (unsigned char *t)
 {
-  spi_init ();
   FramRead (&s);
   memcpy (s.Fram2.TimeZoneText, t, 4);
   FramWrite (&s);
@@ -485,8 +466,6 @@ FramSetTZText (unsigned char *t)
 void
 FramGetTZText (unsigned char *t)
 {
-  int i;
-  spi_init ();
   FramRead (&s);
   memcpy (t, s.Fram2.TimeZoneText, 4);
 }
@@ -495,7 +474,6 @@ void
 FramGetMac (unsigned int *mac)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 6; i++)
     {
@@ -507,7 +485,6 @@ void
 FramSetMac (unsigned int *mac)
 {
   int i;
-  spi_init ();
   FramRead (&s);
   for (i = 0; i < 6; i++)
     {

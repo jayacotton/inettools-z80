@@ -434,11 +434,11 @@ parseDNSMSG (struct dhdr *pdhdr, uint8_t * pbuf, uint8_t * ip_from_dns)
 #ifdef _DNS_DEBUG_
   printf ("rcode %x\n", pdhdr->rcode);
 #endif
-  if (pdhdr->rcode == 0)
+  if (pdhdr->rcode == 0){
     return 1;			// No error
-  else
+  } else {
     return 0;
-  return 1;			// No error
+  }
 }
 
 
@@ -505,7 +505,9 @@ dns_makequery (uint16_t op, char *name, uint8_t * buf, uint16_t len)
   cp = put16 (cp, 0x0001);	/* type */
   cp = put16 (cp, 0x0001);	/* class */
 
-  return ((int16_t) ((uint32_t) (cp) - (uint32_t) (buf)));
+  dlen = (uint32_t) (cp) - (uint32_t) (buf);
+
+  return dlen;
 }
 
 /*

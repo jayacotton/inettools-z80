@@ -194,8 +194,8 @@ void
 WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
 {
   uint16_t i;
-  uint8_t *p;
-  uint16_t rs;
+//  uint8_t *p;
+//  uint16_t rs;
 
   CSEther ();
 

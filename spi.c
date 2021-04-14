@@ -73,6 +73,18 @@ unsigned char shift_rdntr_;
 unsigned char shift_ctrl_wr_;
 unsigned char shift_status_;
 
+#ifdef __SDCC
+#define ASM __asm
+#else
+#define ASM #asm
+#endif
+
+#ifdef __SDCC
+#define ENDASM __endasm
+#else
+#define ENDASM #endasm
+#endif
+
 /* probe code is not working */
 
 //! spi_probe is called by spi_init.  It figures out what the
@@ -103,31 +115,29 @@ spi_init ()
 TRACE("");
   spi_unit = spi_probe ();
   if (spi_unit == BITBANGOR){
-	_spi_sel = spi_sel;
-	_spi_data = spi_data;	// clock and data same port
-//        printf ("Bit Banger SPI bus V1.0\n");
-	}
+//	_spi_sel = spi_sel;
+//	_spi_data = spi_data;	// clock and data same port
+  }
   else if (spi_unit == SHIFTOUT){
- //       printf ("Shift Register SPI Wiznet v1.0\n");
 	shift_wrtr_ 	= _shift_wrtr;
 	shift_rdtr_ 	= _shift_rdtr;
 	shift_rdntr_ 	= _shift_rdntr;
 	shift_ctrl_wr_ 	= _shift_ctrl_wr;
 	shift_status_ 	= _shift_status;
-	}
+  }
   else
-    {
+  {
       printf ("Probe failed\n");
       exit (2);
-    }
+  }
   if (spi_unit == BITBANGOR)
-    {
+  {
       spi_data_bit = 0;
       spi_sclk (0);
 	CSoff();
-    }else{
+  }else{
 	CSoff();
-     }
+  }
 }
 
 //! spi_select is has been rewritten to take advantage of the
@@ -137,7 +147,7 @@ TRACE("");
 //! code assumes that SPI bus 3 (the forth bus) is not connected
 //! to a device.  The support code at the user level uses a
 //! macro to turn the select on and off.
-unsigned char cvtr[5] = { 0,1,ENETCS0,SDCS1,PARK};
+unsigned char cvtr[5] = { 0,PARK,ENETCS0,SDCS1,FRAMCS2};
 unsigned char cvtr_res;
 void
 spi_select (unsigned char channel)
@@ -149,37 +159,14 @@ TRACE("");
   {
 	spi_channel = channel;
 	cvtr_res = cvtr[channel];
-#ifdef DEBUG
-printf("select channel %d with 0x%x\n",channel,cvtr_res);
-#endif
-#asm
+ASM;
 	ld	a,(_shift_ctrl_wr_)
 	ld	c,a
 	ld	a,(_cvtr_res)
 	out	(c),a	
-#endasm	
+ENDASM;
   }else
 	printf("Must call spi_init() first\n");
-}
-
-//! spi_out is dead code
-void
-spi_out (unsigned char bit)
-{
-  if(spi_unit == SHIFTOUT) return;
-  MOSI (bit ? mosi_bit : 0);
-}
-
-//! spi_in is dead code
-unsigned char
-spi_in ()
-{
-  unsigned char a;
-
-  if(spi_unit == SHIFTOUT) return 0;
-  a = MISO ();
-  a = a & miso_bit;
-  return (a);
 }
 
 //! spi_sclk is used internally to set the clock level to 
@@ -190,23 +177,23 @@ spi_sclk (unsigned char state)
   if(spi_unit == SHIFTOUT) return;
   if (state)
     {
-#asm
+ASM;
 	ld	a,(__spi_data)
 	ld	c,a
       	ld a, (_spi_data_bit) 
 	or a, 0x80 
 	out (c), a	; CLOCK (0xff);
-#endasm
+ENDASM;
     }
   else
     {
-#asm
+ASM;
       ; CLOCK (0);
 	ld	a,(__spi_data)
 	ld	c,a
       	ld a, (_spi_data_bit) 
 	out (c), a
-#endasm
+ENDASM;
     }
 }
 
@@ -221,7 +208,7 @@ spi_sclk (unsigned char state)
 void
 spi_delay (unsigned int time)
 {
-#asm
+ASM;
   	ld hl, 2	; 10 1.356 
 	add hl, sp	; 11 1.492 
 	ld e, (hl)	; 7 .949 
@@ -233,7 +220,7 @@ spi_delay (unsigned int time)
 	ld a, h		; 9 1.221 
 	or l		; 4 .5425 
 	jr nz,spi_l1	; 12 / 7 1.628 / .949
-#endasm
+ENDASM;
 }
 
 unsigned char byte_in;
@@ -260,13 +247,13 @@ unsigned int spi_burst_read(unsigned char *buffer, unsigned int len)
 	}else{
 		l_len = len;
 	} 
-#asm
+ASM;
 	ld	c,_shift_rdtr 
 	ld	hl,(_l_buffer)
 	ld	a,(_l_len)
 	ld	b,a
 	inir
-#endasm
+ENDASM;
 	return ((unsigned int)l_len);
 }
 #endif
@@ -275,19 +262,19 @@ spi_byte_io (unsigned char byte_out)
 {
   	lbyte_out = byte_out;
   if(spi_unit == SHIFTOUT){
-#asm
+ASM;
 	di	
 	ld	a,(_lbyte_out)
 	out	(_shift_wrtr),a
 	in	a,(_shift_rdntr)
 	ld	(_byte_in),a
 	ei
-#endasm
+ENDASM;
   } else {
 	i = 8;
   	byte_in = 0;
   	bit = 0x80;
-#asm
+ASM;
   ; assembly language version of the byte exchanger
   ; written with hopes in speeding up the i / o process
   ; please note that the default clock rate for SD cards
@@ -326,7 +313,7 @@ spi_byte_io (unsigned char byte_out)
 	ld hl, _i		; count the bit 
 	dec (hl) 
 	jr nz, _M3
-#endasm
+ENDASM;
     }
     return byte_in;
 
@@ -350,59 +337,50 @@ spi_read (unsigned char *buf, int len)
 
 #ifdef FRAM
 //! NEW SPI code for use with FRAM expecting to migrate some functions
-//unsigned char SpiSel[] = {0,1,8,0x10,0x20};
 void SpiSelect(unsigned char Port)
 {
-#ifdef NEVER
-	lbyte_out = cvtr[Port];
-#asm
-	ld	a,(_lbyte_out)
-	out	(5eh),a
-#endasm	
-#else
 	spi_select(Port);
-#endif
 }
 void SpiCommand(unsigned char Cmd)
 {
 	lbyte_out = Cmd;
-#asm
+ASM;
 	ld	a,(_lbyte_out)
 	out	(5ch),a
-#endasm
+ENDASM;
 }
 void SpiWrite(unsigned char Byte)
 {
 	lbyte_out = Byte;
-#asm
+ASM;
 	ld	a,(_lbyte_out)
 	out	(5ch),a
-#endasm
+ENDASM;
 }
 void SpiWrite16(unsigned int Addr)
 {
 	lbyte_out = (Addr>>8)&0xff;
-#asm
+ASM;
 	ld	a,(_lbyte_out)
 	out	(5ch),a
-#endasm
+ENDASM;
 	lbyte_out = (Addr)&0xff;
-#asm
+ASM;
 	ld	a,(_lbyte_out)
 	out	(5ch),a
-#endasm
+ENDASM;
 }
 // for vauge reasons we must write an ff to the bus
 // and read back data right behind it....
 unsigned char SpiRead()
 {
 	lbyte_out = 0xff;
-#asm
+ASM;
 	ld	a,(_lbyte_out)
 	out	(5ch),a
 	in	a,(5ch)
 	ld	(_byte_in),a
-#endasm
+ENDASM;
 	return byte_in;	
 }
 #endif

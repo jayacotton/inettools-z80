@@ -122,7 +122,8 @@ extern unsigned short spi_burst_read(unsigned char *, unsigned short);
 #define IDELChannel		4
 #define SDCS1			0x10
 #define ENETCS0			0x8
-#define	PARK			0x20
+#define	FRAMCS2			0x20
+#define PARK			1
 #define spi_exchange(val) 	spi_byte_io(val);
 #define IINCHIP_SpiInit()	spi_init();
 #define SpiInit()		spi_init();

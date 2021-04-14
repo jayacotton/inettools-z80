@@ -1,7 +1,9 @@
 #CFLAGS	= +cpm --list --c-code-in-asm  -Wall -pragma-include:zpragma.inc 
 #LINKOP	= +cpm -Cl -v -create-app -m -pragma-include:zpragma.inc -DAMALLOC2
+#CFLAGS	= +rc2014 -subtype=cpm -Wall -pragma-include:zpragma.inc 
+#LINKOP	= +rc2014 -subtype=cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2 
 CFLAGS	= +cpm -Wall -pragma-include:zpragma.inc 
-LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2
+LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2 
 # configure the inet storage option
 STORE = -DFRAM
 #STORE = -DDISK 
@@ -10,10 +12,11 @@ STORE = -DFRAM
 #DESTDIR = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
 #DESTDIR1 = ~/projects/cpnet-z80/contrib/HostFileBdos/c/
 # this is a linux/unix path
-DESTDIR = ~/HostFileBdos/c/
+#DESTDIR = ~/HostFileBdos/c/
+DESTDIR = /cygdrive/c/users/lbmgm/HostFileBdos/c/
 CP = cp
 
-all: telnetd ifconfig telnet ping pingnoti dig wget myget ntp date https mac uptime today timezone wizreset digit 
+all: telnetd ifconfig telnet ping pingnoti dig wget htlist myget ntp date https mac uptime today timezone wizreset digit 
 
 digit: digit.o sysface.o libinet.o spi.o
 	zcc  $(LINKOP) -odigit digit.o sysface.o libinet.o spi.o
@@ -43,6 +46,7 @@ dhcp.o: dhcp.c dhcp.h
 	zcc  $(CFLAGS) $(STORE)   -c  dhcp.c 
 
 spi.o: spi.c spi.h
+#	zcc  +cpm -pragma-include:zpragma.inc  $(STORE) -c  spi.c 
 	zcc  $(CFLAGS)  $(STORE) -c  spi.c 
 
 socket.o: socket.c socket.h
@@ -94,6 +98,13 @@ telnet_client.o: telnet_client.c
 myget: get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libinet.o libhost.o
 	zcc $(LINKOP) -omyget get.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libinet.o libhost.o
 	cp MYGET.COM $(DESTDIR)myget.com
+
+htlist: htlist.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libinet.o libhost.o
+	zcc $(LINKOP) -ohtlist htlist.o w5500.o dhcp.o spi.o socket.o ethernet.o dns.o wizchip_conf.o libinet.o libhost.o
+	cp HTLIST.COM $(DESTDIR)htlist.com
+
+htlist.o: htlist.c
+	zcc $(CFLAGS) $(STORE) -c htlist.c
 
 get.o: get.c
 	zcc $(CFLAGS) $(STORE) -c get.c

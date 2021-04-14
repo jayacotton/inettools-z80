@@ -448,12 +448,8 @@ ping_reply (uint8_t s, uint8_t * addr, uint16_t rlen)
 
       if (tmp_checksum != PingReply.CheckSum)
 	{
-	  printf (" \n CheckSum is in correct %x shold be %x \n",
+	  printf (" \n CheckSum error %x should be %x \n",
 		  (tmp_checksum), htons (PingReply.CheckSum));
-	}
-      else
-	{
-	  //printf( "\r\n Checksum is correct  \r\n") ;                                   
 	}
 
       /*  Output the Destination IP and the size of the Ping Reply Message */

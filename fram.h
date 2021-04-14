@@ -20,33 +20,33 @@ not a required device.
  */
 
 typedef struct wizsok {
-	uchar	resv1[4];
-	uchar	cpnet;		// Sn_PORT0: 0x31 if configured for CP/NETvi 
-	uchar	sid;		// Sn_PORT1: CP/NET server node ID
-	uchar	resv2[6];
-	uchar	dipr[4];	// destination (server) IP address
-	uchar	dport[2];	// destination (server) port
-	uchar	resv3[11];
-	uchar	kpalvtr;	// moved to Sn_KPALVTR in W5500
-	uchar	resv4[2];
+	unsigned char	resv1[4];
+	unsigned char	cpnet;		// Sn_PORT0: 0x31 if configured for CP/NETvi 
+	unsigned char	sid;		// Sn_PORT1: CP/NET server node ID
+	unsigned char	resv2[6];
+	unsigned char	dipr[4];	// destination (server) IP address
+	unsigned char	dport[2];	// destination (server) port
+	unsigned char	resv3[11];
+	unsigned char	kpalvtr;	// moved to Sn_KPALVTR in W5500
+	unsigned char	resv4[2];
 }WizSok;
 
 typedef struct wizcfg {
-	uchar	resv1;
-	uchar	gar[4];		// gateway IP address
-	uchar	subr[4];	// subnet mask
-	uchar	shar[6];	// MAC address
-	uchar	sipr[4];	// client IP address
-	uchar	resv2[10];
-	uchar	pmagic;		// client CP/NET node ID
-	uchar	resv3[2];
+	unsigned char	resv1;
+	unsigned char	gar[4];		// gateway IP address
+	unsigned char	subr[4];	// subnet mask
+	unsigned char	shar[6];	// MAC address
+	unsigned char	sipr[4];	// client IP address
+	unsigned char	resv2[10];
+	unsigned char	pmagic;		// client CP/NET node ID
+	unsigned char	resv3[2];
 
 	WizSok	sockets[8];
 
-	uchar	cfgtbl[38];	// CP/NET config table template
+	unsigned char	cfgtbl[38];	// CP/NET config table template
 
-	uchar	resv4[182];	// for expansion
-	uchar	chksum[4];	// 32-bit sum of first 508 bytes, little-endian
+	unsigned char	resv4[182];	// for expansion
+	unsigned char	chksum[4];	// 32-bit sum of first 508 bytes, little-endian
 }WizCfg;
 
 /* sizeof(struct wizcfg) == 512 */
@@ -126,9 +126,9 @@ extern void FramDumper ();
 
 /*  FRAM defines for use with the SPI bus */
 
-#define FRam 	4
-#define ENET	2
-#define SD	3
+#define FRam 	4	// CS2
+#define SD	3	// CS1
+#define ENET	2	// CS0
 #define PARK1	1
 
 /* fram chip command bytes */
