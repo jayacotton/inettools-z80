@@ -35,11 +35,117 @@ static char *bufend = buf;
 static char *readp = buf;
 static int buflen = 0;
 
+/* decode and print the desired text from the server.
+
+records like this are imbedded in a lot of text noise.  So the scanner needs to be clever
+<td><a href="DIG.COM">DIG.COM</a></td><td align="right">2021-04-11 20:29  </td><td align="right"> 31K</td>
+What we want to get is.  This we can printf....
+DIG.COM/t2021-04-11 20:29/t31K/n 
+
+Because we can get partial records, we need to make a character based statemachine to decode
+the input strings.  
+
+One state machine ring to rule them all
+<td><a href="A.COM">A.COM</a></td>
+<td><a href="CUBE.COM">CUBE.COM</a></td>
+<td><a href="DATE.COM">DATE.COM</a></td>
+<td><a href="DIG.COM">DIG.COM</a></td>
+<td><a href="DIGIT.COM">DIGIT.COM</a></td>
+
+*/
+int state = 0;			//init state machine to 0
+#define START 0
+#define PRALUDE 12
+void
+htdecode (int len, unsigned char *p)
+{
+  unsigned char *cc;
+  cc = p;
+  while (len--)
+    {
+      switch (*cc++)
+	{
+	case '<':
+	  if (state == START)
+	    state++;
+	  else if (state == 4)
+	    state++;
+	  break;
+	case 't':
+	  if (state == 1)
+	    state++;
+	  break;
+	case 'd':
+	  if (state == 2)
+	    state++;
+	  break;
+	case '>':
+	  if (state == 3)
+	    state++;
+	  break;
+	case 'a':
+	  if (state == 5)
+	    state++;
+	  break;
+	case ' ':
+	  if (state == 6)
+	    state++;
+	  break;
+	case 'h':
+	  if (state == 7)
+	    state++;
+	  break;
+	case 'r':
+	  if (state == 8)
+	    state++;
+	  break;
+	case 'e':
+	  if (state == 9)
+	    state++;
+	  break;
+	case 'f':
+	  if (state == 10)
+	    state++;
+	  break;
+	case '=':
+	  if (state == 11)
+	    state++;
+	  goto check;
+	  break;
+	default:
+	  state = 0;
+	  break;
+	}
+    check:
+      if (state == PRALUDE)
+	{
+	  cc++;
+	  while (len)
+	    {
+	      if (*cc == '"')
+		{
+		  cc++;
+		  state = START;
+		  printf ("\n");
+		  goto check;
+		}
+	      else
+		{
+		  putchar (*cc++);
+		  len--;
+		  if (len == 0)
+		    return;
+		}
+	    }
+	}
+    }
+}
+
 void
 writes (int fd, char *p)
 {
   fd = 0;
-  puts(p);
+  puts (p);
 }
 
 void
@@ -132,10 +238,10 @@ int skip_dns;
 char DNS_buffer[256];
 char dnsname[80];
 extern unsigned char HostAddr[4];
+char *p;
 unsigned char run_user_applications;
-FILE *fp;
 void
-main ()
+main (int argc, char *argv[])
 {
   uint16_t port = 80;
   char *pp;
@@ -143,7 +249,25 @@ main ()
   int len;
   uint8_t looped = 0;
 
+  skip_dns = 0;
   InetGetMac (gWIZNETINFO.mac);
+  memset (dnsname, 0, 80);
+  if (argc > 1)
+    {
+      strcat (dnsname, argv[2]);
+// check to see if its a an ip address
+      if (isdigit (dnsname[0]))
+	{
+	  while (p = strchr (dnsname, '.'))
+	    *p = ' ';
+	  sscanf (dnsname, "%d %d %d %d",
+		  &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
+	  skip_dns = 1;
+	}
+    }else
+		strcat(dnsname,"server");
+
+printf("listing %s\n",dnsname);
 
   TRACE ("Ethernet_begin");
   if (Ethernet_begin (mac) == 0)
@@ -153,17 +277,24 @@ main ()
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
     }
-  Ethernet_localIP (gWIZNETINFO.ip);
-  Ethernet_localDNS (gWIZNETINFO.dns);
-  DNS_init (SOCK_DNS, DNS_buffer);
-  DNS_run (gWIZNETINFO.dns, "server", HostAddr);
-  sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);
+  Ethernet_localIP (gWIZNETINFO.ip);	// get my ip address
+  Ethernet_localDNS (gWIZNETINFO.dns);	// get the ip address of the dns server
+  if (skip_dns == 0)
+    {
+      DNS_init (SOCK_DNS, DNS_buffer);
+      if(DNS_run (gWIZNETINFO.dns, dnsname, HostAddr)==0)	// get the host server address
+	{
+		printf("%s not found\n",dnsname);
+		return;
+	}
+    }
+  sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);		// make a socket
   if (sock == -1)
     {
       printf ("ERROR:socket");
       exit (1);
     }
-  if (connect (sock, HostAddr, port) < 0)
+  if (connect (sock, HostAddr, port) < 0)		// connect to socket
     {
       printf ("ERROR:connect");
       exit (1);
@@ -175,7 +306,7 @@ main ()
   sprintf (dnsname, "%d.%d.%d.%d", HostAddr[0], HostAddr[1],
 	   HostAddr[2], HostAddr[3]);
 
-  xwrites ("GET /");
+  xwrites ("GET /index.html");
   xwrites (" HTTP/1.1\r\n");
   xwrites ("Host: ");
   xwrites (dnsname);
@@ -226,7 +357,7 @@ main ()
       writes (2, readp);
       while ((len = recv (sock, buf, 512)) > 0)
 	{
-	  writes (2, buf);
+	  htdecode (len, buf);
 	}
     }
   putchar ('\n');
