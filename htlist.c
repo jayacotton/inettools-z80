@@ -56,6 +56,33 @@ One state machine ring to rule them all
 int state = 0;			//init state machine to 0
 #define START 0
 #define PRALUDE 12
+char listbuf[80];
+int listpos = 0;
+int listcol = 0;
+void
+listchr (char c)
+{
+  if (listpos == 0)
+    {
+      memset (listbuf, ' ', 79);
+      listbuf[80] = 0;
+    }
+  if (c == '\n')
+    {
+      listcol++;
+      if (listcol >= 4)
+	{
+	  listcol = 0;
+	  listpos = 0;
+	  printf ("%s\n", listbuf);
+	  return;
+	}else
+	//listbuf[listpos++] = '\t';
+	listpos = listcol*14;
+    }else
+  listbuf[listpos++] = c;
+}
+
 void
 htdecode (int len, unsigned char *p)
 {
@@ -126,12 +153,12 @@ htdecode (int len, unsigned char *p)
 		{
 		  cc++;
 		  state = START;
-		  printf ("\n");
+		  listchr ('\n');
 		  goto check;
 		}
 	      else
 		{
-		  putchar (*cc++);
+		  listchr (*cc++);
 		  len--;
 		  if (len == 0)
 		    return;
@@ -264,10 +291,11 @@ main (int argc, char *argv[])
 		  &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
 	  skip_dns = 1;
 	}
-    }else
-		strcat(dnsname,"server");
+    }
+  else
+    strcat (dnsname, "server");
 
-printf("listing %s\n",dnsname);
+  printf ("listing %s\n", dnsname);
 
   TRACE ("Ethernet_begin");
   if (Ethernet_begin (mac) == 0)
@@ -282,19 +310,19 @@ printf("listing %s\n",dnsname);
   if (skip_dns == 0)
     {
       DNS_init (SOCK_DNS, DNS_buffer);
-      if(DNS_run (gWIZNETINFO.dns, dnsname, HostAddr)==0)	// get the host server address
+      if (DNS_run (gWIZNETINFO.dns, dnsname, HostAddr) == 0)	// get the host server address
 	{
-		printf("%s not found\n",dnsname);
-		return;
+	  printf ("%s not found\n", dnsname);
+	  return;
 	}
     }
-  sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);		// make a socket
+  sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);	// make a socket
   if (sock == -1)
     {
       printf ("ERROR:socket");
       exit (1);
     }
-  if (connect (sock, HostAddr, port) < 0)		// connect to socket
+  if (connect (sock, HostAddr, port) < 0)	// connect to socket
     {
       printf ("ERROR:connect");
       exit (1);
@@ -306,7 +334,7 @@ printf("listing %s\n",dnsname);
   sprintf (dnsname, "%d.%d.%d.%d", HostAddr[0], HostAddr[1],
 	   HostAddr[2], HostAddr[3]);
 
-  xwrites ("GET /index.html");
+  xwrites ("GET /");
   xwrites (" HTTP/1.1\r\n");
   xwrites ("Host: ");
   xwrites (dnsname);
@@ -333,13 +361,9 @@ printf("listing %s\n",dnsname);
 	  exit (1);
 	}
 
-      if (code != 200)
-	writes (2, buf);
       do
 	{
 	  xreadline ();
-	  if (code != 200)
-	    writes (2, buf);
 	}
       while (*buf != '\n');
 
@@ -354,13 +378,11 @@ printf("listing %s\n",dnsname);
      bit differently */
   if (code == 200)
     {
-      writes (2, readp);
       while ((len = recv (sock, buf, 512)) > 0)
 	{
 	  htdecode (len, buf);
 	}
     }
-  putchar ('\n');
-  putchar ('\r');
+printf("%s\n",listbuf);
   sock_close (sock);
 }

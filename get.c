@@ -148,7 +148,7 @@ main (int argc, char *argv[])
   int len;
   uint8_t looped = 0;
 
-  if (argc != 2)
+  if (argc <= 1)
     {
       printf ("GET <FILENAME>\n");
       exit (1);
