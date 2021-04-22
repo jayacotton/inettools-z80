@@ -69,9 +69,11 @@
 #include "trace.h"
 #include "ctype.h"
 #include "ltime.h"
+#include "inet.h"
 
+#define BUFSIZE 128
 static int sock;
-static char buf[512];
+static char buf[BUFSIZE];
 static char *bufend = buf;
 static char *readp = buf;
 static int buflen = 0;
@@ -83,7 +85,7 @@ uint32_t lastcount;
 void
 writes (int fd, const char *p)
 {
-  puts_cons (p);
+  puts_cons ((char *) p);
 }
 
 void
@@ -102,7 +104,7 @@ xwrites (const char *p)
 {
   printf ("%s", p);
   int l = strlen (p);
-  if (l + buflen > 512)
+  if (l + buflen > BUFSIZE)
     xflush ();
   memcpy (buf + buflen, p, l);
   buflen += l;
@@ -117,12 +119,12 @@ xread (void)
   if (bufend != buf && bufend > readp)
     {
       len = bufend - readp;
-      memcpy (buf, readp, (int)(bufend - readp));
+      memcpy (buf, readp, (int) (bufend - readp));
       bufend = buf;
       readp = buf;
       return len;
     }
-  len = recv (sock, buf, 512);
+  len = recv (sock, buf, BUFSIZE);
   if (len < 0)
     {
       printf ("ERROR:read %d\n", len);
@@ -138,12 +140,12 @@ xreadline (void)
 
   if (readp != buf && bufend > readp)
     {
-      memcpy (buf, readp, (int)(bufend - readp));
+      memcpy (buf, readp, (int) (bufend - readp));
       bufend -= (readp - buf);
     }
   readp = buf;
 
-  len = recv (sock, buf + buflen, 512 - buflen);
+  len = recv (sock, buf + buflen, BUFSIZE - buflen);
   if (len < 0)
     {
       printf ("ERROR:socket read");
@@ -166,7 +168,7 @@ xreadline (void)
     }
   writes (2, "htpget: overlong/misformatted header\n");
   exit (1);
-return 0;
+  return 0;
 }
 
 struct wiz_NetInfo_t gWIZNETINFO;
@@ -193,18 +195,24 @@ main (int argc, char *argv[])
   int len;
   uint8_t looped = 0;
   int stat;
-
+#ifdef DEBUG
+  printf ("argc %d\n", argc);
+  printf ("argv[0] %s\n", argv[0]);
+  printf ("argv[1] %s\n", argv[1]);
+  printf ("argv[2] %s\n", argv[2]);
+  printf ("argv[3] %s\n", argv[3]);
+#endif
+  InetGetMac (mac);
   skip_dns = 0;
-
-  if (argc != 3)
+  if (argc <= 2)
     {
       writes (2, "wget url file\n");
-	exit(0);
+      exit (0);
     }
   if (strncmp (argv[1], "HTTP://", 7))
     {
       writes (2, "wget: only http:// is supported.\n");
-	exit(1);
+      exit (1);
     }
   argv[1] += 7;
 
@@ -220,9 +228,12 @@ main (int argc, char *argv[])
       if (port == 0)
 	{
 	  writes (2, "wget: invalid port\n");
-		exit(1);
+	  exit (1);
 	}
     }
+#ifdef DEBUG
+  printf ("port %d\n", port);
+#endif
   memset (dnsname, 0, 80);
   memcpy (gWIZNETINFO.mac, mac, 6);
   strcat (dnsname, argv[1]);
@@ -235,14 +246,20 @@ main (int argc, char *argv[])
 	      &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
       skip_dns = 1;
     }
+#ifdef DEBUG
+  printf ("dnaname %s\n", dnsname);
+  InetDumper ();
+#endif
   TRACE ("Ethernet_begin");
-  if (Ethernet_begin (mac) == 0)
+  if (Ethernet_begin (mac) != 0)
     {
       if (Ethernet_hardwareStatus () == EthernetNoHardware)
 	printf ("Can't find the ethernet h/w\n");
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
-	exit(1);
+      else
+	printf ("unknown ethernet error\n");
+      exit (1);
     }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
@@ -252,23 +269,22 @@ main (int argc, char *argv[])
       DNS_init (SOCK_DNS, DNS_buffer);	// share the data buffer ??
       TRACE ("DNS_run");
       if (DNS_run (gWIZNETINFO.dns, dnsname, HostAddr) == 0)
-	exit(1);
+	exit (1);
     }
 
   sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);
   if (sock == -1)
     {
       printf ("ERROR:socket");
-	exit(1);
+      exit (1);
     }
   if (connect (sock, HostAddr, port) < 0)
     {
       printf ("ERROR:connect");
-	exit(1);
+      exit (1);
     }
 
-/* there be bugs here.  If a port is specified 
-things can get sideways */
+/* there be bugs here.  If a port is specified things can get sideways */
 
   if (port == 80)
     {
@@ -302,7 +318,7 @@ things can get sideways */
 	{
 	  writes (2, "wget: invalid reply\n");
 	  writes (2, buf);
-	exit(1);
+	  exit (1);
 	}
       pp++;
       code = strtoul (pp, &pp, 10);
@@ -310,7 +326,7 @@ things can get sideways */
 	{
 	  writes (2, "wget: invalid reply\n");
 	  writes (2, buf);
-	exit(1);
+	  exit (1);
 	}
 
       if (code != 200)
@@ -334,29 +350,29 @@ things can get sideways */
   if (of == -1)
     {
       printf ("ERROR:%s\n", argv[2]);
-	exit(1);
+      exit (1);
     }
   /* FIXME: if we saw a Transfer-Encoding: chunked" we need to do this
      bit differently */
   if (code == 200)
     {
-      if (write (of, readp, (int)(bufend - readp)) < 0)
+      if (write (of, readp, (int) (bufend - readp)) < 0)
 	{
 	  printf ("ERROR:write");
-	exit(1);
+	  exit (1);
 	}
-      while ((len = recv (sock, buf, 512)) > 0)
+      while ((len = recv (sock, buf, BUFSIZE)) > 0)
 	{
 	  if (write (of, buf, len) != len)
 	    {
 	      printf ("ERROR:write");
-		exit(1);
+	      exit (1);
 	    }
-		printf(".");
+	  printf (".");
 	}
     }
   close (of);
-  printf("\n");
+  printf ("\n");
   sock_close (sock);
 // stats
   return 0;

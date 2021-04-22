@@ -281,7 +281,7 @@ main (int argc, char *argv[])
   memset (dnsname, 0, 80);
   if (argc > 1)
     {
-      strcat (dnsname, argv[2]);
+      strcat (dnsname, argv[1]);
 // check to see if its a an ip address
       if (isdigit (dnsname[0]))
 	{

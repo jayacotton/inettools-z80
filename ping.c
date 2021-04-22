@@ -101,8 +101,13 @@ main (int argc, char *argv[])
 #ifdef DEBUG
   mallinfo (&total, &max);
   printf ("total %d max %d\n", total, max);
+
+  printf ("argc %d\n", argc);
+  printf ("argv[0] %s\n", argv[0]);
+  printf ("argv[1] %s\n", argv[1]);
 #endif
-  if (argc > 1)
+
+  if (argc == 2)
     {
       strcat (dnsname, argv[1]);
       if (isdigit (dnsname[0]))
@@ -116,6 +121,9 @@ main (int argc, char *argv[])
 	  skip_dns = 1;
 	}
     }
+  else
+    strcat (dnsname, "server");
+
   if (Ethernet_begin (mac) == 0)
     {
       if (Ethernet_hardwareStatus () == EthernetNoHardware)
@@ -144,8 +152,12 @@ main (int argc, char *argv[])
     }
   if (run_user_applications)
     {
-      printf ("PING %s (%d.%d.%d.%d) \n", argv[1],
-	      remip[0], remip[1], remip[2], remip[3]);
+      if (argc == 2)
+	printf ("PING %s (%d.%d.%d.%d) \n", argv[1],
+		remip[0], remip[1], remip[2], remip[3]);
+      else
+	printf ("PING (%d.%d.%d.%d) \n", remip[0],
+		remip[1], remip[2], remip[3]);
       tmp = ping_auto (0, remip);
     }
 }
@@ -406,7 +418,7 @@ ping_reply (uint8_t s, uint8_t * addr, uint16_t rlen)
 	  PingReply.Data[i] = data_buf[8 + i];
 	}
       /* check Checksum of Ping Reply */
-      tmp_checksum = ~checksum (&data_buf, len);
+      tmp_checksum = ~checksum ((unsigned char *)&data_buf, len);
       if (tmp_checksum != 0xffff)
 	printf ("tmp_checksum = %x\r\n", tmp_checksum);
       else
@@ -444,7 +456,7 @@ ping_reply (uint8_t s, uint8_t * addr, uint16_t rlen)
       /* check Checksum of Ping Reply */
       tmp_checksum = PingReply.CheckSum;
       PingReply.CheckSum = 0;
-      PingReply.CheckSum = htons (checksum (&PingReply, len));
+      PingReply.CheckSum = htons (checksum ((unsigned char *)&PingReply, len));
 
       if (tmp_checksum != PingReply.CheckSum)
 	{

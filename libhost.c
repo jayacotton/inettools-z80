@@ -71,18 +71,18 @@ Hosts_Init ()
 	      if (p->ip.ip[0] + p->ip.ip[1] + p->ip.ip[2] + p->ip.ip[3] == 0)
 		break;
 	      TRACE (" ");
-	      p->name = calloc (strlen (b1), 1);
+	      p->name = calloc (strlen ((char *)b1), 1);
 	      if (p->name == 0)
 		return;
 	      TRACE (" ");
-	      p->alias = calloc (strlen (b2), 1);
+	      p->alias = calloc (strlen ((char *)b2), 1);
 	      if (p->alias == 0)
 		return;
 	      TRACE (" ");
-	      strupr (b1);
-	      strupr (b2);
-	      strcpy (p->name, b1);
-	      strcpy (p->alias, b2);
+	      strupr ((char *)b1);
+	      strupr ((char *)b2);
+	      strcpy ((char *)p->name, (char *)b1);
+	      strcpy ((char *)p->alias, (char *)b2);
 #ifdef DEBUG
 	      {
 		int max;
@@ -138,11 +138,11 @@ Hosts_Lookup (char *name)
     return NULL;
   do
     {
-      if (strstr (p->name, c))
+      if (strstr ((char *)(p->name), c))
 	{
 	  return (&p->ip);
 	}
-      else if (strstr (p->alias, c))
+      else if (strstr ((char *)(p->alias), c))
 	{
 	  return (&p->ip);
 	}

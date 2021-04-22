@@ -439,6 +439,7 @@ parseDNSMSG (struct dhdr *pdhdr, uint8_t * pbuf, uint8_t * ip_from_dns)
   } else {
     return 0;
   }
+    return 1;			// No error
 }
 
 
@@ -571,7 +572,7 @@ DNS_run (uint8_t * dns_ip, uint8_t * name, uint8_t * ip_from_dns)
   retry_count = 0;
   dns_1s_tick = 0;
 #ifdef HOSTS
-  hip = Hosts_Lookup (name);
+  hip = Hosts_Lookup ((char *)name);
   if (hip)
     {
       memcpy (ip_from_dns, hip, 4);

@@ -268,7 +268,7 @@ main (int argc, char *argv[])
 	else
     strcpy(host_name, "time.google.com");
 
-  if (strcmp (RTCType (), "DS1302") != 0)
+  if (strcmp ((char *)RTCType (), "DS1302") != 0)
     {
       printf ("Only works with DS1322\n");
       exit (0);
@@ -316,7 +316,7 @@ main (int argc, char *argv[])
 
   // Send it the NTP packet it wants. If n == -1, it failed.
 
-  n = sendto (sockfd, (char *) &packet,
+  n = sendto (sockfd, (unsigned char *) &packet,
 	      sizeof (struct ntp_packet), HostAddr, portno);
 
   if (n < 0)
@@ -325,7 +325,7 @@ main (int argc, char *argv[])
   // Wait and receive the packet back from the server. If n == -1, it failed.
 
   while (getSn_RX_RSR (1) < sizeof (struct ntp_packet));
-  n = recvfrom (1, (char *) &packet,
+  n = recvfrom (1, (unsigned char *) &packet,
 		sizeof (struct ntp_packet), destip, &destport);
   if (n == 0)
     error ("ERROR: no data from server", n);

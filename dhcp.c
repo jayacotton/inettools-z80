@@ -978,7 +978,7 @@ check_DHCP_leasedIP (void)
 
       return 0;
     }
-//return 1;
+return 1;
 }
 
 void
@@ -1077,7 +1077,7 @@ NibbleToHex (uint8_t nibble)
     return nibble + '0';
   else
     return nibble + ('A' - 0x0A);
-//	return 0;
+	return 0;
 }
 
 //unsigned int

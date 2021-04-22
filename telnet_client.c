@@ -124,7 +124,6 @@ main (int argc, char *argv[])
   unsigned char *p;
 
   skip_dns = 0;
-
   if (argc < 2 || argc > 4)
     {
       printf ("Usage: %s address [port]\n", argv[0]);

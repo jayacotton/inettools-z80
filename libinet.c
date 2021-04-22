@@ -559,6 +559,19 @@ FramDumper ()
   printf ("EtherAddr %x.%x.%x.%x.%x.%x\n",
 	  s.Fram1.EtherAddr[0], s.Fram1.EtherAddr[1], s.Fram1.EtherAddr[2],
 	  s.Fram1.EtherAddr[3], s.Fram1.EtherAddr[4], s.Fram1.EtherAddr[5]);
+  printf ("EtherIP %d.%d.%d.%d\n",
+	  s.Fram1.EtherIP[0], s.Fram1.EtherIP[1], s.Fram1.EtherIP[2],
+	  s.Fram1.EtherIP[3]);
+  printf ("EtherGate %d.%d.%d.%d\n",
+	  s.Fram1.EtherGate[0], s.Fram1.EtherGate[1], s.Fram1.EtherGate[2],
+	  s.Fram1.EtherGate[3]);
+  printf ("EtherDns %d.%d.%d.%d\n",
+	  s.Fram1.EtherDns[0], s.Fram1.EtherDns[1], s.Fram1.EtherDns[2],
+	  s.Fram1.EtherDns[3]);
+  printf ("EtherMask %d.%d.%d.%d\n",
+	  s.Fram1.EtherMask[0], s.Fram1.EtherMask[1], s.Fram1.EtherMask[2],
+	  s.Fram1.EtherMask[3]);
+
 }
 #endif
 #ifdef DISK

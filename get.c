@@ -28,9 +28,10 @@ does not change, nor will the port change.
 #include "ctype.h"
 #include "inet.h"
 
+#define BUF_SIZE 128 
 
 static int sock;
-static char buf[512];
+static char buf[BUF_SIZE];
 static char *bufend = buf;
 static char *readp = buf;
 static int buflen = 0;
@@ -38,7 +39,7 @@ static int buflen = 0;
 void
 writes (int fd, const char *p)
 {
-  puts_cons (p);
+  puts_cons ((char *)p);
 }
 
 void
@@ -57,7 +58,7 @@ xwrites (const char *p)
 {
   printf ("%s", p);
   int l = strlen (p);
-  if (l + buflen > 512)
+  if (l + buflen > BUF_SIZE)
     xflush ();
   memcpy (buf + buflen, p, l);
   buflen += l;
@@ -77,7 +78,7 @@ xread (void)
       readp = buf;
       return len;
     }
-  len = recv (sock, buf, 512);
+  len = recv (sock, buf, BUF_SIZE);
   if (len < 0)
     {
       printf ("ERROR:read %d\n", len);
@@ -98,7 +99,7 @@ xreadline (void)
     }
   readp = buf;
 
-  len = recv (sock, buf + buflen, 512 - buflen);
+  len = recv (sock, buf + buflen, BUF_SIZE - buflen);
   if (len < 0)
     {
       printf ("ERROR:socket read");
@@ -163,10 +164,20 @@ main (int argc, char *argv[])
       if (Ethernet_linkStatus () == LinkOFF)
 	printf ("Plug in the cable\n");
     }
+  if (argc == 3)
+    {
+      strcpy (dnsname, argv[1]);
+      p = argv[2];
+    }
+  else
+    {
+      strcpy (dnsname, "server");
+      p = argv[1];
+    }
   Ethernet_localIP (gWIZNETINFO.ip);
   Ethernet_localDNS (gWIZNETINFO.dns);
   DNS_init (SOCK_DNS, DNS_buffer);
-  DNS_run (gWIZNETINFO.dns, "server", HostAddr);
+  DNS_run (gWIZNETINFO.dns, dnsname, HostAddr);
   sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);
   if (sock == -1)
     {
@@ -182,7 +193,6 @@ main (int argc, char *argv[])
 /* there be bugs here.  If a port is specified 
 things can get sideways */
 
-  p = argv[1];
   sprintf (dnsname, "%d.%d.%d.%d", HostAddr[0], HostAddr[1],
 	   HostAddr[2], HostAddr[3]);
 
@@ -232,11 +242,11 @@ things can get sideways */
     }
   while (code == 100 && !looped++);
 
-  remove (argv[1]);
-  of = open (argv[1], O_WRONLY | O_CREAT, 0666);
+  remove (p);
+  of = open (p, O_WRONLY | O_CREAT, 0666);
   if (of == -1)
     {
-      printf ("ERROR:%s\n", argv[2]);
+      printf ("ERROR:%s\n", p);
       exit (1);
     }
   /* FIXME: if we saw a Transfer-Encoding: chunked" we need to do this
@@ -248,7 +258,7 @@ things can get sideways */
 	  printf ("ERROR:write");
 	  exit (1);
 	}
-      while ((len = recv (sock, buf, 512)) > 0)
+      while ((len = recv (sock, buf, BUF_SIZE)) > 0)
 	{
 	  if (write (of, buf, len) != len)
 	    {

@@ -42,7 +42,7 @@ ntp provides seconds since midnight jan 1 1900 as a 64 bit number.
 void SetTZtxt(char *txt)
 {
 #if defined(FRAM) || defined(DISK) || defined(NVRAM)
-	InetSetTZText(txt);
+	InetSetTZText((unsigned char *)txt);
 #else
 int i;
 int addr;
