@@ -15,3 +15,6 @@ extern void SetTOD(unsigned char *);
 extern unsigned char *GetTOD();
 extern unsigned int RTCCount();
 extern unsigned char *RTCType();
+extern unsigned char InStat();
+extern unsigned char InChar();
+extern void OutChar(unsigned char);

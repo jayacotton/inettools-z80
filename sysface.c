@@ -13,6 +13,10 @@
 #define bf_sysget	0xF8	// HBIOS: SYSGET function
 #define bf_sysgettimer	0xD0	// TIMER subfunction
 #define bf_sysgetsecs	0xD1	// SECONDS subfunction
+#define bf_sysgetcin	0x00	// Character Input
+#define bf_sysputcout	0x01	// Character Output
+#define bf_sysgetcstat	0x02	// Get character status
+
 #define EpochBuf 0		// start of epoch buffer
 #define UptimeBuf EpochBuf+5	// start of uptime delta buffer.
 #define TZbuf  UptimeBuf+5	// start of time zone buffer.
@@ -171,6 +175,42 @@ printf("%lu\n",res);
 	res += GetTZ();
 	return res;
 }
+
+/* primitive console I/O */
+
+void OutChar(unsigned char c)
+{
+	lval = c;
+#asm
+	ld	b,$1
+	ld	c,$0
+	ld	a,(_lval)
+	ld	e,a
+	rst	08
+#endasm
+}
+unsigned char InStat()
+{
+#asm
+	ld	b,$2
+	ld	c,$0
+	rst	08
+	ld	(_lval),a	
+#endasm
+	return (lval);
+}
+unsigned char InChar()
+{
+#asm
+	ld	b,$0
+	ld	c,$0
+	rst	08
+	ld	a,e
+	ld	(_lval),a
+#endasm
+	return (lval);
+}
+
 /* get and set the uptime seconds
 
 Don't forget the collect the delta uptime from the

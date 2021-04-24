@@ -62,6 +62,7 @@
 #include "spi.h"
 #include "w5500.h"
 #include "trace.h"
+#include "sysface.h"
 
 #define DO 0xfd
 #define WONT 0xfc
@@ -234,10 +235,15 @@ main (int argc, char *argv[])
 		}
 	    }
 	}
-
+#ifdef NEVER
       if (bdos (CPM_ICON, 0))
 	{
-	  buf[0] = fgetc_cons ();	//fgets(buf, 1, stdin);
+	  buf[0] = fgetc_cons();	//fgets(buf, 1, stdin);
+#else
+	if(InStat())
+	{
+		buf[0] = InChar();
+#endif
 	  if (send (sock, buf, 1) < 0)
 	    return 1;
 	  if (buf[0] == '\n')	// with the terminal in raw mode we need to force a LF
