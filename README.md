@@ -156,3 +156,19 @@ directory for the html server.
 Since you are looking at this project, you may be interested in this CPNET project.
 https://github.com/durgadas311/cpnet-z80
 
+Compatibility between CP/Net and InetTools.  Since InetTools uses sockets 0 to 6 for DHCP/DNS/TCP/etc.  The
+available socket for CP/Net is 7.  You can set this using the wizcfg tool.  Here is a submit file:
+```
+C>type wiz.sub
+d:wizcfg m 98:76:b6:11:9f:6f
+d:wizcfg n 03
+d:wizcfg i 192.168.0.100
+d:wizcfg g 192.168.0.1
+d:wizcfg s 255.255.255.0
+d:wizcfg 7 0 192.168.0.120 31100 45
+d:wizcfg t l:=c:[0]
+d:wizcfg t m:=d:[0]
+d:wizcfg t n:=e:[0]
+d:wizcfg t o:=f:[0]
+```
+
