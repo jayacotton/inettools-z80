@@ -124,7 +124,33 @@ xreadline (void)
   exit (1);
   return 0;
 }
-
+/* process the file name, if a switch case is present then
+change to lower case until eol or switch case.  On Eol  
+return converted string.
+*/
+int CS;
+#define SW '/'
+char myname[20];
+char * CaseSwitch(char *c)
+{
+char *p;
+	CS = 0;
+	memset(myname,0,20);
+	p = myname;
+	while(*c){
+		if(*c == SW) {
+			if(CS == 0)
+				CS = 1;
+			else
+				CS = 0;
+		}
+		if(CS)
+			*p++ = tolower(*c++);
+		else
+			*p++ = *c++;	
+	}
+	return myname;
+}
 struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
 
@@ -198,7 +224,7 @@ things can get sideways */
 
   xwrites ("GET /");
   if (p)
-    xwrites (p);
+    xwrites (CaseSwitch(p));
   xwrites (" HTTP/1.1\r\n");
   xwrites ("Host: ");
   xwrites (dnsname);
