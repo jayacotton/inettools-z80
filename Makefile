@@ -1,9 +1,5 @@
-CFLAGS	= +cpm -Wall -pragma-include:zpragma.inc -DCPUZ80 -DCPMONLY
+include Make.config
 LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2 
-# configure the inet storage option
-STORE = -DFRAM
-#STORE = -DDISK 
-#STORE = -DNVRAM 
 # this is a windows specific dir for cygwin use
 #DESTDIR = ~/HostFileBdos/c/
 DESTDIR = /cygdrive/c/users/lbmgm/HostFileBdos/c/
@@ -11,14 +7,8 @@ DESTDIR1 = /cygdrive/c/xampp/htdocs/
 SUM = sum
 CP = cp
 
-all: telnetd ifconfig telnet ping pingnoti dig wget htlist myget ntp date https mac uptime today timezone wizreset digit echo 
+all: telnetd ifconfig telnet ping pingnoti dig wget htlist myget ntp date https mac uptime today timezone wizreset digit 
 
-echo: echo.o
-	zcc $(LINKOP) -oecho echo.o
-
-echo.o:	echo.c
-	zcc $(CFLAGS) $(STORE) -c echo.c
-	
 digit: digit.o sysface.o libinet.o spi.o
 	zcc  $(LINKOP) -odigit digit.o sysface.o libinet.o spi.o
 	$(SUM) DIGIT.COM
