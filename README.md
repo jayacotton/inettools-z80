@@ -4,6 +4,10 @@ Inet tools for z80-rc2014 tcp/ip stack code.
 NOTE:  I am in the process of adding multi platform and multi cpu support.  My targets are
 Z80 I8080, S100 and RC2014.  Use Make.config to control the build target.
 
+WRT Z80 vs I8080 when compileing with z88dk.  I have found that the 8080 version of telnet.com
+is about 380 bytes larger than the z80 version.  Not as huge a difference as I was expecting.
+I'm guessing that to really expand the gap will require hand codeing at a very low level.
+
 Updates to the code base include FRAM support for storing all the parameters I was stashing on the
 disk or in the NVRAM on the RTC chip.  At this point, you should be able to build and run the code
 base without having an RTC board in your machine, but you will need an FRAM chip.
