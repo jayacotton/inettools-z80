@@ -1,4 +1,5 @@
 /* this code interfaces to RomWBW and exposes the system calls 
+   for non RomWBW systems, set the CPMONLY flag.
 */
 
 #include <stdio.h>
@@ -111,11 +112,19 @@ int addr;
 /* get and test the bios version number */
 int TestBIOS()
 {
+#ifdef CPMONLY
+#asm
+	ld	c,12
+	call	5
+	ld	(_lvers),hl
+#endasm
+#else
 #asm
 	ld	bc,$f100
 	rst	08
 	ld	(_lvers),de
 #endasm
+#endif
 	return ((lvers >= 0x3000)? 1:0);
 }
 /* get and set the nvram storage used to keep the 
@@ -130,9 +139,6 @@ unsigned long lepoch;
 int i;
 int addr;
 	lepoch = epoch;
-#ifdef DEBUG
-printf("%lu\n",lepoch);
-#endif
 /* store the current epoch time value */
 	for(i=0;i<4;i++){
 		addr = EpochBuf + ((i)<<1);
@@ -167,9 +173,6 @@ int addr;
 		res |= 0xff & GetNvram(addr);
 	}
 #endif
-#ifdef DEBUG
-printf("%lu\n",res);
-#endif
 /* Epoch time is UNIXEPOC + Delta seconds - timezone */
 	res += GetDeltaUptime();
 	res += GetTZ();
@@ -181,6 +184,14 @@ printf("%lu\n",res);
 void OutChar(unsigned char c)
 {
 	lval = c;
+#ifdef CPMONLY
+#asm
+	ld	a,(_lval)
+	ld	e,a
+	ld	c,2
+	call	5
+#endasm
+#else
 #asm
 	ld	b,$1
 	ld	c,$0
@@ -188,19 +199,35 @@ void OutChar(unsigned char c)
 	ld	e,a
 	rst	08
 #endasm
+#endif
 }
 unsigned char InStat()
 {
+#ifdef CPMONLY
+#asm
+	ld	c,0bh
+	call	5
+	ld	(_lval),a
+#endasm
+#else
 #asm
 	ld	b,$2
 	ld	c,$0
 	rst	08
 	ld	(_lval),a	
 #endasm
+#endif
 	return (lval);
 }
 unsigned char InChar()
 {
+#ifdef CPMONLY
+#asm
+	ld	c,1
+	call	5
+	ld	(_lval),a
+#endasm
+#else
 #asm
 	ld	b,$0
 	ld	c,$0
@@ -208,6 +235,7 @@ unsigned char InChar()
 	ld	a,e
 	ld	(_lval),a
 #endasm
+#endif
 	return (lval);
 }
 
@@ -221,11 +249,11 @@ This code is really aimed at ds1302 only.
 */
 void SetNvram(int addr,unsigned char val)
 {
+#ifdef CPMONLY
+	return;
+#else
 	laddr = addr;
 	lval	= val;
-#ifdef DEBUG
-printf("Set addr %x to %x\n",laddr,lval);
-#endif
 #asm	
 	ld	b,$23
 	ld	a,(_laddr)
@@ -234,9 +262,13 @@ printf("Set addr %x to %x\n",laddr,lval);
 	ld	e,a
 	rst	08
 #endasm
+#endif
 }
 unsigned char GetNvram(int addr)
 {
+#ifdef CPMONLY
+	return 0;
+#else
 	laddr	= addr;
 #asm
 	ld	b,$22
@@ -246,10 +278,8 @@ unsigned char GetNvram(int addr)
 	ld	a,e
 	ld	(_lval),a
 #endasm
-#ifdef DEBUG
-printf("Get addr %x to %x\n",laddr,lval);
-#endif
 	return (lval);
+#endif
 }
 
 void SetDeltaUptime(unsigned long uptime)
@@ -288,6 +318,9 @@ int addr;
 }
 unsigned long GetUptime(int flag)
 {
+#ifdef CPMONLY
+	return 0;
+#else
 #asm
 	ld	bc,$f8d1
 	rst	08
@@ -298,6 +331,7 @@ unsigned long GetUptime(int flag)
 		return (ltime);
 /* secs since last ntp */
 	return (ltime - GetDeltaUptime());
+#endif
 }
 /* when setting the uptime value, save the 
 delta time in the nvram so that uptime can
@@ -305,6 +339,9 @@ be computed accuratly */
 
 void SetUptime(unsigned long time)
 {
+#ifdef CPMONLY
+	return;
+#else
 	ltime = time;
 #asm
 	ld	bc,$f9d1
@@ -312,26 +349,35 @@ void SetUptime(unsigned long time)
 	ld	hl,(_ltime)
 	rst	08
 #endasm
+#endif
 }
 /* get and set the time of day
 */
 void SetTOD(unsigned char *buffer)
 {
+#ifdef CPMONLY
+	return;
+#else
 	lbuffer = buffer;
 #asm
 	ld	b,$21
 	ld	hl,(_lbuffer)
 	rst	08
 #endasm
+#endif
 }
 unsigned char *GetTOD()
 {
+#ifdef CPMONLY
+	return 0;
+#else
 #asm
 	ld	b,$20
 	ld	hl,_TOD_BUF
 	rst	08
 #endasm
 	return TOD_BUF;
+#endif
 }
 
 /*
@@ -341,6 +387,9 @@ This could be as high as 2 but most likely 1 or 0
 
 unsigned int RTCCount()
 {
+#ifdef CPMONLY
+	return 0;
+#else
 #asm
 				; f8 is sysget and 20 is subfunction
 				; get rtc count 
@@ -354,6 +403,7 @@ unsigned int RTCCount()
 
 #endasm
 	return (count);
+#endif
 }
 
 /*
@@ -361,6 +411,9 @@ Return a pointer to the name of the timer source
 */
 unsigned char *RTCType()
 {
+#ifdef CPMONLY
+	return 0;
+#else
 	if(!TestBIOS()){
 		printf("Must be RomWBW Version 3.0 or newer\n");
 		exit(0);
@@ -376,4 +429,5 @@ unsigned char *RTCType()
 	ld	(_count),a	; go count (overload, bug source)
 #endasm
 	return (types[count>>4]	); /* return a string pointer. */
+#endif
 }
