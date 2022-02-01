@@ -158,6 +158,7 @@ returning later */
 int z;
 unsigned char CONST()
 {
+#ifdef CPUZ80
 #asm
 	di
 	push	ix
@@ -166,9 +167,18 @@ unsigned char CONST()
 	push	de
 	push	bc
 #endasm
+#else
+#asm
+	di
+	push	hl
+	push	de
+	push	bc
+#endasm
+#endif
 //LED(0x80);
 	do_loop = 0;
 	if(getSn_RX_RSR (Socket)){
+#ifdef CPUZ80
 #asm
 	pop	bc
 	pop	de
@@ -179,7 +189,18 @@ unsigned char CONST()
 	ei
 	ret
 #endasm
+#else
+#asm
+	pop	bc
+	pop	de
+	pop	hl
+	ld	a,255	; ff means there is data
+	ei
+	ret
+#endasm
+#endif
 	} else {
+#ifdef CPUZ80
 #asm
 	pop	bc
 	pop	de
@@ -191,11 +212,23 @@ unsigned char CONST()
 	ei
 	ret
 #endasm
+#else
+#asm
+	pop	bc
+	pop	de
+	pop	hl
+	ld	a,0	; zero means no data
+	cp	a,0	; force z flag
+	ei
+	ret
+#endasm
+#endif
 	}
 return z;
 }
 unsigned char CONIN()
 {
+#ifdef CPUZ80
 #asm
 	di
 	push	hl
@@ -204,11 +237,20 @@ unsigned char CONIN()
 	push	ix
 	push	iy
 #endasm
+#else
+#asm
+	di
+	push	hl
+	push	de
+	push	bc
+#endasm
+#endif
 //LED(0x40);
 	do_loop = 0;
 	do{
 		z = recv (Socket, &x_x, 1);
 	}while(z==0);
+#ifdef CPUZ80
 #asm
 	pop	iy
 	pop	ix
@@ -219,10 +261,21 @@ unsigned char CONIN()
 	and	a,7fh 
 	ei
 #endasm
+#else
+#asm
+	pop	bc
+	pop	de
+	pop	hl
+	ld	a,(_x_x)
+	and	a,7fh 
+	ei
+#endasm
+#endif
 	return (unsigned char )z;
 }
 void CONOUT(unsigned char x)
 {
+#ifdef CPUZ80
 #asm
 	di
 	push	ix
@@ -233,9 +286,20 @@ void CONOUT(unsigned char x)
 	ld	a,c
 	ld	(_x_x),a
 #endasm
+#else
+#asm
+	di
+	push	hl
+	push	de
+	push	bc
+	ld	a,c
+	ld	(_x_x),a
+#endasm
+#endif
 //LED(0x20);
 	do_loop = 0;
         send (Socket, &x_x, 1);
+#ifdef CPUZ80
 #asm
 	pop	bc
 	pop	de
@@ -244,6 +308,14 @@ void CONOUT(unsigned char x)
 	pop	ix
 	ei
 #endasm
+#else
+#asm
+	pop	bc
+	pop	de
+	pop	hl
+	ei
+#endasm
+#endif
 }
 main ()
 {

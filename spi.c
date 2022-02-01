@@ -159,12 +159,22 @@ TRACE("");
   {
 	spi_channel = channel;
 	cvtr_res = cvtr[channel];
+#ifdef CPUZ80
 ASM;
 	ld	a,(_shift_ctrl_wr_)
 	ld	c,a
 	ld	a,(_cvtr_res)
 	out	(c),a	
 ENDASM;
+#else
+ASM;
+	ld	a,(_shift_ctrl_wr_)
+	ld	(_p1),a
+	ld	a,(_cvtr_res)
+	db	0d3h
+_p1:	ds	1
+ENDASM;
+#endif
   }else
 	printf("Must call spi_init() first\n");
 }
@@ -175,6 +185,7 @@ void
 spi_sclk (unsigned char state)
 {
   if(spi_unit == SHIFTOUT) return;
+#ifdef CPUZ80
   if (state)
     {
 ASM;
@@ -195,6 +206,7 @@ ASM;
 	out (c), a
 ENDASM;
     }
+#endif
 }
 
 //! spi_delay,  wait time in micro seconds.....
@@ -270,7 +282,9 @@ ASM;
 	ld	(_byte_in),a
 	ei
 ENDASM;
-  } else {
+  } 
+#ifdef CPUZ80
+	else {
 	i = 8;
   	byte_in = 0;
   	bit = 0x80;
@@ -315,6 +329,7 @@ ASM;
 	jr nz, _M3
 ENDASM;
     }
+#endif
     return byte_in;
 
 }
