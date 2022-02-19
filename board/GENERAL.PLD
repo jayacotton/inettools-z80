@@ -1,0 +1,49 @@
+Name     general ;
+PartNo   00 ;
+Date     2/17/2020 ;
+Revision 01 ;
+Designer J. Cotton ;
+Company  none ;
+Assembly None ;
+Location  ;
+Device   G22V10 ;
+
+/* *************** INPUT PINS *********************/
+PIN 2    =    sM1      ;
+PIN 3    =    sINTA    ;  
+PIN 4    =    SEL      ;    
+PIN 5    =    sOUT     ;  
+PIN 6    =    sINP     ;     
+PIN 7    =    pWR      ;     
+PIN 8    =    pDBIN    ;    
+PIN 9    =    sMEMR    ;       
+PIN 10   =    sWO      ;  
+PIN 11	=      MWRT     ;   
+  
+
+/* *************** OUTPUT PINS *********************/
+    
+PIN 14   =    !RD       ;           
+PIN 15   =    !WR       ;           
+PIN 16   =    !IORQ     ;   
+pin 17    =    !MREQ    ;                     
+PIN 19   =    !IN_ENABLE ;                   
+PIN 21   =    !OUT_ENABLE ;             
+PIN 22   =    M1        ;
+
+IN_ENABLE      =         !SEL & sINP & pDBIN;       /* read from board */
+OUT_ENABLE     =         !SEL & sOUT & !pWR ;      /* write to board */
+
+RD             =         !SEL & !sM1 & !sMEMR & sINP & !sOUT & sWO  & !sINTA;
+WR	         =        !SEL & !sM1 & !sMEMR & !sINP & sOUT & !sWO & !sINTA;
+
+/*
+RD             =         !sM1 & !sMEMR & sINP & !sOUT & sWO  & !sINTA;
+WR	         =        !sM1 & !sMEMR & !sINP & sOUT & !sWO & !sINTA;
+*/
+
+IORQ           =         RD # WR;
+M1		=		!sM1;
+MREQ		=		!(sMEMR # MWRT);
+
+
