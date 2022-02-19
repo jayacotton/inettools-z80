@@ -11,6 +11,7 @@ I will include a picture of the board as built.
 
 This board is now working on 18mhz cpu rc2014 systems.
 
+```
 --------------NOTICE---------------------
 --------------NOTICE---------------------
 --------------NOTICE---------------------
@@ -24,3 +25,4 @@ of U3 should be moved to pin 10 of U3.
 --------------NOTICE---------------------
 --------------NOTICE---------------------
 --------------NOTICE---------------------
+```
