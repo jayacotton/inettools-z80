@@ -59,203 +59,225 @@ int state = 0;			//init state machine to 0
 char listbuf[80];
 int listpos = 0;
 int listcol = 0;
-void
-listchr (char c)
+void listchr(char c)
 {
-  if (listpos == 0)
-    {
-      memset (listbuf, ' ', 79);
-      listbuf[80] = 0;
+    if (listpos == 0) {
+	memset(listbuf, ' ', 79);
+	listbuf[80] = 0;
     }
-  if (c == '\n')
-    {
-      listcol++;
-      if (listcol >= 4)
-	{
-	  listcol = 0;
-	  listpos = 0;
-	  printf ("%s\n", listbuf);
-	  return;
-	}else
-	//listbuf[listpos++] = '\t';
-	listpos = listcol*14;
-    }else
-  listbuf[listpos++] = c;
+    if (c == '\n') {
+	listcol++;
+	if (listcol >= 4) {
+	    listcol = 0;
+	    listpos = 0;
+//snapmem(listbuf,listbuf,80,0,"listbuf");
+	    printf("%s\n", listbuf);
+	    return;
+	} else {
+	    listpos = listcol * 16;
+	}
+    } else {
+	listbuf[listpos++] = c;
+    }
 }
 
-void
-htdecode (int len, unsigned char *p)
+char getnetbyte()
 {
-  unsigned char *cc;
-  cc = p;
-  while (len--)
-    {
-      switch (*cc++)
-	{
-	case '<':
-	  if (state == START)
-	    state++;
-	  else if (state == 4)
-	    state++;
-	  break;
-	case 't':
-	  if (state == 1)
-	    state++;
-	  break;
-	case 'd':
-	  if (state == 2)
-	    state++;
-	  break;
-	case '>':
-	  if (state == 3)
-	    state++;
-	  break;
-	case 'a':
-	  if (state == 5)
-	    state++;
-	  break;
-	case ' ':
-	  if (state == 6)
-	    state++;
-	  break;
-	case 'h':
-	  if (state == 7)
-	    state++;
-	  break;
-	case 'r':
-	  if (state == 8)
-	    state++;
-	  break;
-	case 'e':
-	  if (state == 9)
-	    state++;
-	  break;
-	case 'f':
-	  if (state == 10)
-	    state++;
-	  break;
-	case '=':
-	  if (state == 11)
-	    state++;
-	  goto check;
-	  break;
+    char c;
+  try2:
+    if (buflen == 0) {		/* get some data from network */
+	buflen = recv(sock, buf, 512);
+	if (buflen == 0)
+	    return ('\0');
+	readp = buf;
+	buflen++;	/* correct byte counter */
+    }
+
+/* pick up a byte and return */
+
+    while (c = *readp++) {
+	buflen--;
+	if (buflen == 0)
+	    goto try2;
+	switch (c) {
+	case '\n':
+	case '\r':
+	    break;
 	default:
-	  state = 0;
-	  break;
+	    return (c);
+	    break;
 	}
-    check:
-      if (state == PRALUDE)
-	{
-	  cc++;
-	  while (len)
-	    {
-	      if (*cc == '"')
-		{
-		  cc++;
-		  state = START;
-		  listchr ('\n');
-		  goto check;
-		}
-	      else
-		{
-		  listchr (*cc++);
-		  len--;
-		  if (len == 0)
-		    return;
-		}
+    }
+    return (c);
+}
+
+void listname()
+{
+    char c;
+    while ((c = getnetbyte()) != '"') {
+	if (c != '\r')
+	    listchr(c);
+    }
+    listchr('\n');
+}
+
+
+#define STATE0 '<'
+#define STATE1 'a'
+#define STATE2 'h'
+#define STATE3 'r'
+#define STATE4 'e'
+#define STATE5 'f'
+#define STATE6 '='
+#define STATE7 7
+
+/* useing a stream based decoder because the packet size delivered
+is arbrary.  */
+
+void htdecode()
+{
+    char c;
+    while (c = getnetbyte()) {
+	switch (c) {
+	case STATE0:
+	    state = STATE1;
+	    break;
+	case STATE1:
+	    if (state == STATE1) {
+		state = STATE2;
+	    } else {
+		state = 0;
 	    }
+	    break;
+	case STATE2:
+	    if (state == STATE2) {
+		state = STATE3;
+	    } else {
+		state = 0;
+	    }
+	    break;
+	case STATE3:
+	    if (state == STATE3) {
+		state = STATE4;
+	    } else {
+		state = 0;
+	    }
+	    break;
+	case STATE4:
+	    if (state == STATE4) {
+		state = STATE5;
+	    } else {
+		state = 0;
+	    }
+	    break;
+	case STATE5:
+	    if (state == STATE5) {
+		state = STATE6;
+	    } else {
+		state = 0;
+	    }
+	    break;
+	case STATE6:
+	    if (state == STATE6) {
+		state = STATE7;
+	    } else {
+		state = 0;
+	    }
+	    break;
+	case ' ':		/* skip all this */
+	case '\n':
+	case '\0':
+	case '\t':
+	case '\r':
+	    break;
+	default:		/* any other stuff */
+	    state = 0;
+	    break;
+	}
+	if (state == STATE7) {
+	    getnetbyte();	/* '"' */
+	    listname();
+	    state = 0;
 	}
     }
 }
 
-void
-writes (int fd, char *p)
+void writes(int fd, char *p)
 {
-  fd = 0;
-  puts (p);
+    fd = 0;
+    puts(p);
 }
 
-void
-xflush (void)
+void xflush(void)
 {
-  if (send (sock, buf, buflen) != buflen)
-    {
-      printf ("ERROR:send");
-      exit (1);
+    if (send(sock, buf, buflen) != buflen) {
+	printf("ERROR:send");
+	exit(1);
     }
-  buflen = 0;
+    buflen = 0;
 }
 
-void
-xwrites (const char *p)
+void xwrites(const char *p)
 {
-  printf ("%s", p);
-  int l = strlen (p);
-  if (l + buflen > 512)
-    xflush ();
-  memcpy (buf + buflen, p, l);
-  buflen += l;
+    printf("%s", p);
+    int l = strlen(p);
+    if (l + buflen > 512)
+	xflush();
+    memcpy(buf + buflen, p, l);
+    buflen += l;
 }
 
-int
-xread (void)
+int xread(void)
 {
-  int len;
+    int len;
 
-  /* The first call we return the stray bytes from the line parser */
-  if (bufend != buf && bufend > readp)
-    {
-      len = bufend - readp;
-      memcpy (buf, readp, (int) (bufend - readp));
-      bufend = buf;
-      readp = buf;
-      return len;
+    /* The first call we return the stray bytes from the line parser */
+    if (bufend != buf && bufend > readp) {
+	len = bufend - readp;
+	memcpy(buf, readp, (int) (bufend - readp));
+	bufend = buf;
+	readp = buf;
+	return len;
     }
-  len = recv (sock, buf, 512);
-  if (len < 0)
-    {
-      printf ("ERROR:read %d\n", len);
-      exit (1);
+    len = recv(sock, buf, 512);
+    if (len < 0) {
+	printf("ERROR:read %d\n", len);
+	exit(1);
     }
-  return len;
+    return len;
 }
 
-int
-xreadline (void)
+int xreadline(void)
 {
-  int len;
+    int len;
 
-  if (readp != buf && bufend > readp)
-    {
-      memcpy (buf, readp, (int) (bufend - readp));
-      bufend -= (readp - buf);
+    if (readp != buf && bufend > readp) {
+	memcpy(buf, readp, (int) (bufend - readp));
+	bufend -= (readp - buf);
     }
-  readp = buf;
+    readp = buf;
 
-  len = recv (sock, buf + buflen, 512 - buflen);
-  if (len < 0)
-    {
-      printf ("ERROR:socket read");
-      exit (1);
+    len = recv(sock, buf + buflen, 512 - buflen);
+    if (len < 0) {
+	printf("ERROR:socket read");
+	exit(1);
     }
-  buflen += len;
-  bufend += len;
+    buflen += len;
+    bufend += len;
 
-  while (readp < bufend)
-    {
-      if (*readp == '\r' && readp[1] == '\n')
-	{
-	  *readp++ = '\n';
-	  *readp++ = 0;
-	  len = readp - buf;
-	  buflen -= len;
-	  return len;
+    while (readp < bufend) {
+	if (*readp == '\r' && readp[1] == '\n') {
+	    *readp++ = '\n';
+	    *readp++ = 0;
+	    len = readp - buf;
+	    buflen -= len;
+	    return len;
 	}
-      readp++;
+	readp++;
     }
-  writes (2, "htpget: overlong/misformatted header\n");
-  exit (1);
-  return 0;
+    writes(2, "htpget: overlong/misformatted header\n");
+    exit(1);
+    return 0;
 }
 
 struct wiz_NetInfo_t gWIZNETINFO;
@@ -267,122 +289,115 @@ char dnsname[80];
 extern unsigned char HostAddr[4];
 char *p;
 unsigned char run_user_applications;
-void
-main (int argc, char *argv[])
+void main(int argc, char *argv[])
 {
-  uint16_t port = 80;
-  char *pp;
-  int code;
-  int len;
-  uint8_t looped = 0;
+    uint16_t port = 80;
+    char *pp;
+    int code;
+    int len;
+    uint8_t looped = 0;
 
-  skip_dns = 0;
-  InetGetMac (gWIZNETINFO.mac);
-  memset (dnsname, 0, 80);
-  if (argc > 1)
-    {
-      strcat (dnsname, argv[1]);
+    state = STATE0;
+    skip_dns = 0;
+    InetGetMac(gWIZNETINFO.mac);
+    memset(dnsname, 0, 80);
+    if (argc > 1) {
+	strcat(dnsname, argv[1]);
 // check to see if its a an ip address
-      if (isdigit (dnsname[0]))
+	if (isdigit(dnsname[0])) {
+	    while (p = strchr(dnsname, '.'))
+		*p = ' ';
+	    sscanf(dnsname, "%d %d %d %d",
+		   &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
+	    skip_dns = 1;
+	}
+    } else
+	strcat(dnsname, "server");
+
+    printf("listing %s\n", dnsname);
+
+    TRACE("Ethernet_begin");
+    if (Ethernet_begin(mac) == 0) {
+	if (Ethernet_hardwareStatus() == EthernetNoHardware)
+	    printf("Can't find the ethernet h/w\n");
+	if (Ethernet_linkStatus() == LinkOFF)
+	    printf("Plug in the cable\n");
+    }
+    Ethernet_localIP(gWIZNETINFO.ip);	// get my ip address
+    Ethernet_localDNS(gWIZNETINFO.dns);	// get the ip address of the dns server
+    if (skip_dns == 0) {
+	DNS_init(SOCK_DNS, DNS_buffer);
+	if (DNS_run(gWIZNETINFO.dns, dnsname, HostAddr) == 0)	// get the host server address
 	{
-	  while (p = strchr (dnsname, '.'))
-	    *p = ' ';
-	  sscanf (dnsname, "%d %d %d %d",
-		  &HostAddr[0], &HostAddr[1], &HostAddr[2], &HostAddr[3]);
-	  skip_dns = 1;
+	    printf("%s not found\n", dnsname);
+	    return;
 	}
     }
-  else
-    strcat (dnsname, "server");
-
-  printf ("listing %s\n", dnsname);
-
-  TRACE ("Ethernet_begin");
-  if (Ethernet_begin (mac) == 0)
-    {
-      if (Ethernet_hardwareStatus () == EthernetNoHardware)
-	printf ("Can't find the ethernet h/w\n");
-      if (Ethernet_linkStatus () == LinkOFF)
-	printf ("Plug in the cable\n");
+    sock = socket(0, Sn_MR_TCP, SOCK_STREAM, 0);	// make a socket
+    if (sock == -1) {
+	printf("ERROR:socket");
+	exit(1);
     }
-  Ethernet_localIP (gWIZNETINFO.ip);	// get my ip address
-  Ethernet_localDNS (gWIZNETINFO.dns);	// get the ip address of the dns server
-  if (skip_dns == 0)
+    if (connect(sock, HostAddr, port) < 0)	// connect to socket
     {
-      DNS_init (SOCK_DNS, DNS_buffer);
-      if (DNS_run (gWIZNETINFO.dns, dnsname, HostAddr) == 0)	// get the host server address
-	{
-	  printf ("%s not found\n", dnsname);
-	  return;
-	}
-    }
-  sock = socket (0, Sn_MR_TCP, SOCK_STREAM, 0);	// make a socket
-  if (sock == -1)
-    {
-      printf ("ERROR:socket");
-      exit (1);
-    }
-  if (connect (sock, HostAddr, port) < 0)	// connect to socket
-    {
-      printf ("ERROR:connect");
-      exit (1);
+	printf("ERROR:connect");
+	exit(1);
     }
 
 /* there be bugs here.  If a port is specified 
 	things can get sideways */
 
-  sprintf (dnsname, "%d.%d.%d.%d", HostAddr[0], HostAddr[1],
-	   HostAddr[2], HostAddr[3]);
+    sprintf(dnsname, "%d.%d.%d.%d", HostAddr[0], HostAddr[1],
+	    HostAddr[2], HostAddr[3]);
 
-  xwrites ("GET /");
-  xwrites (" HTTP/1.1\r\n");
-  xwrites ("Host: ");
-  xwrites (dnsname);
-  xwrites ("\r\nUser-Agent: cp/m htlist v0 \r\nConnection: close\r\n\r\n");
-  xflush ();
+    xwrites("GET /");
+    xwrites(" HTTP/1.1\r\n");
+    xwrites("Host: ");
+    xwrites(dnsname);
+    xwrites
+	("\r\nUser-Agent: cp/m htlist v0 \r\nConnection: close\r\n\r\n");
+    xflush();
 
-  do
-    {
-      xreadline ();
-      errno = 0;
-      pp = strchr (buf, ' ');
-      if (pp == NULL)
-	{
-	  writes (2, "get: invalid reply\n");
-	  writes (2, buf);
-	  exit (1);
+    do {
+	xreadline();
+	errno = 0;
+	pp = strchr(buf, ' ');
+	if (pp == NULL) {
+	    writes(2, "get: invalid reply\n");
+	    writes(2, buf);
+	    exit(1);
 	}
-      pp++;
-      code = strtoul (pp, &pp, 10);
-      if (code < 100 || *pp++ != ' ')
-	{
-	  writes (2, "get: invalid reply\n");
-	  writes (2, buf);
-	  exit (1);
+	pp++;
+	code = strtoul(pp, &pp, 10);
+	if (code < 100 || *pp++ != ' ') {
+	    writes(2, "get: invalid reply\n");
+	    writes(2, buf);
+	    exit(1);
 	}
 
-      do
-	{
-	  xreadline ();
+	do {
+	    xreadline();
 	}
-      while (*buf != '\n');
+	while (*buf != '\n');
 
-      /* A 100 code means "I'm thinking please wait then a header cycle then
-         a real header and has a blank line following */
-      if (code == 100)
-	xreadline ();
+	/* A 100 code means "I'm thinking please wait then a header cycle then
+	   a real header and has a blank line following */
+	if (code == 100)
+	    xreadline();
     }
-  while (code == 100 && !looped++);
+    while (code == 100 && !looped++);
 
-  /* FIXME: if we saw a Transfer-Encoding: chunked" we need to do this
-     bit differently */
-  if (code == 200)
-    {
-      while ((len = recv (sock, buf, 512)) > 0)
-	{
-	  htdecode (len, buf);
+    /* FIXME: if we saw a Transfer-Encoding: chunked" we need to do this
+       bit differently */
+    if (code == 200) {
+#ifdef NEVER
+	while ((len = recv(sock, buf, 512)) > 0) {
+	    htdecode(len, buf);
 	}
+#else
+	htdecode();
+#endif
     }
-printf("%s\n",listbuf);
-  sock_close (sock);
+    printf("%s\n", listbuf);
+    sock_close(sock);
 }
