@@ -18,3 +18,5 @@ extern unsigned char *RTCType();
 extern unsigned char InStat();
 extern unsigned char InChar();
 extern void OutChar(unsigned char);
+/* on s100 bus machines with 88-vi/rtc board */
+#define NMB	0x10

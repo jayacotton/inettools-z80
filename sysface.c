@@ -112,6 +112,14 @@ int addr;
 /* get and test the bios version number */
 int TestBIOS()
 {
+#ifdef S100
+#asm
+	ld	c,12
+	call	5
+	ld	(_lvers),hl
+#endasm
+	return ((lvers >= 0x3000)? 1:0);
+#else
 #ifdef CPMONLY
 #asm
 	ld	c,12
@@ -124,6 +132,7 @@ int TestBIOS()
 	rst	08
 	ld	(_lvers),de
 #endasm
+#endif
 #endif
 	return ((lvers >= 0x3000)? 1:0);
 }
@@ -320,6 +329,14 @@ unsigned long GetUptime(int flag)
 {
 #ifdef CPMONLY
 	return 0;
+#endif
+#ifdef S100
+#asm
+	ld	de,NMB+2
+	ld	hl,NMB
+	ld	(_ltime+2),de
+	ld	(_ltime),hl
+#endasm
 #else
 #asm
 	ld	bc,$f8d1
@@ -341,6 +358,14 @@ void SetUptime(unsigned long time)
 {
 #ifdef CPMONLY
 	return;
+#elseif S100
+	ltime = time;
+#asm
+	ld	de,(_ltime+2)
+	ld	(NMB+2),de
+	ld	hl,(_ltime)
+	ld	(NMB),hl
+#endasm
 #else
 	ltime = time;
 #asm
@@ -355,8 +380,14 @@ void SetUptime(unsigned long time)
 */
 void SetTOD(unsigned char *buffer)
 {
-#ifdef CPMONLY
-	return;
+	lbuffer = buffer;
+#ifdef S100
+#asm
+	ld	c,68h
+	ld	de,_lbuffer
+	ld	a,(_lbuffer+4)
+	call	5	
+#endasm
 #else
 	lbuffer = buffer;
 #asm
@@ -368,16 +399,27 @@ void SetTOD(unsigned char *buffer)
 }
 unsigned char *GetTOD()
 {
-#ifdef CPMONLY
-	return 0;
-#else
+int i;
+#ifdef S100
+#asm
+	ld	c,69h
+	ld	de,_TOD_BUF+1
+	call	5
+	ld	(_TOD_BUF+5),a
+#endasm
+#else 
 #asm
 	ld	b,$20
 	ld	hl,_TOD_BUF
 	rst	08
 #endasm
-	return TOD_BUF;
 #endif
+//	for(i=0;i<=5;i++)
+//	{
+//		printf("%02x ",TOD_BUF[i]);
+//	}
+//	printf("\n");
+	return TOD_BUF;
 }
 
 /*
@@ -411,6 +453,9 @@ Return a pointer to the name of the timer source
 */
 unsigned char *RTCType()
 {
+#ifdef S100
+	return(types[3]);
+#endif
 #ifdef CPMONLY
 	return 0;
 #else

@@ -14,6 +14,8 @@
 //1     4/30/2019       The time convertion has a at 12 GMT with the date.
 //!     5/1/2019        Added RTC loading support.  BUGGY
 //!     10/29/2019      RTC support in RomWBW, removed rtci2c and ctc code.
+//!     10/31/2022     Adding s100 bus support and 88vi/rtc board support
+//!     11/6/22         size reduction
 //! \author Jay Cotton
 //! \copyright
 //!
@@ -97,11 +99,17 @@
 #include "spi.h"
 #include "sysface.h"
 
+/* time since jan 1 1978   CP/M time */
+#ifdef CPMEPOCH
+#define NTP_TIMESTAMP_DELTA 2398291200
+#define NTP_TIMESTAMP_DELTA_HEX 0x8ef30500
+#endif
 /* time since 1970 */
 #ifdef UNIXEPOCH
 #define NTP_TIMESTAMP_DELTA 2208988800
 #define NTP_TIMESTAMP_DELTA_HEX 0x83aa7e80
-#else
+#endif
+#ifdef Y2KEPOCH
 /* Y2KEPOCH */
 #define NTP_TIMESTAMP_DELTA 3124137601
 #define NTP_TIMESTAMP_DELTA_HEX 0xBA368E81
@@ -115,7 +123,7 @@ extern unsigned char *RTCType ();
 struct wiz_NetInfo_t gWIZNETINFO;
 unsigned char mac[6];
 
-char DNS_buffer[256];
+char DNS_buffer[128];
 extern unsigned char HostAddr[4];
 unsigned char run_user_applications;
 
@@ -169,7 +177,6 @@ uint16_t year;
 uint8_t month;
 uint32_t rem;
 uint16_t guess;
-unsigned char buffer1[100];
 
 
 // there seems to be a bug in ntohl on z88dk so
@@ -198,16 +205,89 @@ int2bcd (unsigned char input)
 {
   unsigned char high = 0;
 
-//printf ("%x\n",input);
   while (input >= 10)
     {
       high++;
       input -= 10;
     }
-//printf("%x\n",((high << 4) | input));
   return ((high << 4) | input);
 }
 
+#if defined(S100)
+/* s100 with 88-vi/rtc board.  The system maintains the date
+as a 16 bit binary number, and the time as bcd numbers */
+int mtab[13] = {
+  0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+};
+
+uint16_t
+leaps (uint16_t r)
+{
+  return ((r / 4) - (r / 100) + (r / 400));
+}
+
+  int y;
+  int c_leaps;
+  int c_noleaps;
+  int days;
+void
+set_via_cpm (uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day,
+		uint8_t month, uint16_t year)
+{
+/* year	- real years binary
+   month - real month binary
+   day	 - real day binary		@DATE   jan 1 1978
+   hour	- hour (24 hr clock) binary	@HOUR	bcd
+   minute  - minute binary		@MIN	bcd
+   second - second binary		@SEC	bcd
+*/
+  c_leaps = 0;
+  c_noleaps = 0;
+  year -= 23;			/* tweek year ... no idea why it's needed */
+
+/* run through all the years from 1978 and count up leap years */
+
+  for (y = 1979; y <= year; y++)
+    {
+      if (leaps (y) == 0)
+	{
+	  c_leaps++;
+	}
+    }
+  c_noleaps = (year - 1979) - c_leaps;
+
+/* compute days since jan 1 1978 */
+
+/* days for the years */
+
+  days = (c_noleaps * 365) + (c_leaps * 366);
+
+/* days for this week */
+
+  days += day;
+
+/* days for all the months this year */
+
+  for (y = 1; y <= month - 1; y++)
+    {
+      days += mtab[y];
+    }
+
+/* deal with possible leap year this year */
+
+  if (leaps (year) == 0)
+    days++;
+
+/* set up the set time buffer for CP/M 3 */
+
+  bcd_buffer[0] = days & 0xff;	/* low high order ? */
+  bcd_buffer[1] = ((days >> 8) & 0xff);
+  bcd_buffer[2] = int2bcd (hour);
+  bcd_buffer[3] = int2bcd (minutes);
+  bcd_buffer[4] = int2bcd (seconds);
+  SetTOD (bcd_buffer);
+}
+#else
 /* convert this to a 6 byte bcd encoded buffer */
 void
 set_via_romwbw (uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day,
@@ -225,7 +305,6 @@ set_via_romwbw (uint8_t seconds, uint8_t minutes, uint8_t hour, uint8_t day,
   bcd_buffer[O_Second] = int2bcd (seconds);
   SetTOD (bcd_buffer);
 }
-
 dayofweek (year, month, day)
      int year;			/* Year, 1978 = 1978    */
      int month;			/* Month, January = 1   */
@@ -242,9 +321,9 @@ dayofweek (year, month, day)
 	   + day + 77 + 5 * (yearfactor % 100) / 4
 	   + yearfactor / 400 - yearfactor / 100 * 2) % 7);
 }
-
+#endif
 int portno = 123;		// NTP UDP port number.
-char host_name[256];
+char host_name[40];
 int
 main (int argc, char *argv[])
 {
@@ -264,15 +343,23 @@ main (int argc, char *argv[])
 /* this could be inproved to deal with int timer clock on rc2014 */
 
   if (argc == 2)
-    strcpy(host_name , argv[1]);
-	else
-    strcpy(host_name, "time.google.com");
+    strcpy (host_name, argv[1]);
+  else
+    strcpy (host_name, "time.google.com");
 
-  if (strcmp ((char *)RTCType (), "DS1302") != 0)
+#if defined(S100)
+  if (strcmp ((char *) RTCType (), "INT TIMER") != 0)
+    {
+      printf ("This version work only with INT TIMER\n");
+      exit (0);
+    }
+#else
+  if (strcmp ((char *) RTCType (), "DS1302") != 0)
     {
       printf ("Only works with DS1322\n");
       exit (0);
     }
+#endif
 
   memset (&packet, 0, sizeof (struct ntp_packet));
 
@@ -339,13 +426,19 @@ main (int argc, char *argv[])
   tvec = EpochGet ();
   tp = localtime (&tvec);
   year = tp->tm_year + 1929;
-//  tp->tm_mday -= 1;
-//printf("%x, %d, %d\n",year,year,tp->tm_year);
   month = tp->tm_mon + 1;
+#ifdef S100
+  set_via_cpm (tp->tm_sec,
+		  tp->tm_min,
+		  tp->tm_hour,
+		  tp->tm_mday,
+		  month, year);
+#else
   set_via_romwbw (tp->tm_sec,
 		  tp->tm_min,
 		  tp->tm_hour,
 		  tp->tm_mday,
 		  month, dayofweek (year, month, tp->tm_mday), year);
+#endif
   return 0;
 }
