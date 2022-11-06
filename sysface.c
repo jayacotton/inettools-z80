@@ -384,8 +384,13 @@ void SetTOD(unsigned char *buffer)
 #ifdef S100
 #asm
 	ld	c,68h
-	ld	de,_lbuffer
-	ld	a,(_lbuffer+4)
+	ld	de,(_lbuffer)
+	ld	hl,(_lbuffer)
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
 	call	5	
 #endasm
 #else
