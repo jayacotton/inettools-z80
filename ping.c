@@ -432,10 +432,17 @@ ping_reply (uint8_t s, uint8_t * addr, uint16_t rlen)
 #else
 	  GetTime (&t2, &t1);
 	  /*  Output the Destination IP and the size of the Ping Reply Message */
+#ifdef S100
+	  printf
+	    (" %d bytes from %d.%d.%d.%d: icmp_seq=%x time=%ld ms \n",
+	     (rlen + 6), (addr[0]), (addr[1]), (addr[2]), (addr[3]),
+	     htons (PingReply.SeqNum), t2.t.time * 100);
+#else
 	  printf
 	    (" %d bytes from %d.%d.%d.%d: icmp_seq=%x time=%ld ms \n",
 	     (rlen + 6), (addr[0]), (addr[1]), (addr[2]), (addr[3]),
 	     htons (PingReply.SeqNum), t2.t.time * 20);
+#endif
 #endif
 	  /*  SET ping_reply_receiver to '1' and go out the while_loop (waitting for ping reply) */
 	  ping_reply_received = 1;

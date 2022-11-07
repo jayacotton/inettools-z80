@@ -332,11 +332,12 @@ unsigned long GetUptime(int flag)
 #endif
 #ifdef S100
 #asm
-	ld	de,NMB+2
-	ld	hl,NMB
+	ld	de,(NMB+2)
+	ld	hl,(NMB)
 	ld	(_ltime+2),de
 	ld	(_ltime),hl
 #endasm
+	ltime = ltime / 10;	/* 100ms ticks */
 #else
 #asm
 	ld	bc,$f8d1
@@ -344,11 +345,11 @@ unsigned long GetUptime(int flag)
 	ld	(_ltime+2),de
 	ld	(_ltime),hl
 #endasm
+#endif
 	if(flag)
 		return (ltime);
 /* secs since last ntp */
 	return (ltime - GetDeltaUptime());
-#endif
 }
 /* when setting the uptime value, save the 
 delta time in the nvram so that uptime can

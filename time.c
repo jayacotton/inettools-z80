@@ -38,12 +38,22 @@ Initial code R0.1  10/24/2019  Jay Cotton
 #include "ltime.h"
 #include <math.h>
 
+#define NMB 10h
+
 unsigned int hl,de;
 
 struct TICKSTORE test;
 
 void gettick(struct TICKSTORE *ticks)
 {
+#ifdef S100
+#asm
+	ld	hl,(NMB)
+	ld	(_hl),hl
+	ld	hl,(NMB+2)
+	ld	(_de),hl
+#endasm
+#else
 #asm
 	ld	b,k_sysget
 	ld	c,k_gettimer
@@ -52,6 +62,7 @@ void gettick(struct TICKSTORE *ticks)
 	ld	(_hl),hl
 	ld	(_de),de	
 #endasm
+#endif
 	ticks->t.de_hl[0] = hl;
 	ticks->t.de_hl[1] = de;	
 }
