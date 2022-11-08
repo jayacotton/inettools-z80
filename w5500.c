@@ -194,8 +194,8 @@ void
 WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
 {
   uint16_t i;
-//  uint8_t *p;
-//  uint16_t rs;
+  uint8_t *p;
+  uint16_t rs;
 
   CSEther ();
 
@@ -209,21 +209,9 @@ WIZCHIP_READ_BUF (uint32_t AddrSel, unsigned char *pBuf, uint16_t len)
 #asm
   in _shift_rdtr
 #endasm
-    p = pBuf;
+  p = pBuf;
   rs = spi_burst_read (p, len);
-  p += rs;
-  if (rs < len)
-    {
-      len = len - rs;
-      //  printf ("read more %d\n", len);
-      while (len > 0)
-	{
-	  rs = spi_burst_read (p, len);
-	  len = len - rs;
-	  p += rs;
-//        printf ("read more %d\n", len);
-	}
-    }
+  
 #else
   for (i = 0; i < len; i++)
     pBuf[i] = SpiRecvData ();

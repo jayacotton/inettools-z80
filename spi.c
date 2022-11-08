@@ -238,9 +238,9 @@ ENDASM;
 unsigned char byte_in;
 unsigned char bit;
 unsigned char lbyte_out;
-int i;
 unsigned char l_len;
 unsigned char *l_buffer;
+int i;
 /* from spi spec wiki page */
 
 //! spi_byte_io, is called by the user level code to read and write
@@ -250,23 +250,30 @@ unsigned char *l_buffer;
 //! read spi buss in burst mode.  Note: we can only read
 //! 256 bytes, so return 256 or less bytes read.
 
-#ifdef NOTNOW
+#ifdef SPI_BURST_READ 
 unsigned int spi_burst_read(unsigned char *buffer, unsigned int len)
 {
 	l_buffer = buffer;
-	if(len > 256){
-		l_len = 256;
-	}else{
-		l_len = len;
-	} 
+	i = len;
+	while(len)
+	{
+		if(len <= 255){
+			l_len = (unsigned char)len;
+			len = 0;
+		}else{
+			l_len = 255;
+			len -= 255;
+		}
 ASM;
-	ld	c,_shift_rdtr 
-	ld	hl,(_l_buffer)
-	ld	a,(_l_len)
+	ld	c,_shift_rdtr 	; input port
+	ld	hl,(_l_buffer) 	; output pointer
+	ld	a,(_l_len)	; bytes to read
 	ld	b,a
-	inir
+	inir			; read until b = 0
+	ld	(_l_buffer),hl	; save the output pointer
 ENDASM;
-	return ((unsigned int)l_len);
+	}
+	return ((unsigned int)i);
 }
 #endif
 unsigned char
