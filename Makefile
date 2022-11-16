@@ -1,9 +1,9 @@
 include Make.config
-LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2 
+#LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2 
 # this is a windows specific dir for cygwin use
 #DESTDIR = ~/HostFileBdos/c/
 DESTDIR = /cygdrive/c/users/lbmgm/HostFileBdos/c/
-DESTDIR1 = /cygdrive/c/xampp/htdocs/
+DESTDIR1 = /var/www/html 
 SUM = sum
 CP = cp
 
@@ -180,7 +180,7 @@ clean:
 	rm -rf html irc latex email
 
 install:
-	cp ./*.COM $(DESTDIR1)/. 
+	sudo cp ./*.COM $(DESTDIR1)/. 
 
 check:
 	$(SUM) *.COM
