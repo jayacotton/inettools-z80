@@ -10,7 +10,7 @@ extern void snapmem();
 
 FILE *f;
 
-unsigned int mac[6];
+unsigned char mac[6];
 void main(int argc,char *argv[])
 {
 #if defined(FRAM) || defined (DISK) || defined (NVRAM)

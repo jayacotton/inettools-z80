@@ -103,7 +103,7 @@ InetGetEpoch ()
 }
 
 void
-InetSetMac (unsigned int *mac)
+InetSetMac (unsigned char *mac)
 {
 #ifdef FRAM
   FramSetMac (mac);
@@ -115,7 +115,7 @@ InetSetMac (unsigned int *mac)
 }
 
 void
-InetGetMac (unsigned int *mac)
+InetGetMac (unsigned char *mac)
 {
 #ifdef FRAM
   FramGetMac (mac);
@@ -556,19 +556,19 @@ FramRead (struct storage *ram)
 void
 FramDumper ()
 {
-  printf ("EtherAddr %x.%x.%x.%x.%x.%x\n",
+  printf ("EtherAddr %x:%x:%x:%x:%x:%x\n",
 	  s.Fram1.EtherAddr[0], s.Fram1.EtherAddr[1], s.Fram1.EtherAddr[2],
 	  s.Fram1.EtherAddr[3], s.Fram1.EtherAddr[4], s.Fram1.EtherAddr[5]);
-  printf ("EtherIP %d.%d.%d.%d\n",
+  printf ("EtherIP   %d:%d:%d:%d\n",
 	  s.Fram1.EtherIP[0], s.Fram1.EtherIP[1], s.Fram1.EtherIP[2],
 	  s.Fram1.EtherIP[3]);
-  printf ("EtherGate %d.%d.%d.%d\n",
+  printf ("EtherGate %d:%d:%d:%d\n",
 	  s.Fram1.EtherGate[0], s.Fram1.EtherGate[1], s.Fram1.EtherGate[2],
 	  s.Fram1.EtherGate[3]);
-  printf ("EtherDns %d.%d.%d.%d\n",
+  printf ("EtherDns  %d:%d:%d:%d\n",
 	  s.Fram1.EtherDns[0], s.Fram1.EtherDns[1], s.Fram1.EtherDns[2],
 	  s.Fram1.EtherDns[3]);
-  printf ("EtherMask %d.%d.%d.%d\n",
+  printf ("EtherMask %d:%d:%d:%d\n",
 	  s.Fram1.EtherMask[0], s.Fram1.EtherMask[1], s.Fram1.EtherMask[2],
 	  s.Fram1.EtherMask[3]);
 
@@ -787,7 +787,7 @@ DiskSetMac (unsigned int *mac)
 }
 
 FILE *File;
-unsigned char *name = "c:inet.cfg";
+unsigned char *name = "inet.cfg";
 
 // Note:  we will have to keep track of the default 
 // boot drive or default system drive (it moves)
