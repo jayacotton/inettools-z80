@@ -110,6 +110,11 @@ Sat May 16 22:56:50 2020
 
 digit:  This runs a wall clock using ASCII art to draw digits and loops at about 4 hz.
 you can exit with ctrl-c.  This does require that your terminal work with vt100 commands.
+
+Setting the clock for digit.  I use timezone to set the 'time zone' and then ntp
+to get the network time from google.  Timezone must be set befor ntp in order to 
+take advantage of the time zone convertion code in ntp.
+
 ```
 C>l:digit
  2222   2222         555555  9999         44  44  6666  
