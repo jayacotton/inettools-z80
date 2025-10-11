@@ -471,7 +471,7 @@ FramGetTZText (unsigned char *t)
 }
 
 void
-FramGetMac (unsigned int *mac)
+FramGetMac (unsigned char *mac)
 {
   int i;
   FramRead (&s);
@@ -482,7 +482,7 @@ FramGetMac (unsigned int *mac)
 }
 
 void
-FramSetMac (unsigned int *mac)
+FramSetMac (unsigned char *mac)
 {
   int i;
   FramRead (&s);
