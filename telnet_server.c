@@ -353,10 +353,10 @@ assign the console to that device. */
   while (getSn_RX_RSR (Socket) == 0)
     {
     }
-  send (Socket, "CP/M 2.2 Telnet Deamon\n\r", 24);
+  send (Socket, (uint8_t *)"CP/M 2.2 Telnet Deamon\n\r", 24);
 /* loop */
 
-text_con("testing the CONOUT code");
+text_con((unsigned char *)"testing the CONOUT code");
 
 SNAP(0xe603,32,0);	
   do_loop = 1;

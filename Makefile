@@ -2,7 +2,7 @@ include Make.config
 #LINKOP	= +cpm -create-app -pragma-include:zpragma.inc -DAMALLOC2 
 # this is a windows specific dir for cygwin use
 #DESTDIR = ~/HostFileBdos/c/
-DESTDIR = /cygdrive/c/users/lbmgm/HostFileBdos/c/
+#DESTDIR = /cygdrive/c/users/USERNAME/HostFileBdos/c/
 DESTDIR1 = /var/www/html 
 SUM = sum
 CP = cp

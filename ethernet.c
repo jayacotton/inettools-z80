@@ -102,7 +102,7 @@ FILE *f;
 void
 get_mac (unsigned char *mac)
 {
-  unsigned int lm[6];
+  unsigned char lm[6];
 #if defined(FRAM)  || defined(DISK) || defined(NVRAMA)
 	InetGetMac(lm);
       mac[0] = lm[0];
@@ -144,6 +144,8 @@ Ethernet_begin (unsigned char *mac)
   run_user_applications = 0;
   get_mac (mac);
   DHCP_reset_static (mac);
+  // Set MAC address in W5500 hardware BEFORE DHCP_init to prevent fallback to hardcoded MAC
+  setSHAR (mac);
   TRACE ("DHCP_init");
   DHCP_init (SOCK_DHCP, DHCP_buffer);
   setPMAGIC (3);

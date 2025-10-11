@@ -105,10 +105,10 @@
 #define NTP_TIMESTAMP_DELTA_HEX 0x8ef30500
 #endif
 /* time since 1970 */
-#ifdef UNIXEPOCH
+//#ifdef UNIXEPOCH
 #define NTP_TIMESTAMP_DELTA 2208988800
 #define NTP_TIMESTAMP_DELTA_HEX 0x83aa7e80
-#endif
+//#endif
 #ifdef Y2KEPOCH
 /* Y2KEPOCH */
 #define NTP_TIMESTAMP_DELTA 3124137601
