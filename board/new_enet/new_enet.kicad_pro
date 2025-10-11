@@ -893,7 +893,7 @@
       "pin_symbol_size": 0.0,
       "text_offset_ratio": 0.08
     },
-    "legacy_lib_dir": "C:/Users/John Monahan/Documents/S100/PC Boards/KiCad/N8VEM Files",
+    "legacy_lib_dir": "",
     "legacy_lib_list": [
       "s100-template-cache",
       "power",

@@ -1,6 +1,6 @@
 (export (version D)
   (design
-    (source "C:/Users/Malcolm/OneDrive/KiCAD/S100 Template/s100-template.sch")
+    (source "s100-template.sch")
     (date "18/04/2018 21:13:35")
     (tool "Eeschema 4.0.6")
     (sheet (number 1) (name /) (tstamps /)
@@ -147,7 +147,7 @@
         (pin (num 100) (name 0_V5) (type power_in)))))
   (libraries
     (library (logical s100-template-cache)
-      (uri "C:\\Users\\Malcolm\\OneDrive\\KiCAD\\S100 Template\\s100-template-cache.lib")))
+      (uri "s100-template-cache.lib")))
   (nets
     (net (code 1) (name /DO4)
       (node (ref P1) (pin 38)))
