@@ -45,30 +45,119 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "ethernet.h"
 #include "wizchip_conf.h"
 #include "trace.h"
+#include "malloc.h"
 
 #include "inet.h"
+
+extern long heap ();
 
 wiz_NetInfo gWIZNETINFO;
 unsigned char run_user_applications;
 
-unsigned char mac[6] = { 0x98, 0x76, 0xb6, 0x11, 0x00, 0xc4 };
+unsigned char mac[6];
 
 unsigned char ip[4];
+unsigned char nm[4];
+unsigned char dns[4];
+unsigned char gw[4];
+
 unsigned int
 DeltaTimeINET ()
 {
-	return(InetGetEpoch()-InetGetTofU());
+  return (InetGetEpoch () - InetGetTofU ());
+}
+
+void
+help ()
+{
+    printf ("-S get setup from dhcp server\n");
+  printf ("-I <nnn.nnn.nnn.nnn> set ip address\n");
+  printf ("-N <nnn.nnn.nnn.nnn> set net mask \n");
+  printf ("-D <nnn.nnn.nnn.nnn> set dms server address\n");
+  printf ("-G <nnn.nnn.nnn.nnn> set gateway address\n");
+  printf ("-L prints the current settings\n");
+}
+
+unsigned char
+nib2bin (char ch)
+{				// ch is upper case
+  ch -= 0x30;
+  if (ch >= 10)
+    {				// 17 or more
+      ch -= 7;
+    }
+  return (ch);
+}
+
+// convert a string to and ip address string in binary
+// not much checking for the quality of the data
+void
+parse_ip (unsigned char proto[], char *str)
+{				// str => xx:xx:xx:xx\0
+  int i;
+char ch;
+
+	sscanf(str,"%d.%d.%d.%d",&proto[0],&proto[1],&proto[2],&proto[3]);
 }
 
 void
 main (int argc, char *argv[])
 {
-  if (argc > 1)
+  unsigned char opt;
+  unsigned char sflag, lflag;
+
+  lflag = sflag = 0;
+
+  while ((opt = getopt (argc, argv, "SI:N:D:L:G:HL")) != -1)
     {
-	InetSetTofU(InetGetEpoch());
+      switch (opt)
+	{
+	case 'S':		// set from system dhcp
+	  sflag++;
+	  lflag++;
+	  break;
+	case 'I':		// set ip from console
+	  lflag++;
+	  parse_ip (ip, optarg);
+	  InetSetIP (ip);
+	printf("%d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
+	  break;
+	case 'N':		// set netmask
+	  lflag++;
+	  parse_ip (nm, optarg);
+	  InetSetMask (nm);
+	printf("%d.%d.%d.%d\n",nm[0],nm[1],nm[2],nm[3]);
+	  break;
+	case 'D':		// set dns server
+	  lflag++;
+	  parse_ip (dns, optarg);
+	  InetSetDns (dns);
+	printf("%d.%d.%d.%d\n",dns[0],dns[1],dns[2],dns[3]);
+	  break;
+	case 'G':		// set gateway
+	  lflag++;
+	  parse_ip (gw, optarg);
+	  InetSetGate (gw);
+	printf("%d.%d.%d.%d\n",gw[0],gw[1],gw[2],gw[3]);
+	  break;
+	case 'H':		// print help message
+	  help ();
+	  exit (0);
+	  break;
+	case 'L':
+	default:		// just list the data
+	  lflag++;
+	  break;
+	}
+    }
+  if (sflag)
+    {
+      InetGetMac (mac);
+      InetSetTofU (InetGetEpoch ());
       if (Ethernet_begin (mac) == 0)
 	{
 	  if (Ethernet_hardwareStatus () == EthernetNoHardware)
@@ -87,7 +176,7 @@ main (int argc, char *argv[])
     }
   if (DeltaTimeINET () > 1440)
     {
-	InetSetTofU(InetGetEpoch());
+      InetSetTofU (InetGetEpoch ());
       if (Ethernet_begin (mac) == 0)
 	{
 	  if (Ethernet_hardwareStatus () == EthernetNoHardware)
@@ -96,15 +185,20 @@ main (int argc, char *argv[])
 	    printf ("Plug in the cable\n");
 	}
     }
-  InetGetIP (ip);
-  printf ("inet %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  InetGetMask (ip);
-  printf ("netmask %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  InetGetDns (ip);
-  printf ("dns server %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  InetGetGate (ip);
-  printf ("Default Gateway %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-  InetGetMac(mac);
-  printf ("ether %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2],
-	  mac[3], mac[4], mac[5]);
+  if (lflag)
+    {
+      InetGetIP (ip);
+      printf ("inet %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+      InetGetMask (ip);
+      printf ("netmask %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+      InetGetDns (ip);
+      printf ("dns server %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+      InetGetGate (ip);
+      printf ("Default Gateway %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+      InetGetMac (mac);
+      printf ("ether %x:%x:%x:%x:%x:%x", (unsigned short) mac[0],
+	      (unsigned short) mac[1], (unsigned short) mac[2],
+	      (unsigned short) mac[3], (unsigned short) mac[4],
+	      (unsigned short) mac[5]);
+    }
 }
